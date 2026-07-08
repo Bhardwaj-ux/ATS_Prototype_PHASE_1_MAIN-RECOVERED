@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block title %}{{ job.title }} | ATS Resume Bot{% endblock %}
+{% block content %}
+<div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;">
+        <div>
+            <h1 class="page-title">{{ job.title }}</h1>
+            <p class="muted">{{ job.department }} · {{ job.location }} · {{ job.get_employment_type_display }}</p>
+        </div>
+        <a class="btn" href="{% url 'jobs:edit' job.pk %}">Edit</a>
+    </div>
+    <hr style="margin:18px 0;border:none;border-top:1px solid var(--border);">
+    <h3>Description</h3>
+    <p>{{ job.description|linebreaks }}</p>
+    <h3>Requirements</h3>
+    <p>{{ job.requirements|linebreaks }}</p>
+</div>
+{% endblock %}

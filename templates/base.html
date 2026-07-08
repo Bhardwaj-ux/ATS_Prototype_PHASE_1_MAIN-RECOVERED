@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="en" data-theme="{{ user_preferences.theme|default:'system' }}">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}ATS Resume Bot{% endblock %}</title>
+
+    <style>
+      :root {
+        --bg: #f5f7fb;
+        --card: #ffffff;
+        --text: #1f2937;
+        --sidebar: #0f172a;
+        --sidebar-text: #ffffff;
+        --muted: #6b7280;
+        --border: #dbe1ea;
+        --primary: #0f766e;
+        --primary-dark: #0b5f59;
+        --danger: #b91c1c;
+        --warning: #b45309;
+        --success: #166534;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html[data-theme="dark"] {
+        --bg: #0b1220;
+        --card: #111827;
+        --text: #f3f4f6;
+        --sidebar: #020617;
+        --sidebar-text: #ffffff;
+        --muted: #94a3b8;
+        --border: #243041;
+      }
+
+      body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+      }
+
+      a {
+        color: var(--primary);
+        text-decoration: none;
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: 240px 1fr;
+        min-height: 100vh;
+      }
+
+      .sidebar {
+        background: var(--sidebar);
+        color: var(--sidebar-text);
+        padding: 24px 18px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+
+      .sidebar h2 {
+        margin: 0 0 8px;
+      }
+
+      .sidebar p {
+        margin: 0 0 18px;
+      }
+
+      .sidebar-nav a {
+        display: block;
+        color: #e5e7eb;
+        padding: 10px 12px;
+        border-radius: 8px;
+        margin-bottom: 6px;
+      }
+
+      .sidebar-nav a:hover {
+        background: rgba(255, 255, 255, 0.08);
+      }
+
+      .sidebar-utility-dock {
+        margin-top: 24px;
+        padding-top: 18px;
+        border-top: 1px solid rgba(255, 255, 255, 0.12);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .sidebar-utility-dock form {
+        margin: 0;
+      }
+
+      .icon-btn {
+        width: 48px;
+        height: 48px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(255, 255, 255, 0.06);
+        color: #ffffff;
+        cursor: pointer;
+        text-decoration: none;
+        transition:
+          background 0.2s ease,
+          border-color 0.2s ease,
+          transform 0.2s ease;
+      }
+
+      .icon-btn:hover {
+        background: rgba(255, 255, 255, 0.12);
+        border-color: rgba(255, 255, 255, 0.2);
+        transform: translateY(-1px);
+      }
+
+      .icon-btn-danger:hover {
+        background: rgba(185, 28, 28, 0.18);
+        color: #fecaca;
+        border-color: rgba(248, 113, 113, 0.35);
+      }
+
+      .icon-btn svg {
+        flex-shrink: 0;
+        display: block;
+      }
+
+      .content {
+        padding: 24px;
+      }
+
+      .topbar {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 16px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 24px;
+      }
+
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 18px;
+      }
+
+      .grid {
+        display: grid;
+        gap: 16px;
+      }
+
+      .grid-3 {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .grid-2 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .page-title {
+        margin: 0 0 8px;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        background: var(--card);
+        border-radius: 12px;
+        overflow: hidden;
+      }
+
+      th,
+      td {
+        padding: 12px 14px;
+        border-bottom: 1px solid var(--border);
+        text-align: left;
+      }
+
+      th {
+        background: #f8fafc;
+        font-size: 14px;
+        color: #0f172a;
+      }
+
+      html[data-theme="dark"] th {
+        background: #1e293b;
+        color: #e5e7eb;
+      }
+
+      .btn svg {
+        flex-shrink: 0;
+        vertical-align: middle;
+      }
+
+      .btn {
+        display: inline-block;
+        padding: 10px 14px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: var(--card);
+        color: var(--text);
+        cursor: pointer;
+      }
+
+      .btn:hover {
+        opacity: 0.95;
+      }
+
+      .btn-primary {
+        background: var(--primary);
+        color: #ffffff;
+        border-color: var(--primary);
+      }
+
+      .btn-primary:hover {
+        background: var(--primary-dark);
+      }
+
+      .badge {
+        display: inline-block;
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .badge-raw_received,
+      .badge-under_review {
+        background: #fef3c7;
+        color: #92400e;
+      }
+
+      .badge-shortlisted,
+      .badge-hired {
+        background: #dcfce7;
+        color: #166534;
+      }
+
+      .badge-rejected {
+        background: #fee2e2;
+        color: #991b1b;
+      }
+
+      .badge-interview {
+        background: #dbeafe;
+        color: #1d4ed8;
+      }
+
+      input,
+      select,
+      textarea {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        margin-top: 6px;
+        background: var(--card);
+        color: var(--text);
+      }
+
+      label {
+        font-weight: 700;
+        display: block;
+        margin-top: 12px;
+      }
+
+      .actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+
+      .muted {
+        color: var(--muted);
+      }
+
+      .messages {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 16px;
+      }
+
+      .messages li {
+        background: #ecfeff;
+        color: #155e75;
+        border: 1px solid #bae6fd;
+        padding: 10px 12px;
+        border-radius: 8px;
+        margin-bottom: 12px;
+      }
+
+      @media (max-width: 900px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+
+        .grid-3,
+        .grid-2 {
+          grid-template-columns: 1fr;
+        }
+
+        .topbar {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .sidebar {
+          gap: 20px;
+        }
+
+        .sidebar-utility-dock {
+          padding-top: 14px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    {% if user.is_authenticated %}
+    <div class="layout">
+      <aside class="sidebar">
+        <div>
+          <h2>ATS Bot</h2>
+          <p class="muted">External hiring</p>
+
+          <nav class="sidebar-nav">
+            <a href="{% url 'dashboard:index' %}">Dashboard</a>
+            <a href="{% url 'jobs:list' %}">Jobs</a>
+            <a href="{% url 'applications:list' %}">Candidates</a>
+            <a href="{% url 'resumes:upload' %}">Upload Resume</a>
+            <a href="/admin/">Admin</a>
+          </nav>
+        </div>
+
+        <div class="sidebar-utility-dock">
+          <a
+            href="{% url 'accounts:settings' %}"
+            class="icon-btn"
+            aria-label="Settings"
+            title="Settings"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              aria-hidden="true"
+            >
+              <path
+                d="M19.14 12.94c.04-.31.06-.63.06-.94s-.02-.63-.06-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.6-.22l-2.39.96a7.03 7.03 0 0 0-1.63-.94l-.36-2.54a.5.5 0 0 0-.5-.42h-3.84a.5.5 0 0 0-.5.42l-.36 2.54c-.58.23-1.13.54-1.63.94l-2.39-.96a.5.5 0 0 0-.6.22L2.71 8.84a.5.5 0 0 0 .12.64l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58a.5.5 0 0 0-.12.64l1.92 3.32a.5.5 0 0 0 .6.22l2.39-.96c.5.4 1.05.71 1.63.94l.36 2.54a.5.5 0 0 0 .5.42h3.84a.5.5 0 0 0 .5-.42l.36-2.54c.58-.23 1.13-.54 1.63-.94l2.39.96a.5.5 0 0 0 .6-.22l1.92-3.32a.5.5 0 0 0-.12-.64l-2.03-1.58ZM12 15.5A3.5 3.5 0 1 1 12 8.5a3.5 3.5 0 0 1 0 7Z"
+              />
+            </svg>
+          </a>
+
+          <form method="post" action="{% url 'accounts:logout' %}">
+            {% csrf_token %}
+            <button
+              type="submit"
+              class="icon-btn icon-btn-danger"
+              aria-label="Log out"
+              title="Log out"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M12 2v10"></path>
+                <path d="M18.36 5.64a9 9 0 1 1-12.72 0"></path>
+              </svg>
+            </button>
+          </form>
+        </div>
+      </aside>
+
+      <main class="content">
+        <div class="topbar">
+          <div>
+            <strong>{{ display_name }}</strong><br />
+            <span class="muted">HR workspace</span>
+          </div>
+
+          <div class="actions">
+            <a class="btn btn-primary" href="{% url 'jobs:create' %}"
+              >New Job</a
+            >
+            <a class="btn" href="{% url 'applications:create' %}"
+              >Add Candidate</a
+            >
+          </div>
+        </div>
+
+        {% if messages %}
+        <ul class="messages">
+          {% for message in messages %}
+          <li>{{ message }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %} {% block content %}{% endblock %}
+      </main>
+    </div>
+    {% else %} {% block auth_content %}{% endblock %} {% endif %}
+  </body>
+</html>

@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block title %}Upload Resume | ATS Resume Bot{% endblock %}
+{% block content %}
+<div class="card" style="max-width:760px;">
+    <h1 class="page-title">Upload Resume</h1>
+    <p class="muted">Attach a PDF, DOC, or DOCX file to an application.</p>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div class="actions" style="margin-top:16px;">
+            <button class="btn btn-primary" type="submit">Upload</button>
+            <a class="btn" href="{% url 'applications:list' %}">Back</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

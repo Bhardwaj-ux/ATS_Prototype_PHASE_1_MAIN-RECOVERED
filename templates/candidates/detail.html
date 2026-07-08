@@ -1,0 +1,371 @@
+{% extends 'base.html' %} {% block title %}{{ application.full_name }} | ATS
+Resume Bot{% endblock %} {% block content %}
+<style>
+  .candidate-detail-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(320px, 1fr);
+    gap: 16px;
+    align-items: start;
+  }
+
+  .candidate-main-card,
+  .candidate-side-card,
+  .candidate-history-card,
+  .candidate-decision-card,
+  .candidate-skills-card {
+    border-radius: 14px;
+  }
+
+  .candidate-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 14px;
+  }
+
+  .candidate-name-stack {
+    min-width: 0;
+  }
+
+  .candidate-name-stack .page-title {
+    margin: 0 0 8px;
+  }
+
+  .candidate-contact {
+    margin: 0;
+    font-size: 15px;
+  }
+
+  .edit-candidate-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+  }
+
+  .edit-candidate-btn svg {
+    flex-shrink: 0;
+  }
+
+  .status-top-badge {
+    margin-top: 10px;
+  }
+
+  .candidate-main-card p {
+    line-height: 1.55;
+  }
+
+  .candidate-summary-block {
+    margin-top: 6px;
+  }
+
+  .candidate-summary-block p {
+    margin-bottom: 0;
+  }
+
+  .candidate-summary-text p {
+    margin-top: 8px;
+  }
+
+  .candidate-decision-card {
+    margin-top: 16px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 18px;
+  }
+
+  .candidate-decision-card h3,
+  .candidate-side-card h3,
+  .candidate-history-card h3,
+  .candidate-skills-card h3 {
+    margin-top: 0;
+  }
+
+  .candidate-decision-card h3 {
+    margin-bottom: 12px;
+    font-size: 16px;
+  }
+
+  .decision-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .decision-box {
+    border-radius: 12px;
+    border: 1px solid transparent;
+    padding: 14px 12px;
+    text-align: center;
+  }
+
+  .decision-box a {
+    display: block;
+    font-weight: 700;
+  }
+
+  .decision-review {
+    background: #fef3c7;
+    border-color: #fcd34d;
+  }
+
+  .decision-review a {
+    color: #92400e;
+  }
+
+  .decision-shortlist {
+    background: #dcfce7;
+    border-color: #86efac;
+  }
+
+  .decision-shortlist a {
+    color: #166534;
+  }
+
+  .decision-reject {
+    background: #fee2e2;
+    border-color: #fca5a5;
+  }
+
+  .decision-reject a {
+    color: #991b1b;
+  }
+
+  .resume-list {
+    margin: 10px 0 16px;
+    padding-left: 22px;
+  }
+
+  .resume-list li {
+    margin-bottom: 8px;
+    line-height: 1.5;
+  }
+
+  .candidate-skills-card {
+    margin-top: 16px;
+  }
+
+  .skills-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .skill-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: #e0f2fe;
+    border: 1px solid #7dd3fc;
+    color: #075985;
+    font-size: 14px;
+    line-height: 1;
+  }
+
+  .candidate-history-card {
+    margin-top: 16px;
+    background: #f3f4f6;
+    border: 1px solid #d1d5db;
+  }
+
+  .history-list {
+    margin: 0;
+    padding-left: 22px;
+  }
+
+  .history-list li {
+    margin-bottom: 10px;
+    line-height: 1.55;
+  }
+
+  html[data-theme="dark"] .candidate-history-card {
+    background: #18202d;
+    border-color: #334155;
+  }
+
+  html[data-theme="dark"] .skill-pill {
+    background: rgba(56, 189, 248, 0.16);
+    border-color: rgba(125, 211, 252, 0.35);
+    color: #bae6fd;
+  }
+
+  @media (max-width: 980px) {
+    .candidate-detail-layout {
+      grid-template-columns: 1fr;
+    }
+
+    .decision-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .candidate-top {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .edit-candidate-btn {
+      justify-content: center;
+    }
+  }
+</style>
+
+<div class="candidate-detail-layout">
+  <section>
+    <div class="card candidate-main-card">
+      <div class="candidate-top">
+        <div class="candidate-name-stack">
+          <h1 class="page-title">{{ application.full_name }}</h1>
+          <p class="muted candidate-contact">
+            <span
+              style="
+                color: rgba(51, 51, 51, 0.703);
+                font-weight: bold;
+                font-style: italic;
+              "
+              >Email:</span
+            >
+            {{ application.email }} ·
+            <span
+              style="
+                color: rgba(51, 51, 51, 0.703);
+                font-weight: bold;
+                font-style: italic;
+              "
+              >Contact:</span
+            >
+            {{ application.phone|default:"-" }}
+          </p>
+          <div class="status-top-badge">
+            <span class="badge badge-{{ application.status }}"
+              >{{ application.get_status_display }}</span
+            >
+          </div>
+        </div>
+
+        <a
+          class="btn edit-candidate-btn"
+          href="{% url 'applications:edit' application.pk %}"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M12 20h9"></path>
+            <path
+              d="M16.5 3.5a2.12 2.12 0 1 1 3 3L7 19l-4 1 1-4 12.5-12.5Z"
+            ></path>
+          </svg>
+          <span>Edit</span>
+        </a>
+      </div>
+
+      <p><strong>Job:</strong> {{ application.job.title }}</p>
+      <p>
+        <strong>Location:</strong> {{ application.current_location | default:"-"}}
+      </p>
+      <p>
+        <strong>Experience:</strong> {{ application.total_experience_years }}
+        years
+      </p>
+      <p><strong>Source:</strong> {{ application.source|default:"-" }}</p>
+
+      <div class="candidate-summary-block">
+        <p><strong>Summary:</strong></p>
+        <div class="candidate-summary-text">
+          {{ application.summary|default:"No summary yet."|linebreaks }}
+        </div>
+      </div>
+    </div>
+
+    <div class="candidate-decision-card">
+      <h3>Application Decision</h3>
+      <div class="decision-grid">
+        <div class="decision-box decision-review">
+          <a
+            href="{% url 'applications:quick-status' application.pk 'under_review' %}"
+          >
+            Mark Under Review
+          </a>
+        </div>
+        <div class="decision-box decision-shortlist">
+          <a
+            href="{% url 'applications:quick-status' application.pk 'shortlisted' %}"
+          >
+            Shortlist
+          </a>
+        </div>
+        <div class="decision-box decision-reject">
+          <a
+            href="{% url 'applications:quick-status' application.pk 'rejected' %}"
+          >
+            Reject
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <aside>
+    <div class="card candidate-side-card">
+      <h3>Resume Files</h3>
+      <ul class="resume-list">
+        {% for resume in application.resume_files.all %}
+        <li>
+          <a
+            href="{{ resume.file.url }}"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {{ resume.original_filename }}
+          </a>
+          <span class="muted">({{ resume.file_size }} bytes)</span>
+        </li>
+        {% empty %}
+        <li>No files uploaded.</li>
+        {% endfor %}
+      </ul>
+      <p>
+        <a class="btn" href="{% url 'resumes:upload' %}">Upload Resume</a>
+      </p>
+    </div>
+
+    <div class="card candidate-skills-card">
+      <h3>Skills</h3>
+      {% if application.skill_list %}
+      <div class="skills-cloud">
+        {% for skill in application.skill_list %}
+        <span class="skill-pill">{{ skill }}</span>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="muted">No skills added yet.</p>
+      {% endif %}
+    </div>
+  </aside>
+</div>
+
+<div class="card candidate-history-card">
+  <h3>Status History</h3>
+  <ul class="history-list">
+    {% for row in application.status_history.all %}
+    <li>
+      {{ row.created_at }} — {{ row.old_status | default:"-" }} → {{row.new_status }}{% if row.changed_by %} by {{row.changed_by.full_name | default:row.changed_by.email }}{% endif %}
+    </li>
+    {% empty %}
+    <li>No status history yet.</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endblock %}

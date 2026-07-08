@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block title %}Delete Candidate | ATS Resume Bot{% endblock %}
+{% block content %}
+<div class="card">
+    <h1 class="page-title">Delete Candidate</h1>
+    <p>Are you sure you want to delete this candidate?</p>
+    <p><strong>{{ application.full_name }}</strong> — {{ application.email }}</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="actions" style="margin-top:16px;">
+            <button class="btn btn-primary" type="submit" onclick="return confirm('Delete this candidate?');">Yes, Delete</button>
+            <a class="btn" href="{% url 'applications:list' %}">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
