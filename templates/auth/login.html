@@ -1,15 +1,36 @@
 {% extends 'base.html' %}
-{% block title %}Login | ATS Resume Bot{% endblock %}
+
+{% block title %}Login | ATS{% endblock %}
+
+{% block extra_head %}
+<style>
+  .auth-title { margin: 0 0 10px; font-size: 1.9rem; color: var(--text); line-height: 1.1; }
+  .auth-text { margin: 0 0 24px; color: var(--text-muted); line-height: 1.6; }
+  .login-submit { width: 100%; margin-top: 8px; }
+</style>
+{% endblock %}
+
 {% block auth_content %}
-<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;">
-    <div class="card" style="width:100%;max-width:420px;">
-        <h1 class="page-title">HR Login</h1>
-        <p class="muted">Sign in to manage external candidates.</p>
-        <form method="post">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button class="btn btn-primary" type="submit">Login</button>
-        </form>
-    </div>
-</div>
+<h1 class="auth-title">Sign in</h1>
+<p class="auth-text">Sign in to manage candidates, job roles, and hiring activity inside the Elecbits ATS workspace.</p>
+
+<form method="post" novalidate>
+  {% csrf_token %}
+
+  {% if form.non_field_errors %}
+  <div class="form-errors">{{ form.non_field_errors }}</div>
+  {% endif %}
+
+  {% for field in form %}
+  <div class="form-group">
+    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+    {{ field }}
+    {% if field.errors %}
+    <div class="form-errors">{{ field.errors }}</div>
+    {% endif %}
+  </div>
+  {% endfor %}
+
+  <button type="submit" class="btn btn-primary login-submit">Sign In</button>
+</form>
 {% endblock %}

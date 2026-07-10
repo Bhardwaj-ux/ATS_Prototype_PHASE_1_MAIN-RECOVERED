@@ -1,18 +1,63 @@
 {% extends 'base.html' %}
-{% block title %}{{ job.title }} | ATS Resume Bot{% endblock %}
+
+{% block title %}{{ job.title }} | ATS{% endblock %}
+
+{% block extra_head %}
+<style>
+  .overview-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+  .overview-item { padding: 16px; border-radius: 18px; border: 1px solid var(--border); background: var(--surface-alt, var(--surface)); }
+  .overview-label { display: block; color: var(--text-muted); font-size: 0.86rem; margin-bottom: 8px; }
+  .overview-value { display: block; color: var(--text); font-weight: 700; }
+  .job-detail-layout { display: flex; flex-direction: column; gap: 18px; }
+  .rich-copy { color: var(--text-muted); line-height: 1.75; }
+  @media (max-width: 1000px) { .overview-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 640px) { .overview-grid { grid-template-columns: 1fr; } }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="card">
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;">
-        <div>
-            <h1 class="page-title">{{ job.title }}</h1>
-            <p class="muted">{{ job.department }} · {{ job.location }} · {{ job.get_employment_type_display }}</p>
-        </div>
-        <a class="btn" href="{% url 'jobs:edit' job.pk %}">Edit</a>
+<section class="page-header">
+  <div>
+    <h1>{{ job.title }}</h1>
+    <p>Review the role summary, hiring expectations, and operational details for this job.</p>
+  </div>
+  <div class="page-actions">
+    <a href="{% url 'jobs:edit' job.pk %}" class="btn btn-secondary">Edit Role</a>
+    <a href="{% url 'jobs:delete' job.pk %}" class="btn btn-danger">Delete Role</a>
+  </div>
+</section>
+
+<section class="job-detail-layout">
+  <article class="info-card">
+    <h2 class="section-title">Role Overview</h2>
+    <div class="overview-grid">
+      <div class="overview-item">
+        <span class="overview-label">Department</span>
+        <span class="overview-value">{{ job.department }}</span>
+      </div>
+      <div class="overview-item">
+        <span class="overview-label">Location</span>
+        <span class="overview-value">{{ job.location|default:"-" }}</span>
+      </div>
+      <div class="overview-item">
+        <span class="overview-label">Employment Type</span>
+        <span class="overview-value">{{ job.get_employment_type_display }}</span>
+      </div>
+      <div class="overview-item">
+        <span class="overview-label">Status</span>
+        <span class="badge badge-{{ job.status }}">{{ job.get_status_display }}</span>
+      </div>
     </div>
-    <hr style="margin:18px 0;border:none;border-top:1px solid var(--border);">
-    <h3>Description</h3>
-    <p>{{ job.description|linebreaks }}</p>
-    <h3>Requirements</h3>
-    <p>{{ job.requirements|linebreaks }}</p>
-</div>
+  </article>
+
+  <article class="info-card">
+    <h3 class="section-title">Description</h3>
+    <div class="rich-copy">{{ job.description|default:"No description available."|linebreaks }}</div>
+  </article>
+
+  <article class="info-card">
+    <h3 class="section-title">Requirements</h3>
+    <div class="rich-copy">{{ job.requirements|default:"No requirements added yet."|linebreaks }}</div>
+  </article>
+</section>
 {% endblock %}
