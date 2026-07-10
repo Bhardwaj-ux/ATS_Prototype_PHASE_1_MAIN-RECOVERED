@@ -1,422 +1,453 @@
-<!doctype html>
-<html lang="en" data-theme="{{ user_preferences.theme|default:'system' }}">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{% block title %}ATS Resume Bot{% endblock %}</title>
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>{% block title %}Elecbits | ATS Platform{% endblock %}</title>
 
-    <style>
-      :root {
-        --bg: #f5f7fb;
-        --card: #ffffff;
-        --text: #1f2937;
-        --sidebar: #0f172a;
-        --sidebar-text: #ffffff;
-        --muted: #6b7280;
-        --border: #dbe1ea;
-        --primary: #0f766e;
-        --primary-dark: #0b5f59;
-        --danger: #b91c1c;
-        --warning: #b45309;
-        --success: #166534;
-      }
+<style>
+  :root {
+    --font-sans: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+    --radius-sm: 10px;
+    --radius-md: 16px;
+    --radius-lg: 24px;
+    --shadow-sm: 0 8px 24px rgba(6, 28, 61, 0.08);
+    --shadow-md: 0 18px 40px rgba(6, 28, 61, 0.12);
+    --transition: 180ms ease;
+    --sidebar-width: 260px;
+    --actionbar-height: 78px;
+  }
 
-      * {
-        box-sizing: border-box;
-      }
+  html[data-theme="light"] {
+    --bg: #F2F7FF;
+    --nav-bg: #061C3D;
+    --nav-border: rgba(255,255,255,0.08);
+    --nav-text: #FFFFFF;
+    --nav-text-muted: rgba(255,255,255,0.72);
+    --surface: #FFFFFF;
+    --surface-alt: #F6FAFF;
+    --surface-soft: #EEF4FF;
+    --border: #D9E6FF;
+    --text: #061C3D;
+    --text-muted: #59708E;
+    --primary: #0846FF;
+    --primary-hover: #0637CC;
+    --primary-soft: #E3ECFF;
+    --success-soft: #DCFCE7;
+    --warning-soft: #FEF3C7;
+    --danger-soft: #FEE2E2;
+    --info-soft: #DBEAFE;
+    --table-row: #FBFDFF;
+    --table-row-hover: #F2F7FF;
+    --input-bg: #FFFFFF;
+  }
 
-      html[data-theme="dark"] {
-        --bg: #0b1220;
-        --card: #111827;
-        --text: #f3f4f6;
-        --sidebar: #020617;
-        --sidebar-text: #ffffff;
-        --muted: #94a3b8;
-        --border: #243041;
-      }
+  html[data-theme="dark"] {
+    --bg: #0F172A;
+    --nav-bg: #0B1220;
+    --nav-border: rgba(255,255,255,0.06);
+    --nav-text: #F1F5F9;
+    --nav-text-muted: #C0D2EE;
+    --surface: #1B2637;
+    --surface-alt: #111B2B;
+    --surface-soft: #112B57;
+    --border: #334155;
+    --text: #F1F5F9;
+    --text-muted: #94A3B8;
+    --primary: #0846FF;
+    --primary-hover: #3B70FF;
+    --primary-soft: #112B57;
+    --success-soft: #123B2B;
+    --warning-soft: #5A4510;
+    --danger-soft: #4A1F28;
+    --info-soft: #163A7A;
+    --table-row: #182232;
+    --table-row-hover: #1F2D41;
+    --input-bg: #111B2B;
+  }
 
-      body {
-        margin: 0;
-        font-family: Arial, sans-serif;
-        background: var(--bg);
-        color: var(--text);
-      }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; min-height: 100%; font-family: var(--font-sans); background: var(--bg); color: var(--text); }
+  body { transition: background var(--transition), color var(--transition); }
+  a { color: inherit; text-decoration: none; }
+  button, input, select, textarea { font: inherit; }
 
-      a {
-        color: var(--primary);
-        text-decoration: none;
-      }
+  .app-shell { min-height: 100vh; background: var(--bg); }
 
-      .layout {
-        display: grid;
-        grid-template-columns: 240px 1fr;
-        min-height: 100vh;
-      }
+  .tasks-panel {
+    position: fixed; top: 0; left: 0; z-index: 40;
+    width: var(--sidebar-width); height: 100vh;
+    background: var(--nav-bg); color: var(--nav-text);
+    border-right: 1px solid var(--nav-border);
+    display: flex; flex-direction: column; justify-content: space-between;
+    padding: 22px 18px;
+  }
+  .brand-block { padding: 8px 6px 18px; }
+  .brand-top { display: flex; align-items: center; gap: 12px; }
+  .brand-mark {
+    width: 42px; height: 42px; border-radius: 14px;
+    background: linear-gradient(135deg, #0846FF 0%, #2078CF 100%);
+    display: inline-flex; align-items: center; justify-content: center;
+    color: #fff; font-weight: 700; box-shadow: 0 10px 24px rgba(8,70,255,0.32);
+  }
+  .brand-mark-small { width: 38px; height: 38px; }
+  .brand-copy h2 { margin: 0; font-size: 1.3rem; line-height: 1.1; }
+  .brand-copy p { margin: 4px 0 0; color: var(--nav-text-muted); font-size: 0.92rem; }
+  .panel-label { margin: 20px 8px 12px; color: var(--nav-text-muted); font-size: 0.76rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+  .nav-menu { display: flex; flex-direction: column; gap: 10px; }
+  .nav-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 13px 14px; border-radius: 14px; color: var(--nav-text-muted);
+    transition: background var(--transition), color var(--transition), transform var(--transition);
+  }
+  .nav-item:hover { background: rgba(255,255,255,0.08); color: var(--nav-text); transform: translateX(2px); }
+  .nav-item.active {
+    background: linear-gradient(135deg, rgba(8,70,255,0.95), rgba(32,120,207,0.95));
+    color: #FFFFFF; box-shadow: 0 14px 28px rgba(8,70,255,0.28);
+  }
+  .nav-icon { width: 22px; display: inline-flex; justify-content: center; font-size: 1rem; }
+  .coming-soon-box {
+    margin: 20px 6px 0; padding: 14px; border-radius: 16px;
+    background: rgba(255,255,255,0.06); border: 1px dashed rgba(255,255,255,0.12);
+    color: var(--nav-text-muted); font-size: 0.9rem; line-height: 1.45;
+  }
+  .panel-footer { padding-top: 18px; border-top: 1px solid var(--nav-border); }
+  .logout-link { width: 100%; justify-content: center; background: none; border: none; cursor: pointer; }
 
-      .sidebar {
-        background: var(--sidebar);
-        color: var(--sidebar-text);
-        padding: 24px 18px;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-      }
+  .main-shell { margin-left: var(--sidebar-width); min-height: 100vh; }
 
-      .sidebar h2 {
-        margin: 0 0 8px;
-      }
+  .action-bar {
+    position: sticky; top: 0; z-index: 30; height: var(--actionbar-height);
+    background: var(--nav-bg); border-bottom: 1px solid var(--nav-border);
+    display: flex; align-items: center; justify-content: space-between; gap: 18px;
+    padding: 0 28px; color: var(--nav-text);
+  }
+  .action-left, .action-right { display: flex; align-items: center; gap: 14px; }
+  .company-link { display: inline-flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 14px; transition: background var(--transition); }
+  .company-link:hover { background: rgba(255,255,255,0.08); }
+  .company-copy strong { display: block; font-size: 0.98rem; line-height: 1.1; }
+  .company-copy span { display: block; font-size: 0.82rem; color: var(--nav-text-muted); margin-top: 2px; }
+  .action-spacer { flex: 1; }
 
-      .sidebar p {
-        margin: 0 0 18px;
-      }
+  .action-button, .profile-button {
+    position: relative; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.06);
+    color: var(--nav-text); height: 44px; min-width: 44px; padding: 0 14px; border-radius: 14px;
+    display: inline-flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer;
+    transition: transform var(--transition), background var(--transition), border-color var(--transition);
+  }
+  .action-button:hover, .profile-button:hover { transform: translateY(-1px); background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.16); }
+  .action-label { max-width: 0; overflow: hidden; white-space: nowrap; transition: max-width var(--transition); font-size: 0.92rem; }
+  .action-button:hover .action-label, .profile-button:hover .action-label { max-width: 140px; }
 
-      .sidebar-nav a {
-        display: block;
-        color: #e5e7eb;
-        padding: 10px 12px;
-        border-radius: 8px;
-        margin-bottom: 6px;
-      }
+  .profile-wrap, .floating-wrap { position: relative; }
+  .profile-dropdown {
+    position: absolute; right: 0; top: calc(100% + 10px); width: 220px; padding: 10px;
+    background: var(--surface); color: var(--text); border: 1px solid var(--border);
+    border-radius: 18px; box-shadow: var(--shadow-md);
+    opacity: 0; visibility: hidden; transform: translateY(6px);
+    transition: opacity var(--transition), transform var(--transition), visibility var(--transition);
+    z-index: 50;
+  }
+  .profile-wrap:hover .profile-dropdown { opacity: 1; visibility: visible; transform: translateY(0); }
+  .dropdown-header { padding: 12px 12px 10px; border-bottom: 1px solid var(--border); margin-bottom: 8px; }
+  .dropdown-header strong { display: block; font-size: 0.96rem; }
+  .dropdown-header span { color: var(--text-muted); font-size: 0.84rem; }
+  .dropdown-link { display: flex; align-items: center; gap: 10px; padding: 11px 12px; border-radius: 12px; color: var(--text); }
+  .dropdown-link:hover { background: var(--surface-soft); }
+  .dropdown-link.as-button { width: 100%; background: none; border: none; text-align: left; cursor: pointer; font: inherit; }
 
-      .sidebar-nav a:hover {
-        background: rgba(255, 255, 255, 0.08);
-      }
+  .floating-panel {
+    position: absolute; top: calc(100% + 10px); right: 0; width: 280px;
+    background: var(--surface); color: var(--text); border: 1px solid var(--border);
+    border-radius: 18px; box-shadow: var(--shadow-md); padding: 14px; display: none; z-index: 50;
+  }
+  .floating-panel.open { display: block; }
+  .floating-panel h4 { margin: 2px 0 8px; font-size: 1rem; }
+  .floating-panel p { margin: 0; color: var(--text-muted); line-height: 1.5; font-size: 0.92rem; }
 
-      .sidebar-utility-dock {
-        margin-top: 24px;
-        padding-top: 18px;
-        border-top: 1px solid rgba(255, 255, 255, 0.12);
-        display: flex;
-        align-items: center;
-        gap: 12px;
-      }
+  .page-wrap { padding: 28px; }
+  .page-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; margin-bottom: 24px; flex-wrap: wrap; }
+  .page-header h1 { margin: 0; font-size: 2rem; line-height: 1.1; color: var(--text); }
+  .page-header p { margin: 10px 0 0; color: var(--text-muted); max-width: 780px; }
+  .page-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 
-      .sidebar-utility-dock form {
-        margin: 0;
-      }
+  .card, .table-card, .stat-card, .info-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);
+  }
+  .card, .info-card, .table-card, .stat-card { padding: 22px; }
 
-      .icon-btn {
-        width: 48px;
-        height: 48px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 12px;
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        background: rgba(255, 255, 255, 0.06);
-        color: #ffffff;
-        cursor: pointer;
-        text-decoration: none;
-        transition:
-          background 0.2s ease,
-          border-color 0.2s ease,
-          transform 0.2s ease;
-      }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+  .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
 
-      .icon-btn:hover {
-        background: rgba(255, 255, 255, 0.12);
-        border-color: rgba(255, 255, 255, 0.2);
-        transform: translateY(-1px);
-      }
+  .stat-card { position: relative; overflow: hidden; }
+  .stat-card::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 4px; background: linear-gradient(135deg, var(--primary), #2078CF); }
+  .stat-label { margin: 0 0 18px; color: var(--text-muted); font-size: 0.92rem; font-weight: 600; }
+  .stat-value { margin: 0; font-size: 2.4rem; line-height: 1; color: var(--text); font-weight: 800; }
 
-      .icon-btn-danger:hover {
-        background: rgba(185, 28, 28, 0.18);
-        color: #fecaca;
-        border-color: rgba(248, 113, 113, 0.35);
-      }
+  .section-title { margin: 0 0 16px; font-size: 1.2rem; color: var(--text); }
 
-      .icon-btn svg {
-        flex-shrink: 0;
-        display: block;
-      }
+  .data-table { width: 100%; border-collapse: separate; border-spacing: 0 10px; }
+  .data-table thead th { text-align: left; font-size: 0.84rem; color: var(--text-muted); font-weight: 700; padding: 0 14px 8px; }
+  .data-table tbody tr { background: var(--table-row); }
+  .data-table tbody tr:hover { background: var(--table-row-hover); }
+  .data-table tbody td { padding: 16px 14px; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); vertical-align: middle; }
+  .data-table tbody td:first-child { border-left: 1px solid var(--border); border-top-left-radius: 14px; border-bottom-left-radius: 14px; }
+  .data-table tbody td:last-child { border-right: 1px solid var(--border); border-top-right-radius: 14px; border-bottom-right-radius: 14px; }
 
-      .content {
-        padding: 24px;
-      }
+  .badge { display: inline-flex; align-items: center; padding: 7px 12px; border-radius: 999px; font-size: 0.82rem; font-weight: 700; line-height: 1; white-space: nowrap; }
+  .badge-raw_received, .badge-under_review { background: var(--warning-soft); color: #8A5A00; }
+  .badge-shortlisted, .badge-hired { background: var(--success-soft); color: #166534; }
+  .badge-interview { background: var(--info-soft); color: #1D4ED8; }
+  .badge-rejected { background: var(--danger-soft); color: #B91C1C; }
+  .badge-open { background: var(--success-soft); color: #166534; }
+  .badge-closed { background: var(--danger-soft); color: #B91C1C; }
+  .badge-draft, .badge-on_hold { background: var(--primary-soft); color: var(--primary); }
 
-      .topbar {
-        background: var(--card);
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        padding: 16px 20px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 16px;
-        margin-bottom: 24px;
-      }
+  .btn {
+    border: none; border-radius: 14px; height: 44px; padding: 0 18px;
+    display: inline-flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer;
+    transition: transform var(--transition), background var(--transition), color var(--transition); font-weight: 700;
+  }
+  .btn:hover { transform: translateY(-1px); }
+  .btn-primary { background: var(--primary); color: #FFFFFF; }
+  .btn-primary:hover { background: var(--primary-hover); }
+  .btn-secondary { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
+  .btn-secondary:hover { background: var(--surface-soft); }
+  .btn-danger { background: transparent; color: #B91C1C; border: 1px solid rgba(185,28,28,0.22); }
+  .btn-danger:hover { background: rgba(185,28,28,0.08); }
 
-      .card {
-        background: var(--card);
-        border: 1px solid var(--border);
-        border-radius: 14px;
-        padding: 18px;
-      }
+  .inline-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .text-link { color: var(--primary); font-weight: 700; }
+  .empty-state { padding: 26px; text-align: center; color: var(--text-muted); }
+  .empty-state.left-empty { text-align: left; }
 
-      .grid {
-        display: grid;
-        gap: 16px;
-      }
+  .form-shell { min-height: 100vh; display: grid; place-items: center; padding: 24px; background: radial-gradient(circle at top, rgba(32,120,207,0.18), transparent 55%), var(--bg); }
+  .auth-card { width: 100%; max-width: 460px; background: var(--surface); border: 1px solid var(--border); border-radius: 24px; box-shadow: var(--shadow-md); padding: 32px; }
+  .auth-brand { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
+  .auth-brand-title { display: block; color: var(--text); }
+  .auth-brand-subtitle { color: var(--text-muted); font-size: 0.9rem; }
 
-      .grid-3 {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-      }
+  .form-group { margin-bottom: 16px; }
+  .form-group label { display: block; margin-bottom: 8px; font-weight: 700; color: var(--text); }
+  .form-control, input[type="text"], input[type="email"], input[type="number"], input[type="password"],
+  input[type="file"], select, textarea {
+    width: 100%; min-height: 48px; border-radius: 14px; border: 1px solid var(--border);
+    background: var(--input-bg); color: var(--text); padding: 12px 14px; outline: none;
+    transition: border-color var(--transition), box-shadow var(--transition);
+  }
+  textarea { min-height: 120px; resize: vertical; }
+  .form-control:focus, input:focus, select:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(8,70,255,0.12); }
 
-      .grid-2 {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
+  .form-errors, .helptext, .errorlist { color: #DC2626; font-size: 0.88rem; margin: 6px 0 0; list-style: none; padding: 0; }
 
-      .page-title {
-        margin: 0 0 8px;
-      }
+  .messages { margin-bottom: 16px; }
+  .message { margin-bottom: 10px; padding: 12px 14px; border-radius: 14px; border: 1px solid var(--border); background: var(--surface-soft); color: var(--text); }
+  .message.error { background: var(--danger-soft); color: #991B1B; }
+  .message.success { background: var(--success-soft); color: #166534; }
+  .message.warning { background: var(--warning-soft); color: #92400E; }
 
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        background: var(--card);
-        border-radius: 12px;
-        overflow: hidden;
-      }
+  @media (max-width: 1200px) { .grid-3, .grid-2 { grid-template-columns: 1fr; } }
+  @media (max-width: 980px) {
+    .tasks-panel { position: static; width: 100%; height: auto; border-right: none; border-bottom: 1px solid var(--nav-border); }
+    .main-shell { margin-left: 0; }
+    .action-bar { position: static; flex-wrap: wrap; height: auto; padding: 16px 18px; }
+    .page-wrap { padding: 20px; }
+    .page-header { flex-direction: column; }
+  }
+  @media (max-width: 640px) {
+    .data-table { display: block; overflow-x: auto; }
+    .action-right { width: 100%; justify-content: flex-end; flex-wrap: wrap; }
+    .company-copy span, .action-label { display: none; }
+    .auth-card { padding: 24px; }
+  }
+</style>
+{% block extra_head %}{% endblock %}
+</head>
+<body>
+{% if user.is_authenticated %}
+<div class="app-shell">
+  <aside class="tasks-panel">
+    <div>
+      <div class="brand-block">
+        <a href="{% url 'dashboard:index' %}" class="brand-top">
+          <span class="brand-mark">E</span>
+          <span class="brand-copy">
+            <h2>Elecbits</h2>
+            <p>ATS Platform</p>
+          </span>
+        </a>
+      </div>
 
-      th,
-      td {
-        padding: 12px 14px;
-        border-bottom: 1px solid var(--border);
-        text-align: left;
-      }
+      <div class="panel-label">Tasks Panel</div>
+      <nav class="nav-menu">
+        <a href="{% url 'dashboard:index' %}" class="nav-item{% if request.resolver_match.namespace == 'dashboard' %} active{% endif %}">
+          <span class="nav-icon">&#8962;</span>
+          <span>Dashboard</span>
+        </a>
+        <a href="{% url 'jobs:list' %}" class="nav-item{% if request.resolver_match.namespace == 'jobs' %} active{% endif %}">
+          <span class="nav-icon">&#9635;</span>
+          <span>Job Roles</span>
+        </a>
+        <a href="{% url 'applications:list' %}" class="nav-item{% if request.resolver_match.namespace == 'applications' %} active{% endif %}">
+          <span class="nav-icon">&#9673;</span>
+          <span>Candidates</span>
+        </a>
+        <a href="javascript:void(0)" class="nav-item">
+          <span class="nav-icon">&#9756;</span>
+          <span>Folks</span>
+        </a>
+      </nav>
 
-      th {
-        background: #f8fafc;
-        font-size: 14px;
-        color: #0f172a;
-      }
-
-      html[data-theme="dark"] th {
-        background: #1e293b;
-        color: #e5e7eb;
-      }
-
-      .btn svg {
-        flex-shrink: 0;
-        vertical-align: middle;
-      }
-
-      .btn {
-        display: inline-block;
-        padding: 10px 14px;
-        border-radius: 8px;
-        border: 1px solid var(--border);
-        background: var(--card);
-        color: var(--text);
-        cursor: pointer;
-      }
-
-      .btn:hover {
-        opacity: 0.95;
-      }
-
-      .btn-primary {
-        background: var(--primary);
-        color: #ffffff;
-        border-color: var(--primary);
-      }
-
-      .btn-primary:hover {
-        background: var(--primary-dark);
-      }
-
-      .badge {
-        display: inline-block;
-        padding: 6px 10px;
-        border-radius: 999px;
-        font-size: 12px;
-        font-weight: 700;
-      }
-
-      .badge-raw_received,
-      .badge-under_review {
-        background: #fef3c7;
-        color: #92400e;
-      }
-
-      .badge-shortlisted,
-      .badge-hired {
-        background: #dcfce7;
-        color: #166534;
-      }
-
-      .badge-rejected {
-        background: #fee2e2;
-        color: #991b1b;
-      }
-
-      .badge-interview {
-        background: #dbeafe;
-        color: #1d4ed8;
-      }
-
-      input,
-      select,
-      textarea {
-        width: 100%;
-        padding: 10px 12px;
-        border: 1px solid var(--border);
-        border-radius: 8px;
-        margin-top: 6px;
-        background: var(--card);
-        color: var(--text);
-      }
-
-      label {
-        font-weight: 700;
-        display: block;
-        margin-top: 12px;
-      }
-
-      .actions {
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
-        align-items: center;
-      }
-
-      .muted {
-        color: var(--muted);
-      }
-
-      .messages {
-        list-style: none;
-        padding: 0;
-        margin: 0 0 16px;
-      }
-
-      .messages li {
-        background: #ecfeff;
-        color: #155e75;
-        border: 1px solid #bae6fd;
-        padding: 10px 12px;
-        border-radius: 8px;
-        margin-bottom: 12px;
-      }
-
-      @media (max-width: 900px) {
-        .layout {
-          grid-template-columns: 1fr;
-        }
-
-        .grid-3,
-        .grid-2 {
-          grid-template-columns: 1fr;
-        }
-
-        .topbar {
-          flex-direction: column;
-          align-items: flex-start;
-        }
-
-        .sidebar {
-          gap: 20px;
-        }
-
-        .sidebar-utility-dock {
-          padding-top: 14px;
-        }
-      }
-    </style>
-  </head>
-
-  <body>
-    {% if user.is_authenticated %}
-    <div class="layout">
-      <aside class="sidebar">
-        <div>
-          <h2>ATS Bot</h2>
-          <p class="muted">External hiring</p>
-
-          <nav class="sidebar-nav">
-            <a href="{% url 'dashboard:index' %}">Dashboard</a>
-            <a href="{% url 'jobs:list' %}">Jobs</a>
-            <a href="{% url 'applications:list' %}">Candidates</a>
-            <a href="{% url 'resumes:upload' %}">Upload Resume</a>
-            <a href="/admin/">Admin</a>
-          </nav>
-        </div>
-
-        <div class="sidebar-utility-dock">
-          <a
-            href="{% url 'accounts:settings' %}"
-            class="icon-btn"
-            aria-label="Settings"
-            title="Settings"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              aria-hidden="true"
-            >
-              <path
-                d="M19.14 12.94c.04-.31.06-.63.06-.94s-.02-.63-.06-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.6-.22l-2.39.96a7.03 7.03 0 0 0-1.63-.94l-.36-2.54a.5.5 0 0 0-.5-.42h-3.84a.5.5 0 0 0-.5.42l-.36 2.54c-.58.23-1.13.54-1.63.94l-2.39-.96a.5.5 0 0 0-.6.22L2.71 8.84a.5.5 0 0 0 .12.64l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58a.5.5 0 0 0-.12.64l1.92 3.32a.5.5 0 0 0 .6.22l2.39-.96c.5.4 1.05.71 1.63.94l.36 2.54a.5.5 0 0 0 .5.42h3.84a.5.5 0 0 0 .5-.42l.36-2.54c.58-.23 1.13-.54 1.63-.94l2.39.96a.5.5 0 0 0 .6-.22l1.92-3.32a.5.5 0 0 0-.12-.64l-2.03-1.58ZM12 15.5A3.5 3.5 0 1 1 12 8.5a3.5 3.5 0 0 1 0 7Z"
-              />
-            </svg>
-          </a>
-
-          <form method="post" action="{% url 'accounts:logout' %}">
-            {% csrf_token %}
-            <button
-              type="submit"
-              class="icon-btn icon-btn-danger"
-              aria-label="Log out"
-              title="Log out"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2.2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                aria-hidden="true"
-              >
-                <path d="M12 2v10"></path>
-                <path d="M18.36 5.64a9 9 0 1 1-12.72 0"></path>
-              </svg>
-            </button>
-          </form>
-        </div>
-      </aside>
-
-      <main class="content">
-        <div class="topbar">
-          <div>
-            <strong>{{ display_name }}</strong><br />
-            <span class="muted">HR workspace</span>
-          </div>
-
-          <div class="actions">
-            <a class="btn btn-primary" href="{% url 'jobs:create' %}"
-              >New Job</a
-            >
-            <a class="btn" href="{% url 'applications:create' %}"
-              >Add Candidate</a
-            >
-          </div>
-        </div>
-
-        {% if messages %}
-        <ul class="messages">
-          {% for message in messages %}
-          <li>{{ message }}</li>
-          {% endfor %}
-        </ul>
-        {% endif %} {% block content %}{% endblock %}
-      </main>
+      <div class="coming-soon-box">More task panels coming soon...</div>
     </div>
-    {% else %} {% block auth_content %}{% endblock %} {% endif %}
-  </body>
+
+    <div class="panel-footer">
+      <form method="post" action="{% url 'accounts:logout' %}" style="margin:0;">
+        {% csrf_token %}
+        <button type="submit" class="nav-item logout-link">
+          <span class="nav-icon">&#9211;</span>
+          <span>Logout</span>
+        </button>
+      </form>
+    </div>
+  </aside>
+
+  <div class="main-shell">
+    <header class="action-bar">
+      <div class="action-left">
+        <a href="{% url 'dashboard:index' %}" class="company-link">
+          <span class="brand-mark brand-mark-small">E</span>
+          <span class="company-copy">
+            <strong>Elecbits</strong>
+            <span>External hiring workspace</span>
+          </span>
+        </a>
+      </div>
+
+      <div class="action-spacer"></div>
+
+      <div class="action-right">
+        <button type="button" class="action-button" id="themeToggle" title="Toggle theme">
+          <span>&#9680;</span>
+          <span class="action-label">Theme</span>
+        </button>
+
+        <button type="button" class="action-button" title="Notifications">
+          <span>&#128276;</span>
+          <span class="action-label">Notifications</span>
+        </button>
+
+        <div class="floating-wrap">
+          <button type="button" class="action-button" id="inboxToggle" title="HR Inbox">
+            <span>&#9993;</span>
+            <span class="action-label">HR Inbox</span>
+          </button>
+          <div class="floating-panel" id="inboxPanel">
+            <h4>HR Inbox</h4>
+            <p>Coming soon. This panel will show internal HR messages and shared candidate notes.</p>
+          </div>
+        </div>
+
+        <div class="profile-wrap">
+          <button type="button" class="profile-button">
+            <span>&#128100;</span>
+            <span class="action-label">
+              {% if user.get_full_name %}{{ user.get_full_name }}{% else %}{{ user.email }}{% endif %}
+            </span>
+          </button>
+          <div class="profile-dropdown">
+            <div class="dropdown-header">
+              <strong>{% if user.get_full_name %}{{ user.get_full_name }}{% else %}{{ user.email }}{% endif %}</strong>
+              <span>{{ user.email }}</span>
+            </div>
+            <a href="{% url 'accounts:settings' %}" class="dropdown-link">
+              <span>&#9881;</span>
+              <span>Account Settings</span>
+            </a>
+            <form method="post" action="{% url 'accounts:logout' %}" style="margin:0;">
+              {% csrf_token %}
+              <button type="submit" class="dropdown-link as-button">
+                <span>&#9211;</span>
+                <span>Logout</span>
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="page-wrap">
+      {% if messages %}
+      <div class="messages">
+        {% for message in messages %}
+        <div class="message {{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+</div>
+{% else %}
+<main class="form-shell">
+  <section class="auth-card">
+    <div class="auth-brand">
+      <span class="brand-mark">E</span>
+      <div>
+        <strong class="auth-brand-title">Elecbits</strong>
+        <span class="auth-brand-subtitle">ATS RES-Hive</span>
+      </div>
+    </div>
+
+    {% if messages %}
+    <div class="messages">
+      {% for message in messages %}
+      <div class="message {{ message.tags }}">{{ message }}</div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% block auth_content %}{% endblock %}
+  </section>
+</main>
+{% endif %}
+
+<script>
+(function () {
+  var root = document.documentElement;
+  var storageKey = "ats-res-hive-theme";
+  var savedTheme = localStorage.getItem(storageKey);
+  if (savedTheme === "dark" || savedTheme === "light") {
+    root.setAttribute("data-theme", savedTheme);
+  }
+
+  var themeToggle = document.getElementById("themeToggle");
+  if (themeToggle) {
+    themeToggle.addEventListener("click", function () {
+      var current = root.getAttribute("data-theme") || "light";
+      var next = current === "light" ? "dark" : "light";
+      root.setAttribute("data-theme", next);
+      localStorage.setItem(storageKey, next);
+    });
+  }
+
+  var inboxToggle = document.getElementById("inboxToggle");
+  var inboxPanel = document.getElementById("inboxPanel");
+  if (inboxToggle && inboxPanel) {
+    inboxToggle.addEventListener("click", function (event) {
+      event.stopPropagation();
+      inboxPanel.classList.toggle("open");
+    });
+    document.addEventListener("click", function (event) {
+      if (!inboxPanel.contains(event.target) && !inboxToggle.contains(event.target)) {
+        inboxPanel.classList.remove("open");
+      }
+    });
+  }
+})();
+</script>
+{% block extra_js %}{% endblock %}
+</body>
 </html>

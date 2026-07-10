@@ -1,33 +1,44 @@
 {% extends 'base.html' %}
-{% block title %}Jobs | ATS Resume Bot{% endblock %}
+
+{% block title %}Job Roles | ATS{% endblock %}
+
 {% block content %}
-<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-    <div>
-        <h1 class="page-title">Jobs</h1>
-        <p class="muted">Track hiring roles and their status.</p>
-    </div>
-    <a class="btn btn-primary" href="{% url 'jobs:create' %}">Create Job</a>
-</div>
-<table>
+<section class="page-header">
+  <div>
+    <h1>Job Roles</h1>
+    <p>Create, review, and manage active hiring roles across departments and locations.</p>
+  </div>
+  <div class="page-actions">
+    <a href="{% url 'jobs:create' %}" class="btn btn-primary">Create Job Role</a>
+  </div>
+</section>
+
+<section class="table-card">
+  {% if jobs %}
+  <table class="data-table">
     <thead>
-        <tr><th>Title</th><th>Department</th><th>Location</th><th>Type</th><th>Status</th><th>Actions</th></tr>
+      <tr><th>Title</th><th>Department</th><th>Location</th><th>Type</th><th>Status</th><th>Actions</th></tr>
     </thead>
     <tbody>
-    {% for job in jobs %}
-        <tr>
-            <td><a href="{% url 'jobs:detail' job.pk %}">{{ job.title }}</a></td>
-            <td>{{ job.department }}</td>
-            <td>{{ job.location }}</td>
-            <td>{{ job.get_employment_type_display }}</td>
-            <td>{{ job.get_status_display }}</td>
-            <td class="actions">
-                <a class="btn" href="{% url 'jobs:edit' job.pk %}">Edit</a>
-                <a class="btn" href="{% url 'jobs:delete' job.pk %}">Delete</a>
-            </td>
-        </tr>
-    {% empty %}
-        <tr><td colspan="6">No jobs found.</td></tr>
-    {% endfor %}
+      {% for job in jobs %}
+      <tr>
+        <td><a href="{% url 'jobs:detail' job.pk %}" class="text-link">{{ job.title }}</a></td>
+        <td>{{ job.department }}</td>
+        <td>{{ job.location }}</td>
+        <td>{{ job.get_employment_type_display }}</td>
+        <td><span class="badge badge-{{ job.status }}">{{ job.get_status_display }}</span></td>
+        <td>
+          <div class="inline-actions">
+            <a href="{% url 'jobs:edit' job.pk %}" class="text-link">Edit</a>
+            <a href="{% url 'jobs:delete' job.pk %}" class="text-link">Delete</a>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
     </tbody>
-</table>
+  </table>
+  {% else %}
+  <div class="empty-state">No job roles found yet.</div>
+  {% endif %}
+</section>
 {% endblock %}

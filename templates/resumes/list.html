@@ -1,21 +1,33 @@
 {% extends 'base.html' %}
-{% block title %}Resume Files | ATS Resume Bot{% endblock %}
+
+{% block title %}Resume Files | ATS{% endblock %}
+
 {% block content %}
-<h1 class="page-title">Resume Files</h1>
-<table>
+<section class="page-header">
+  <div>
+    <h1>Resume Files</h1>
+    <p>All uploaded resume documents across candidates.</p>
+  </div>
+</section>
+
+<section class="table-card">
+  {% if resume_files %}
+  <table class="data-table">
     <thead><tr><th>File</th><th>Candidate</th><th>Job</th><th>Size</th><th>Uploaded</th></tr></thead>
     <tbody>
-    {% for resume in resume_files %}
-        <tr>
-            <td><a href="{{ resume.file.url }}" target="_blank">{{ resume.original_filename }}</a></td>
-            <td>{{ resume.application.full_name }}</td>
-            <td>{{ resume.application.job.title }}</td>
-            <td>{{ resume.file_size }}</td>
-            <td>{{ resume.created_at }}</td>
-        </tr>
-    {% empty %}
-        <tr><td colspan="5">No resume files uploaded yet.</td></tr>
-    {% endfor %}
+      {% for resume in resume_files %}
+      <tr>
+        <td><a href="{{ resume.file.url }}" target="_blank" class="text-link">{{ resume.original_filename }}</a></td>
+        <td>{{ resume.application.full_name }}</td>
+        <td>{{ resume.application.job.title }}</td>
+        <td>{{ resume.file_size }}</td>
+        <td>{{ resume.created_at }}</td>
+      </tr>
+      {% endfor %}
     </tbody>
-</table>
+  </table>
+  {% else %}
+  <div class="empty-state">No resume files uploaded yet.</div>
+  {% endif %}
+</section>
 {% endblock %}
