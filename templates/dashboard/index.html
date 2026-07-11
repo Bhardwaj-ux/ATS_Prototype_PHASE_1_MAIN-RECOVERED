@@ -53,15 +53,15 @@
 {% block content %}
 <section class="page-header">
   <div>
-    <h1>Dashboard</h1>
-    <p>Track hiring operations, monitor candidate movement, and review the latest applications across all job roles.</p>
+    <h1><i>Hello, {{ user.ADMIN_FULL_NAME|default:user.email }}!</i></h1>
+    <p><i><b>Proceed with your daily workflow and stay updated on the latest hiring activities.</b></i></p>
   </div>
 </section>
 
 <section class="grid-3" style="margin-bottom: 16px;">
-  <article class="stat-card"><p class="stat-label">Total Job Roles</p><h2 class="stat-value">{{ job_count }}</h2></article>
-  <article class="stat-card"><p class="stat-label">Total Applications</p><h2 class="stat-value">{{ application_count }}</h2></article>
-  <article class="stat-card"><p class="stat-label">Resume Records</p><h2 class="stat-value">{{ resume_count }}</h2></article>
+  <article class="stat-card"><p class="stat-label">Total Job Roles</p><h3 class="stat-value">{{ job_count }}</h3></article>
+  <article class="stat-card"><p class="stat-label">Total Applications</p><h3 class="stat-value">{{ application_count }}</h3></article>
+  <article class="stat-card"><p class="stat-label">Resume Records</p><h3 class="stat-value">{{ resume_count }}</h3></article>
 </section>
 
 <section class="grid-2" style="margin-bottom: 16px;">

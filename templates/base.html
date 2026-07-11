@@ -14,7 +14,8 @@
     --radius-lg: 18px;
     --shadow-sm: 3px 1px 5px rgba(18, 18, 20, 0.133), 8px 2px 5px rgba(34, 34, 37, 0.04);
     --shadow-md: 3px 6px 20px rgba(18, 18, 20, 0.08);
-    --transition: 160ms ease;
+    --shadow-stat-card: 4px 4px 10px rgba(7, 12, 24, 0.223);
+    --transition: 160ms ease-in-out;
     --sidebar-width: 250px;
     --actionbar-height: 68px;
   }
@@ -63,8 +64,7 @@
     --nav-hover: rgba(255, 255, 255, 0.05);
     --nav-active: rgba(255, 255, 255, 0.08);
     --surface: #28292f;
-    --surface-soft: #1f212926;
-    --surface-soft: #28292f;
+    --surface-soft: #3234397e;
     --border: #302f38;
     --text: #e4e4ec;
     --text-muted: #90909c;
@@ -240,10 +240,15 @@
   }
   .card, .info-card, .table-card, .stat-card { padding: 20px; }
 
+  .info-card:hover {transform: translateY(-1.5px); box-shadow: var(--shadow-stat-card); transition: box-shadow var(--transition), transform var(--transition);}
+
+  .table-card:hover {transform: translateY(-1.5px); box-shadow: var(--shadow-stat-card); transition: box-shadow var(--transition), transform var(--transition);}
+
   .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
   .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
 
   .stat-card { border-left: 3px solid var(--primary); }
+  .stat-card:hover {transform: translateY(-1.5px); box-shadow: var(--shadow-stat-card); transition: box-shadow var(--transition), transform var(--transition);}
   .stat-label { margin: 0 0 14px; color: var(--text-muted); font-size: 0.86rem; font-weight: 600; }
   .stat-value { margin: 0; font-size: 2.1rem; line-height: 1; color: var(--text); font-weight: 700; }
 
@@ -420,7 +425,7 @@
           {% if request.resolver_match.namespace == 'dashboard' %}
             <strong>Dashboard</strong><span>Hiring operations overview</span>
           {% elif request.resolver_match.namespace == 'jobs' %}
-            <strong>Job Roles</strong><span>Manage open positions</span>
+            <strong>Job Roles</strong><span>Manage all job postings</span>
           {% elif request.resolver_match.namespace == 'applications' %}
             <strong>Candidates</strong><span>Track applicants through your pipeline</span>
           {% elif request.resolver_match.namespace == 'folks' %}
