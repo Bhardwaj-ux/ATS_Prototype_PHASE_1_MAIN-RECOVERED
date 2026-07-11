@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load dict_extras %}
+
 {% block title %}Settings | ATS Platform{% endblock %}
 
 {% block extra_head %}
@@ -150,7 +150,7 @@
           <strong>{% if member.get_full_name %}{{ member.get_full_name }}{% else %}{{ member.email }}{% endif %}</strong>
           <span>{{ member.email }}</span>
         </div>
-        <span class="team-role-pill">{{ role_assignment_map|get_item:member.pk }}</span>
+        <span class="team-role-pill">{{ role_assignment_map|dictsort:"0"|default:"" }}{{ role_assignment_map|get_item:member.pk }}</span>
       </div>
       {% empty %}
       <div class="empty-state">No team members found.</div>

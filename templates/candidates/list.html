@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Candidates | ATS Platform{% endblock %}
+{% block title %}Candidates | ATS RES-Hive{% endblock %}
 
 {% block extra_head %}
 <style>
@@ -200,68 +200,66 @@ document.addEventListener('DOMContentLoaded', function () {
   var filterPanel = document.getElementById('filterPanel');
   if (filterToggleBtn && filterPanel) {
     filterToggleBtn.addEventListener('click', function () { filterPanel.classList.toggle('open'); });
-    var hasActiveFilters = {{ current_filters.job| yesno: "true,false"
+    var hasActiveFilters = {{ current_filters.job|yesno:"true,false" }} || {{ current_filters.status|yesno:"true,false" }} || {{ current_filters.exp_min|yesno:"true,false" }} || {{ current_filters.exp_max|yesno:"true,false" }} || {{ current_filters.source|yesno:"true,false" }};
+    if (hasActiveFilters) { filterPanel.classList.add('open'); }
   }
-} || {{ current_filters.status | yesno: "true,false" }} || {{ current_filters.exp_min | yesno: "true,false" }} || {{ current_filters.exp_max | yesno: "true,false" }} || {{ current_filters.source | yesno: "true,false" }};
-if (hasActiveFilters) { filterPanel.classList.add('open'); }
-}
 
-function getCookie(name) {
-  var value = "; " + document.cookie;
-  var parts = value.split("; " + name + "=");
-  if (parts.length === 2) return parts.pop().split(";").shift();
-  return null;
-}
-
-var selectAll = document.getElementById('selectAll');
-var rowChecks = document.querySelectorAll('.row-check');
-var bulkBar = document.getElementById('bulkBar');
-var bulkCount = document.getElementById('bulkCount');
-
-function refreshBulkBar() {
-  var checked = document.querySelectorAll('.row-check:checked');
-  if (checked.length > 0) {
-    bulkBar.classList.remove('hidden');
-    bulkCount.textContent = checked.length + ' selected';
-  } else {
-    bulkBar.classList.add('hidden');
+  function getCookie(name) {
+    var value = "; " + document.cookie;
+    var parts = value.split("; " + name + "=");
+    if (parts.length === 2) return parts.pop().split(";").shift();
+    return null;
   }
-}
 
-if (selectAll) {
-  selectAll.addEventListener('change', function () {
-    rowChecks.forEach(function (cb) { cb.checked = selectAll.checked; });
-    refreshBulkBar();
+  var selectAll = document.getElementById('selectAll');
+  var rowChecks = document.querySelectorAll('.row-check');
+  var bulkBar = document.getElementById('bulkBar');
+  var bulkCount = document.getElementById('bulkCount');
+
+  function refreshBulkBar() {
+    var checked = document.querySelectorAll('.row-check:checked');
+    if (checked.length > 0) {
+      bulkBar.classList.remove('hidden');
+      bulkCount.textContent = checked.length + ' selected';
+    } else {
+      bulkBar.classList.add('hidden');
+    }
+  }
+
+  if (selectAll) {
+    selectAll.addEventListener('change', function () {
+      rowChecks.forEach(function (cb) { cb.checked = selectAll.checked; });
+      refreshBulkBar();
+    });
+  }
+  rowChecks.forEach(function (cb) { cb.addEventListener('change', refreshBulkBar); });
+
+  document.querySelectorAll('[data-bulk-action]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var action = btn.getAttribute('data-bulk-action');
+      var ids = Array.from(document.querySelectorAll('.row-check:checked')).map(function (cb) { return cb.value; });
+      if (ids.length === 0) return;
+      if (action === 'delete' && !confirm('Delete ' + ids.length + ' candidate(s)? This cannot be undone.')) return;
+
+      var formData = new FormData();
+      formData.append('action', action);
+      ids.forEach(function (id) { formData.append('ids[]', id); });
+
+      fetch("{% url 'applications:bulk-action' %}", {
+        method: 'POST',
+        headers: { 'X-CSRFToken': getCookie('csrftoken') },
+        body: formData
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          if (window.ATSNotify) {
+            window.ATSNotify.toast(data.message || data.error, data.ok ? 'success' : 'error');
+            window.ATSNotify.add(data.message || data.error, data.ok ? 'success' : 'error');
+          }
+          if (data.ok) window.location.reload();
+        });
+    });
   });
-}
-rowChecks.forEach(function (cb) { cb.addEventListener('change', refreshBulkBar); });
-
-document.querySelectorAll('[data-bulk-action]').forEach(function (btn) {
-  btn.addEventListener('click', function () {
-    var action = btn.getAttribute('data-bulk-action');
-    var ids = Array.from(document.querySelectorAll('.row-check:checked')).map(function (cb) { return cb.value; });
-    if (ids.length === 0) return;
-    if (action === 'delete' && !confirm('Delete ' + ids.length + ' candidate(s)? This cannot be undone.')) return;
-
-    var formData = new FormData();
-    formData.append('action', action);
-    ids.forEach(function (id) { formData.append('ids[]', id); });
-
-    fetch("{% url 'applications:bulk-action' %}", {
-      method: 'POST',
-      headers: { 'X-CSRFToken': getCookie('csrftoken') },
-      body: formData
-    })
-      .then(function (r) { return r.json(); })
-      .then(function (data) {
-        if (window.ATSNotify) {
-          window.ATSNotify.toast(data.message || data.error, data.ok ? 'success' : 'error');
-          window.ATSNotify.add(data.message || data.error, data.ok ? 'success' : 'error');
-        }
-        if (data.ok) window.location.reload();
-      });
-  });
-});
 });
 </script>
 {% endblock %}
