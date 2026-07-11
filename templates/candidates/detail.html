@@ -10,7 +10,7 @@
   .info-item { padding: 14px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface-soft); }
   .info-label { display: block; color: var(--text-muted); font-size: 0.82rem; margin-bottom: 6px; }
   .info-value { font-weight: 600; color: var(--text); font-size: 0.92rem; }
-  .decision-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 14px; }
+  .decision-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; margin-top: 14px; }
   .decision-box { border-radius: 10px; padding: 12px; text-align: center; }
   .decision-box a { display: block; font-weight: 600; font-size: 0.86rem; }
   .decision-review { background: var(--warning-soft); }
@@ -19,6 +19,10 @@
   .decision-shortlist a { color: var(--success-text); }
   .decision-reject { background: var(--danger-soft); }
   .decision-reject a { color: var(--danger-text); }
+  .decision-interview { background: var(--info-soft); }
+  .decision-interview a { color: var(--info-text); }
+  .decision-hired { background: var(--hired-soft); }
+  .decision-hired a { color: var(--hired-text); }
   .resume-list { margin: 0 0 12px; padding-left: 0; list-style: none; }
   .resume-list li { display: flex; align-items: center; gap: 8px; padding: 9px 10px; border: 1px solid var(--border); border-radius: 10px; margin-bottom: 8px; background: var(--surface-soft); }
   .resume-list li svg { width: 15px; height: 15px; color: var(--text-muted); flex-shrink: 0; }
@@ -42,7 +46,7 @@
   .dz-progress { height: 4px; background: var(--border); border-radius: 4px; margin-top: 10px; overflow: hidden; display: none; }
   .dz-progress-bar { height: 100%; width: 0%; background: var(--primary); transition: width 200ms ease; }
 
-  @media (max-width: 980px) { .candidate-layout { grid-template-columns: 1fr; } .decision-grid { grid-template-columns: 1fr; } }
+  @media (max-width: 980px) { .candidate-layout { grid-template-columns: 1fr; } .decision-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 </style>
 {% endblock %}
 
@@ -95,10 +99,16 @@
       <h3 class="section-title">Application Decision</h3>
       <div class="decision-grid">
         <div class="decision-box decision-review">
-          <a href="{% url 'applications:quick-status' application.pk 'under_review' %}">Mark Under Review</a>
+          <a href="{% url 'applications:quick-status' application.pk 'under_review' %}">Under Review</a>
         </div>
         <div class="decision-box decision-shortlist">
           <a href="{% url 'applications:quick-status' application.pk 'shortlisted' %}">Shortlist</a>
+        </div>
+        <div class="decision-box decision-interview">
+          <a href="{% url 'applications:quick-status' application.pk 'interview' %}">Interview</a>
+        </div>
+        <div class="decision-box decision-hired">
+          <a href="{% url 'applications:quick-status' application.pk 'hired' %}">Hired</a>
         </div>
         <div class="decision-box decision-reject">
           <a href="{% url 'applications:quick-status' application.pk 'rejected' %}">Reject</a>

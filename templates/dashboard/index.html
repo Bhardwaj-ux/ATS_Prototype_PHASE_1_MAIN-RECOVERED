@@ -1,6 +1,54 @@
 {% extends 'base.html' %}
 
-{% block title %}Dashboard | ATS{% endblock %}
+{% block title %}Dashboard | ATS Platform{% endblock %}
+
+{% block extra_head %}
+<style>
+  .task-card, .activity-card { display: flex; flex-direction: column; }
+  .task-header, .activity-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .task-list { display: flex; flex-direction: column; gap: 8px; }
+  .task-row { display: flex; align-items: center; gap: 10px; padding: 10px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface-soft); position: relative; }
+  .task-checkbox { width: 17px; height: 17px; accent-color: var(--primary); flex-shrink: 0; cursor: pointer; }
+  .task-title { flex: 1; font-size: 0.88rem; color: var(--text); }
+  .task-title.done { text-decoration: line-through; color: var(--text-muted); }
+  .task-priority-pill { font-size: 0.7rem; font-weight: 700; padding: 3px 8px; border-radius: 999px; cursor: pointer; flex-shrink: 0; }
+  .priority-none { background: var(--surface); color: var(--text-muted); border: 1px solid var(--border); }
+  .priority-low { background: var(--info-soft); color: var(--info-text); }
+  .priority-moderate { background: var(--warning-soft); color: var(--warning-text); }
+  .priority-high { background: var(--danger-soft); color: var(--danger-text); }
+
+  .task-menu-wrap { position: relative; flex-shrink: 0; }
+  .task-menu-btn { border: none; background: none; color: var(--text-muted); cursor: pointer; width: 24px; height: 24px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; }
+  .task-menu-btn:hover { background: var(--surface); }
+  .task-menu-btn svg { width: 15px; height: 15px; }
+  .task-menu-dropdown {
+    display: none; position: absolute; right: 0; top: calc(100% + 4px); width: 130px;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    box-shadow: var(--shadow-md); z-index: 20; padding: 4px;
+  }
+  .task-menu-dropdown.open { display: block; }
+  .task-menu-item { display: block; width: 100%; text-align: left; padding: 7px 9px; border-radius: 7px; border: none; background: none; cursor: pointer; font-size: 0.82rem; color: var(--text); }
+  .task-menu-item:hover { background: var(--surface-soft); }
+  .task-menu-item.danger { color: var(--danger-text); }
+
+  .priority-popover {
+    display: none; position: absolute; bottom: calc(100% + 6px); left: 40px; z-index: 25;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    box-shadow: var(--shadow-md); padding: 6px; gap: 4px; flex-direction: column; min-width: 110px;
+  }
+  .priority-popover.open { display: flex; }
+  .priority-popover button { text-align: left; border: none; background: none; padding: 6px 8px; border-radius: 7px; cursor: pointer; font-size: 0.8rem; color: var(--text); }
+  .priority-popover button:hover { background: var(--surface-soft); }
+
+  .task-add-row { display: none; gap: 8px; align-items: center; margin-top: 10px; }
+  .task-add-row.open { display: flex; }
+  .task-add-row input[type="text"] { flex: 1; }
+
+  .activity-list { display: flex; flex-direction: column; gap: 10px; }
+  .activity-row { display: flex; align-items: flex-start; gap: 10px; font-size: 0.86rem; color: var(--text); line-height: 1.5; }
+  .activity-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--primary); margin-top: 6px; flex-shrink: 0; }
+</style>
+{% endblock %}
 
 {% block content %}
 <section class="page-header">
@@ -10,22 +58,13 @@
   </div>
 </section>
 
-<section class="grid-3" style="margin-bottom: 22px;">
-  <article class="stat-card">
-    <p class="stat-label">Total Job Roles</p>
-    <h2 class="stat-value">{{ job_count }}</h2>
-  </article>
-  <article class="stat-card">
-    <p class="stat-label">Total Applications</p>
-    <h2 class="stat-value">{{ application_count }}</h2>
-  </article>
-  <article class="stat-card">
-    <p class="stat-label">Resume Records</p>
-    <h2 class="stat-value">{{ resume_count }}</h2>
-  </article>
+<section class="grid-3" style="margin-bottom: 16px;">
+  <article class="stat-card"><p class="stat-label">Total Job Roles</p><h2 class="stat-value">{{ job_count }}</h2></article>
+  <article class="stat-card"><p class="stat-label">Total Applications</p><h2 class="stat-value">{{ application_count }}</h2></article>
+  <article class="stat-card"><p class="stat-label">Resume Records</p><h2 class="stat-value">{{ resume_count }}</h2></article>
 </section>
 
-<section class="grid-2">
+<section class="grid-2" style="margin-bottom: 16px;">
   <article class="table-card">
     <h3 class="section-title">Status Breakdown</h3>
     {% if status_breakdown %}
@@ -62,4 +101,247 @@
     {% endif %}
   </article>
 </section>
+
+<section class="grid-2">
+  <article class="info-card task-card">
+    <div class="task-header">
+      <h3 class="section-title" style="margin:0;">My Tasks</h3>
+      <button type="button" class="btn btn-secondary" id="taskAddToggle">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+        New
+      </button>
+    </div>
+
+    <div class="task-list" id="taskList">
+      {% for task in tasks %}
+      <div class="task-row" data-task-id="{{ task.pk }}">
+        <input type="checkbox" class="task-checkbox" {% if task.is_done %}checked{% endif %}>
+        <span class="task-title {% if task.is_done %}done{% endif %}">{{ task.title }}</span>
+        <span class="task-priority-pill priority-{{ task.priority }}" data-priority="{{ task.priority }}">{{ task.priority_label|default:task.get_priority_display }}</span>
+        <div class="priority-popover">
+          <button type="button" data-priority-set="none">None</button>
+          <button type="button" data-priority-set="low">Low</button>
+          <button type="button" data-priority-set="moderate">Moderate</button>
+          <button type="button" data-priority-set="high">High</button>
+        </div>
+        <div class="task-menu-wrap">
+          <button type="button" class="task-menu-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+          </button>
+          <div class="task-menu-dropdown">
+            <button type="button" class="task-menu-item" data-task-edit>Edit</button>
+            <button type="button" class="task-menu-item danger" data-task-delete>Delete</button>
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <div class="empty-state left-empty" id="taskEmptyState">No tasks yet. Click "New" to add one.</div>
+      {% endfor %}
+    </div>
+
+    <div class="task-add-row" id="taskAddRow">
+      <input type="text" id="taskAddInput" placeholder="Task title...">
+      <select id="taskAddPriority">
+        <option value="none">None</option>
+        <option value="low">Low</option>
+        <option value="moderate">Moderate</option>
+        <option value="high">High</option>
+      </select>
+      <button type="button" class="btn btn-primary" id="taskAddSubmit">Add</button>
+    </div>
+  </article>
+
+  <article class="info-card activity-card">
+    <div class="activity-header">
+      <h3 class="section-title" style="margin:0;">Recent Activity</h3>
+    </div>
+    {% if recent_activity %}
+    <div class="activity-list">
+      {% for line in recent_activity %}
+      <div class="activity-row"><span class="activity-dot"></span><span>{{ line }}</span></div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state left-empty">No recent activity from your team yet.</div>
+    {% endif %}
+  </article>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  function getCookie(name) {
+    var value = "; " + document.cookie;
+    var parts = value.split("; " + name + "=");
+    if (parts.length === 2) return parts.pop().split(";").shift();
+    return null;
+  }
+
+  var taskList = document.getElementById('taskList');
+  var addToggle = document.getElementById('taskAddToggle');
+  var addRow = document.getElementById('taskAddRow');
+  var addInput = document.getElementById('taskAddInput');
+  var addPriority = document.getElementById('taskAddPriority');
+  var addSubmit = document.getElementById('taskAddSubmit');
+
+  addToggle.addEventListener('click', function () {
+    addRow.classList.toggle('open');
+    if (addRow.classList.contains('open')) addInput.focus();
+  });
+
+  function priorityIconHtml() {
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>';
+  }
+
+  function buildTaskRow(task) {
+    var row = document.createElement('div');
+    row.className = 'task-row';
+    row.setAttribute('data-task-id', task.id);
+    row.innerHTML =
+      '<input type="checkbox" class="task-checkbox">' +
+      '<span class="task-title"></span>' +
+      '<span class="task-priority-pill" data-priority="' + task.priority + '"></span>' +
+      '<div class="priority-popover">' +
+        '<button type="button" data-priority-set="none">None</button>' +
+        '<button type="button" data-priority-set="low">Low</button>' +
+        '<button type="button" data-priority-set="moderate">Moderate</button>' +
+        '<button type="button" data-priority-set="high">High</button>' +
+      '</div>' +
+      '<div class="task-menu-wrap">' +
+        '<button type="button" class="task-menu-btn">' + priorityIconHtml() + '</button>' +
+        '<div class="task-menu-dropdown">' +
+          '<button type="button" class="task-menu-item" data-task-edit>Edit</button>' +
+          '<button type="button" class="task-menu-item danger" data-task-delete>Delete</button>' +
+        '</div>' +
+      '</div>';
+    updateRowContent(row, task);
+    wireRow(row);
+    return row;
+  }
+
+  function updateRowContent(row, task) {
+    row.querySelector('.task-checkbox').checked = task.is_done;
+    var titleEl = row.querySelector('.task-title');
+    titleEl.textContent = task.title;
+    titleEl.classList.toggle('done', task.is_done);
+    var pill = row.querySelector('.task-priority-pill');
+    pill.className = 'task-priority-pill priority-' + task.priority;
+    pill.setAttribute('data-priority', task.priority);
+    pill.textContent = task.priority_label;
+  }
+
+  function wireRow(row) {
+    var taskId = row.getAttribute('data-task-id');
+    var checkbox = row.querySelector('.task-checkbox');
+    var titleEl = row.querySelector('.task-title');
+    var pill = row.querySelector('.task-priority-pill');
+    var popover = row.querySelector('.priority-popover');
+    var menuBtn = row.querySelector('.task-menu-btn');
+    var menuDropdown = row.querySelector('.task-menu-dropdown');
+
+    checkbox.addEventListener('change', function () {
+      fetch('/tasks/' + taskId + '/toggle/', {
+        method: 'POST',
+        headers: { 'X-CSRFToken': getCookie('csrftoken') }
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          if (data.ok) { titleEl.classList.toggle('done', data.task.is_done); }
+        });
+    });
+
+    pill.addEventListener('click', function (e) {
+      e.stopPropagation();
+      document.querySelectorAll('.priority-popover.open').forEach(function (p) { if (p !== popover) p.classList.remove('open'); });
+      popover.classList.toggle('open');
+    });
+
+    popover.querySelectorAll('[data-priority-set]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var priority = btn.getAttribute('data-priority-set');
+        var formData = new FormData();
+        formData.append('priority', priority);
+        fetch('/tasks/' + taskId + '/update/', {
+          method: 'POST',
+          headers: { 'X-CSRFToken': getCookie('csrftoken') },
+          body: formData
+        })
+          .then(function (r) { return r.json(); })
+          .then(function (data) {
+            if (data.ok) updateRowContent(row, data.task);
+            popover.classList.remove('open');
+          });
+      });
+    });
+
+    menuBtn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      document.querySelectorAll('.task-menu-dropdown.open').forEach(function (d) { if (d !== menuDropdown) d.classList.remove('open'); });
+      menuDropdown.classList.toggle('open');
+    });
+
+    row.querySelector('[data-task-edit]').addEventListener('click', function () {
+      var newTitle = prompt('Edit task title:', titleEl.textContent);
+      menuDropdown.classList.remove('open');
+      if (newTitle === null || !newTitle.trim()) return;
+      var formData = new FormData();
+      formData.append('title', newTitle.trim());
+      fetch('/tasks/' + taskId + '/update/', {
+        method: 'POST',
+        headers: { 'X-CSRFToken': getCookie('csrftoken') },
+        body: formData
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (data) { if (data.ok) updateRowContent(row, data.task); });
+    });
+
+    row.querySelector('[data-task-delete]').addEventListener('click', function () {
+      menuDropdown.classList.remove('open');
+      if (!confirm('Delete this task?')) return;
+      fetch('/tasks/' + taskId + '/delete/', {
+        method: 'POST',
+        headers: { 'X-CSRFToken': getCookie('csrftoken') }
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (data) { if (data.ok) row.remove(); });
+    });
+  }
+
+  taskList.querySelectorAll('.task-row').forEach(wireRow);
+
+  document.addEventListener('click', function () {
+    document.querySelectorAll('.priority-popover.open').forEach(function (p) { p.classList.remove('open'); });
+    document.querySelectorAll('.task-menu-dropdown.open').forEach(function (d) { d.classList.remove('open'); });
+  });
+
+  addSubmit.addEventListener('click', function () {
+    var title = addInput.value.trim();
+    if (!title) return;
+    var formData = new FormData();
+    formData.append('title', title);
+    formData.append('priority', addPriority.value);
+    fetch('/tasks/create/', {
+      method: 'POST',
+      headers: { 'X-CSRFToken': getCookie('csrftoken') },
+      body: formData
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (data.ok) {
+          var emptyState = document.getElementById('taskEmptyState');
+          if (emptyState) emptyState.remove();
+          taskList.appendChild(buildTaskRow(data.task));
+          addInput.value = '';
+          addPriority.value = 'none';
+          addRow.classList.remove('open');
+        }
+      });
+  });
+
+  addInput.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') { e.preventDefault(); addSubmit.click(); }
+  });
+});
+</script>
 {% endblock %}

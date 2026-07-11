@@ -73,6 +73,7 @@ class UserPreference(models.Model):
     sidebar_collapsed = models.BooleanField(default=False)
     compact_tables = models.BooleanField(default=False)
     email_notifications = models.BooleanField(default=True)
+    notification_prefs = models.JSONField(default=dict, blank=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):

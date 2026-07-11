@@ -45,6 +45,8 @@
     --danger-text: #B3261E;
     --info-soft: #EAF1FC;
     --info-text: #2054B0;
+    --hired-soft: #F1EAFB;
+    --hired-text: #6D28D9;
     --table-row: #ffffff;
     --table-row-hover: #efeff5;
     --input-bg: #ffffff;
@@ -78,6 +80,8 @@
     --danger-text: #9e120b;
     --info-soft: #1E2C46;
     --info-text: #8FB2EE;
+    --hired-soft: #2E2149;
+    --hired-text: #C4A6F5;
     --table-row: #202023;
     --table-row-hover: #1f2029;
     --input-bg: #1b1b20;
@@ -137,6 +141,7 @@
   .panel-footer { padding-top: 14px; border-top: 1px solid var(--nav-border); }
 
   /* ---- Main / action bar ---- */
+  
   .main-shell { margin-left: var(--sidebar-width); min-height: 100vh; }
   .action-bar {
     position: sticky; top: 0; z-index: 30; height: var(--actionbar-height);
@@ -144,6 +149,11 @@
     display: flex; align-items: center; justify-content: space-between; gap: 16px;
     padding: 0 24px; color: var(--nav-text);
   }
+  
+  ::placeholder { color: var(--text-muted); opacity: 1; }
+  .action-title { display: flex; flex-direction: column; padding: 6px 4px; }
+  .action-title strong { font-size: 1rem; font-weight: 700; color: var(--nav-text); line-height: 1.2; }
+  .action-title span { font-size: 0.78rem; color: var(--nav-text-muted); margin-top: 2px; }
   .action-left, .action-right { display: flex; align-items: center; gap: 10px; }
   .company-link {
     display: inline-flex; align-items: center; padding: 6px; border-radius: 10px;
@@ -248,9 +258,11 @@
   .data-table tbody td:last-child { border-right: 1px solid var(--border); border-top-right-radius: 12px; border-bottom-right-radius: 12px; }
 
   .badge { display: inline-flex; align-items: center; padding: 5px 10px; border-radius: 999px; font-size: 0.76rem; font-weight: 700; line-height: 1; white-space: nowrap; }
-  .badge-raw_received, .badge-under_review { background: var(--warning-soft); color: var(--warning-text); }
-  .badge-shortlisted, .badge-hired { background: var(--success-soft); color: var(--success-text); }
+  .badge-raw_received { background: var(--surface-soft); color: var(--text-muted); border: 1px solid var(--border); }
+  .badge-under_review { background: var(--warning-soft); color: var(--warning-text); }
+  .badge-shortlisted { background: var(--success-soft); color: var(--success-text); }
   .badge-interview { background: var(--info-soft); color: var(--info-text); }
+  .badge-hired { background: var(--hired-soft); color: var(--hired-text); }
   .badge-rejected { background: var(--danger-soft); color: var(--danger-text); }
   .badge-open { background: var(--success-soft); color: var(--success-text); }
   .badge-closed { background: var(--danger-soft); color: var(--danger-text); }
@@ -404,12 +416,23 @@
   <div class="main-shell">
     <header class="action-bar">
       <div class="action-left">
-        <a href="{% url 'dashboard:index' %}" class="company-link" title="Elecbits">
-          <span class="brand-mark">
-            <img src="{% static 'img/logo.svg' %}" alt="Elecbits" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';">
-            <span class="brand-mark-fallback" style="display:none;">E</span>
-          </span>
-        </a>
+        <div class="action-title">
+          {% if request.resolver_match.namespace == 'dashboard' %}
+            <strong>Dashboard</strong><span>Hiring operations overview</span>
+          {% elif request.resolver_match.namespace == 'jobs' %}
+            <strong>Job Roles</strong><span>Manage open positions</span>
+          {% elif request.resolver_match.namespace == 'applications' %}
+            <strong>Candidates</strong><span>Track applicants through your pipeline</span>
+          {% elif request.resolver_match.namespace == 'folks' %}
+            <strong>Folks</strong><span>Team collaboration</span>
+          {% elif request.resolver_match.namespace == 'accounts' %}
+            <strong>Settings</strong><span>Workspace &amp; account preferences</span>
+          {% elif request.resolver_match.namespace == 'resumes' %}
+            <strong>Resumes</strong><span>Uploaded candidate files</span>
+          {% else %}
+            <strong>Elecbits</strong><span>ATS Platform</span>
+          {% endif %}
+        </div>
       </div>
 
       <div class="action-spacer"></div>

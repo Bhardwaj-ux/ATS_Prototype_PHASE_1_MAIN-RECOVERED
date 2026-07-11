@@ -8,6 +8,8 @@
   .overview-item { padding: 14px; border-radius: 12px; border: 1px solid var(#3c3a46); background: var(#2f2f33); }
   .overview-label { display: block; color: var(--text-muted); font-size: 0.82rem; margin-bottom: 6px; }
   .overview-value { display: block; color: var(--text); font-weight: 600; font-size: 0.92rem; }
+  .skills-cloud { display: flex; flex-wrap: wrap; gap: 8px; }
+  .skill-pill { display: inline-flex; align-items: center; padding: 6px 11px; border-radius: 999px; background: var(--primary-soft); color: var(--primary-soft-text); font-size: 0.82rem; font-weight: 600; }  
   .job-detail-layout { display: flex; flex-direction: column; gap: 16px; }
   @media (max-width: 1000px) { .overview-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
   @media (max-width: 640px) { .overview-grid { grid-template-columns: 1fr; } }
@@ -49,6 +51,19 @@
   <article class="info-card">
     <h3 class="section-title">Requirements</h3>
     <div style="color: var(--text-muted); line-height: 1.7; font-size: 0.9rem;">{{ job.requirements|default:"No requirements added yet."|linebreaks }}</div>
+  </article>
+  
+  <article class="info-card">
+    <h3 class="section-title">Required Skills</h3>
+    {% if job.skill_list %}
+    <div class="skills-cloud">
+      {% for skill in job.skill_list %}
+      <span class="skill-pill">{{ skill }}</span>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state left-empty">No required skills set for this role yet.</div>
+    {% endif %}
   </article>
 </section>
 {% endblock %}

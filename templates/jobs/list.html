@@ -1,6 +1,33 @@
 {% extends 'base.html' %}
 
-{% block title %}Job Roles | ATS{% endblock %}
+{% block title %}Job Roles | ATS Platform{% endblock %}
+
+{% block extra_head %}
+<style>
+  .filter-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+  .filter-search { flex: 1; min-width: 220px; position: relative; }
+  .filter-search svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 15px; height: 15px; color: var(--text-muted); }
+  .filter-search input { padding-left: 34px; }
+  .filter-panel {
+    display: none; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px;
+    padding: 16px; border: 1px solid var(--border); border-radius: var(--radius-md);
+    background: var(--surface-soft); margin-bottom: 16px;
+  }
+  .filter-panel.open { display: grid; }
+  .filter-panel .form-group { margin-bottom: 0; }
+  .filter-panel-actions { grid-column: 1 / -1; display: flex; gap: 10px; }
+
+  .bulk-bar {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 10px 14px; border-radius: var(--radius-md); background: var(--primary-soft);
+    border: 1px solid var(--primary); margin-bottom: 12px; flex-wrap: wrap;
+  }
+  .bulk-bar span { font-size: 0.86rem; font-weight: 600; color: var(--primary-soft-text); }
+  .bulk-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  @media (max-width: 700px) { .filter-panel { grid-template-columns: 1fr; } }
+</style>
+{% endblock %}
 
 {% block content %}
 <section class="page-header">
@@ -16,15 +43,72 @@
   </div>
 </section>
 
+<form method="get" id="filterForm">
+  <div class="filter-bar">
+    <div class="filter-search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="text" name="q" value="{{ current_filters.q }}" placeholder="Search by job title or department...">
+    </div>
+    <button type="button" class="btn btn-secondary" id="filterToggleBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+      Filters
+    </button>
+    <button type="submit" class="btn btn-primary">Search</button>
+  </div>
+
+  <div class="filter-panel" id="filterPanel">
+    <div class="form-group">
+      <label>Status</label>
+      <select name="status">
+        <option value="">All statuses</option>
+        {% for value, label in status_choices %}
+        <option value="{{ value }}" {% if current_filters.status == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Employment Type</label>
+      <select name="employment_type">
+        <option value="">All types</option>
+        {% for value, label in employment_type_choices %}
+        <option value="{{ value }}" {% if current_filters.employment_type == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Location</label>
+      <input type="text" name="location" value="{{ current_filters.location }}" placeholder="e.g. Bengaluru, Remote">
+    </div>
+    <div class="filter-panel-actions">
+      <button type="submit" class="btn btn-primary">Apply Filters</button>
+      <a href="{% url 'jobs:list' %}" class="btn btn-secondary">Clear</a>
+    </div>
+  </div>
+</form>
+
+<div class="bulk-bar hidden" id="bulkBar">
+  <span id="bulkCount">0 selected</span>
+  <div class="bulk-actions">
+    <button type="button" class="btn btn-secondary" data-bulk-action="open">Set Open</button>
+    <button type="button" class="btn btn-secondary" data-bulk-action="closed">Set Closed</button>
+    <button type="button" class="btn btn-secondary" data-bulk-action="archived">Archive</button>
+    <button type="button" class="btn btn-danger" data-bulk-action="delete">Delete</button>
+  </div>
+</div>
+
 <section class="table-card">
   {% if jobs %}
   <table class="data-table">
     <thead>
-      <tr><th>Title</th><th>Department</th><th>Location</th><th>Type</th><th>Status</th><th>Actions</th></tr>
+      <tr>
+        <th style="width:36px;"><input type="checkbox" id="selectAll"></th>
+        <th>Title</th><th>Department</th><th>Location</th><th>Type</th><th>Status</th><th>Actions</th>
+      </tr>
     </thead>
     <tbody>
       {% for job in jobs %}
       <tr>
+        <td><input type="checkbox" class="row-check" value="{{ job.pk }}"></td>
         <td><a href="{% url 'jobs:detail' job.pk %}" class="text-link">{{ job.title }}</a></td>
         <td>{{ job.department }}</td>
         <td>{{ job.location }}</td>
@@ -45,7 +129,78 @@
     </tbody>
   </table>
   {% else %}
-  <div class="empty-state">No job roles found yet.</div>
+  <div class="empty-state">No job roles match your search or filters.</div>
   {% endif %}
 </section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var filterToggleBtn = document.getElementById('filterToggleBtn');
+  var filterPanel = document.getElementById('filterPanel');
+  if (filterToggleBtn && filterPanel) {
+    filterToggleBtn.addEventListener('click', function () { filterPanel.classList.toggle('open'); });
+    var hasActiveFilters = {{ current_filters.status|yesno:"true,false" }} || {{ current_filters.employment_type|yesno:"true,false" }} || {{ current_filters.location|yesno:"true,false" }};
+    if (hasActiveFilters) { filterPanel.classList.add('open'); }
+  }
+
+  function getCookie(name) {
+    var value = "; " + document.cookie;
+    var parts = value.split("; " + name + "=");
+    if (parts.length === 2) return parts.pop().split(";").shift();
+    return null;
+  }
+
+  var selectAll = document.getElementById('selectAll');
+  var rowChecks = document.querySelectorAll('.row-check');
+  var bulkBar = document.getElementById('bulkBar');
+  var bulkCount = document.getElementById('bulkCount');
+
+  function refreshBulkBar() {
+    var checked = document.querySelectorAll('.row-check:checked');
+    if (checked.length > 0) {
+      bulkBar.classList.remove('hidden');
+      bulkCount.textContent = checked.length + ' selected';
+    } else {
+      bulkBar.classList.add('hidden');
+    }
+  }
+
+  if (selectAll) {
+    selectAll.addEventListener('change', function () {
+      rowChecks.forEach(function (cb) { cb.checked = selectAll.checked; });
+      refreshBulkBar();
+    });
+  }
+  rowChecks.forEach(function (cb) { cb.addEventListener('change', refreshBulkBar); });
+
+  document.querySelectorAll('[data-bulk-action]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var action = btn.getAttribute('data-bulk-action');
+      var ids = Array.from(document.querySelectorAll('.row-check:checked')).map(function (cb) { return cb.value; });
+      if (ids.length === 0) return;
+      if (action === 'delete' && !confirm('Delete ' + ids.length + ' job role(s)? This cannot be undone.')) return;
+
+      var formData = new FormData();
+      formData.append('action', action);
+      ids.forEach(function (id) { formData.append('ids[]', id); });
+
+      fetch("{% url 'jobs:bulk-action' %}", {
+        method: 'POST',
+        headers: { 'X-CSRFToken': getCookie('csrftoken') },
+        body: formData
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          if (window.ATSNotify) {
+            window.ATSNotify.toast(data.message || data.error, data.ok ? 'success' : 'error');
+            window.ATSNotify.add(data.message || data.error, data.ok ? 'success' : 'error');
+          }
+          if (data.ok) window.location.reload();
+        });
+    });
+  });
+});
+</script>
 {% endblock %}

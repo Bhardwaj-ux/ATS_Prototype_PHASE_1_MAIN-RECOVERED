@@ -3,7 +3,6 @@ from pathlib import Path
 
 import dj_database_url
 
-
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
@@ -23,7 +22,9 @@ if ON_VERCEL and SECRET_KEY == "django-insecure-phase1-local-dev-key":
     raise RuntimeError("SECRET_KEY must be set on Vercel.")
 
 vercel_url = os.getenv("VERCEL_URL", "").strip()
-extra_hosts = [host.strip() for host in os.getenv("ALLOWED_HOSTS", "").split(",") if host.strip()]
+extra_hosts = [
+    host.strip() for host in os.getenv("ALLOWED_HOSTS", "").split(",") if host.strip()
+]
 
 allowed_hosts = ["127.0.0.1", "localhost", ".vercel.app"]
 if vercel_url:
@@ -32,7 +33,11 @@ allowed_hosts.extend(extra_hosts)
 ALLOWED_HOSTS = list(dict.fromkeys(allowed_hosts))
 
 app_url = os.getenv("APP_URL", "").strip().rstrip("/")
-extra_origins = [origin.strip().rstrip("/") for origin in os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",") if origin.strip()]
+extra_origins = [
+    origin.strip().rstrip("/")
+    for origin in os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",")
+    if origin.strip()
+]
 
 csrf_trusted_origins = []
 if app_url:
@@ -56,6 +61,7 @@ INSTALLED_APPS = [
     "apps.applications",
     "apps.resumes",
     "apps.dashboard",
+    "apps.tasks",
     "apps.folks",
 ]
 
