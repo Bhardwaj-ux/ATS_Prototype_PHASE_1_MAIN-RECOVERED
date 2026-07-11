@@ -1,12 +1,19 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView, LogoutView
+from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
+from django.views.decorators.http import require_POST
 
 from apps.applications.models import Application
 
-from .forms import EmailAuthenticationForm, UserPreferenceForm
+from .forms import (
+    AvatarUploadForm,
+    EmailAuthenticationForm,
+    UserPreferenceForm,
+    UserProfileForm,
+)
 from .models import User, UserPreference
 
 
@@ -67,14 +74,22 @@ def settings_view(request):
         prefs.profile_name = full_name or request.user.email
         prefs.save(update_fields=["profile_name"])
 
-    profile_form = None
+    profile_identity_form = None
+    appearance_form = None
 
     if request.method == "POST":
-        if request.POST.get("form") == "profile":
-            profile_form = UserPreferenceForm(request.POST, instance=prefs)
-            if profile_form.is_valid():
-                profile_form.save()
-                messages.success(request, "Profile settings updated successfully.")
+        if request.POST.get("form") == "profile_identity":
+            profile_identity_form = UserProfileForm(request.POST, instance=request.user)
+            if profile_identity_form.is_valid():
+                profile_identity_form.save()
+                messages.success(request, "Profile details updated successfully.")
+                return redirect(f"{reverse('accounts:settings')}?tab=profile")
+
+        elif request.POST.get("form") == "appearance":
+            appearance_form = UserPreferenceForm(request.POST, instance=prefs)
+            if appearance_form.is_valid():
+                appearance_form.save()
+                messages.success(request, "Appearance settings updated successfully.")
                 return redirect(f"{reverse('accounts:settings')}?tab=profile")
 
         elif request.POST.get("form") == "notifications":
@@ -90,8 +105,10 @@ def settings_view(request):
             messages.success(request, "Notification preferences updated successfully.")
             return redirect(f"{reverse('accounts:settings')}?tab=notifications")
 
-    if profile_form is None:
-        profile_form = UserPreferenceForm(instance=prefs)
+    if profile_identity_form is None:
+        profile_identity_form = UserProfileForm(instance=request.user)
+    if appearance_form is None:
+        appearance_form = UserPreferenceForm(instance=prefs)
 
     notification_prefs = prefs.notification_prefs or default_notification_prefs()
     for key, _label in NOTIFICATION_EVENTS:
@@ -109,10 +126,14 @@ def settings_view(request):
             assignment.role.name if assignment else "No role assigned"
         )
 
+    current_role = role_assignment_map.get(request.user.pk, "No role assigned")
+
     context = {
         "active_tab": tab,
         "coming_soon_tabs": COMING_SOON_TABS,
-        "profile_form": profile_form,
+        "profile_identity_form": profile_identity_form,
+        "appearance_form": appearance_form,
+        "current_role": current_role,
         "team_members": team_members,
         "role_assignment_map": role_assignment_map,
         "pipeline_stages": Application.Status.choices,
@@ -120,3 +141,15 @@ def settings_view(request):
         "notification_prefs": notification_prefs,
     }
     return render(request, "accounts/settings.html", context)
+
+
+@login_required
+@require_POST
+def upload_avatar(request):
+    form = AvatarUploadForm(request.POST, request.FILES, instance=request.user)
+    if not form.is_valid():
+        error_list = form.errors.get("avatar") or ["Upload failed."]
+        return JsonResponse({"ok": False, "error": " ".join(error_list)}, status=400)
+
+    form.save()
+    return JsonResponse({"ok": True, "avatar_url": request.user.avatar.url})

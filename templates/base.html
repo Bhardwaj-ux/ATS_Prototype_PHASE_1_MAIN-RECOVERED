@@ -149,6 +149,10 @@
     display: flex; align-items: center; justify-content: space-between; gap: 16px;
     padding: 0 24px; color: var(--nav-text);
   }
+
+  .avatar-trigger { padding: 0; overflow: hidden; }
+  .avatar-img { width: 100%; height: 100%; object-fit: cover; border-radius: 10px; }
+  .avatar-initials { font-size: 0.76rem; font-weight: 700; }
   
   ::placeholder { color: var(--text-muted); opacity: 1; }
   .action-title { display: flex; flex-direction: column; padding: 6px 4px; }
@@ -471,8 +475,12 @@
         </div>
 
         <div class="profile-wrap">
-          <button type="button" class="icon-action" title="Account">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/></svg>
+          <button type="button" class="icon-action avatar-trigger" title="Account">
+            {% if user.avatar %}
+            <img src="{{ user.avatar.url }}" alt="{{ user.get_full_name }}" class="avatar-img">
+            {% else %}
+            <span class="avatar-initials">{{ user.initials }}</span>
+            {% endif %}
           </button>
           <div class="profile-dropdown">
             <div class="dropdown-header">
