@@ -6,27 +6,42 @@
 <style>
   .candidate-layout { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(320px, 1fr); gap: 16px; align-items: start; }
   .candidate-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 14px; flex-wrap: wrap; }
-  .status-top-badge { margin-top: 10px; }
-  .info-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin: 20px 0; }
-  .info-item { padding: 16px; border: 1px solid var(--border); border-radius: 18px; background: var(--surface-soft); }
-  .info-label { display: block; color: var(--text-muted); font-size: 0.86rem; margin-bottom: 8px; }
-  .info-value { font-weight: 700; color: var(--text); }
-  .decision-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 16px; }
-  .decision-box { border-radius: 12px; padding: 14px 12px; text-align: center; }
-  .decision-box a { display: block; font-weight: 700; }
+  .info-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin: 18px 0; }
+  .info-item { padding: 14px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface-soft); }
+  .info-label { display: block; color: var(--text-muted); font-size: 0.82rem; margin-bottom: 6px; }
+  .info-value { font-weight: 600; color: var(--text); font-size: 0.92rem; }
+  .decision-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 14px; }
+  .decision-box { border-radius: 10px; padding: 12px; text-align: center; }
+  .decision-box a { display: block; font-weight: 600; font-size: 0.86rem; }
   .decision-review { background: var(--warning-soft); }
-  .decision-review a { color: #92400E; }
+  .decision-review a { color: var(--warning-text); }
   .decision-shortlist { background: var(--success-soft); }
-  .decision-shortlist a { color: #166534; }
+  .decision-shortlist a { color: var(--success-text); }
   .decision-reject { background: var(--danger-soft); }
-  .decision-reject a { color: #991B1B; }
-  .resume-list { margin: 10px 0 0; padding-left: 22px; }
-  .resume-list li { margin-bottom: 8px; }
-  .skills-cloud { display: flex; flex-wrap: wrap; gap: 10px; }
-  .skill-pill { display: inline-flex; align-items: center; padding: 8px 12px; border-radius: 999px; background: var(--primary-soft); color: var(--primary); font-size: 0.88rem; font-weight: 700; }
-  .history-list { margin: 0; padding-left: 22px; }
-  .history-list li { margin-bottom: 10px; line-height: 1.55; }
-  .candidate-side { display: flex; flex-direction: column; gap: 18px; }
+  .decision-reject a { color: var(--danger-text); }
+  .resume-list { margin: 0 0 12px; padding-left: 0; list-style: none; }
+  .resume-list li { display: flex; align-items: center; gap: 8px; padding: 9px 10px; border: 1px solid var(--border); border-radius: 10px; margin-bottom: 8px; background: var(--surface-soft); }
+  .resume-list li svg { width: 15px; height: 15px; color: var(--text-muted); flex-shrink: 0; }
+  .resume-list li .file-meta { font-size: 0.78rem; color: var(--text-muted); margin-left: auto; }
+  .skills-cloud { display: flex; flex-wrap: wrap; gap: 8px; }
+  .skill-pill { display: inline-flex; align-items: center; padding: 6px 11px; border-radius: 999px; background: var(--primary-soft); color: var(--primary-soft-text); font-size: 0.82rem; font-weight: 600; }
+  .history-list { margin: 0; padding-left: 20px; }
+  .history-list li { margin-bottom: 8px; line-height: 1.5; font-size: 0.86rem; color: var(--text-muted); }
+  .candidate-side { display: flex; flex-direction: column; gap: 16px; }
+
+  .dropzone {
+    border: 1.5px dashed var(--border); border-radius: 12px; padding: 22px 14px;
+    text-align: center; cursor: pointer; transition: border-color var(--transition), background var(--transition);
+    background: var(--surface-soft); margin-top: 4px;
+  }
+  .dropzone:hover, .dropzone.dragover { border-color: var(--primary); background: var(--primary-soft); }
+  .dropzone svg { width: 26px; height: 26px; color: var(--text-muted); margin: 0 auto 8px; }
+  .dropzone p { margin: 0; font-size: 0.84rem; color: var(--text-muted); }
+  .dropzone .dz-primary { color: var(--text); font-weight: 600; }
+  .dropzone input[type="file"] { display: none; }
+  .dz-progress { height: 4px; background: var(--border); border-radius: 4px; margin-top: 10px; overflow: hidden; display: none; }
+  .dz-progress-bar { height: 100%; width: 0%; background: var(--primary); transition: width 200ms ease; }
+
   @media (max-width: 980px) { .candidate-layout { grid-template-columns: 1fr; } .decision-grid { grid-template-columns: 1fr; } }
 </style>
 {% endblock %}
@@ -38,7 +53,9 @@
     <p>{{ application.email }} &middot; {{ application.phone|default:"-" }}</p>
   </div>
   <div class="page-actions">
-    <a href="{% url 'applications:edit' application.pk %}" class="btn btn-secondary">Edit</a>
+    <a href="{% url 'applications:edit' application.pk %}" class="icon-btn-sm" title="Edit candidate">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+    </a>
   </div>
 </section>
 
@@ -46,7 +63,7 @@
   <section>
     <article class="info-card">
       <div class="candidate-top">
-        <span class="badge badge-{{ application.status }} status-top-badge">{{ application.get_status_display }}</span>
+        <span class="badge badge-{{ application.status }}">{{ application.get_status_display }}</span>
       </div>
 
       <div class="info-grid">
@@ -69,12 +86,12 @@
       </div>
 
       <h3 class="section-title">Summary</h3>
-      <div class="rich-copy" style="color: var(--text-muted); line-height: 1.7;">
+      <div style="color: var(--text-muted); line-height: 1.6; font-size: 0.9rem;">
         {{ application.summary|default:"No summary yet."|linebreaks }}
       </div>
     </article>
 
-    <article class="info-card" style="margin-top: 18px;">
+    <article class="info-card" style="margin-top: 16px;">
       <h3 class="section-title">Application Decision</h3>
       <div class="decision-grid">
         <div class="decision-box decision-review">
@@ -89,7 +106,7 @@
       </div>
     </article>
 
-    <article class="info-card" style="margin-top: 18px;">
+    <article class="info-card" style="margin-top: 16px;">
       <h3 class="section-title">Status History</h3>
       {% if application.status_history.all %}
       <ul class="history-list">
@@ -109,20 +126,23 @@
   <aside class="candidate-side">
     <article class="info-card">
       <h3 class="section-title">Resume Files</h3>
-      {% if application.resume_files.all %}
-      <ul class="resume-list">
+      <ul class="resume-list" id="resumeList">
         {% for resume in application.resume_files.all %}
-        <li>
+        <li data-file-id="{{ resume.pk }}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/></svg>
           <a href="{{ resume.file.url }}" target="_blank" rel="noopener noreferrer" class="text-link">{{ resume.original_filename }}</a>
-          <span style="color: var(--text-muted); font-size: 0.85rem;"> ({{ resume.file_size }} bytes)</span>
+          <span class="file-meta">{{ resume.file_size }} B</span>
         </li>
         {% endfor %}
       </ul>
-      {% else %}
-      <div class="empty-state left-empty">No files uploaded.</div>
-      {% endif %}
-      <div style="margin-top: 14px;">
-        <a href="{% url 'resumes:upload' %}" class="btn btn-secondary">Upload Resume</a>
+      <div id="resumeEmpty" class="empty-state left-empty" {% if application.resume_files.all %}style="display:none;"{% endif %}>No files uploaded yet.</div>
+
+      <div class="dropzone" id="dropzone">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 13v8"/><path d="m8 17 4-4 4 4"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
+        <p class="dz-primary">Drag &amp; drop a resume here</p>
+        <p>or click to browse &middot; PDF, DOC, DOCX up to 5MB</p>
+        <input type="file" id="dzFileInput" accept=".pdf,.doc,.docx">
+        <div class="dz-progress" id="dzProgress"><div class="dz-progress-bar" id="dzProgressBar"></div></div>
       </div>
     </article>
 
@@ -140,4 +160,112 @@
     </article>
   </aside>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var dropzone = document.getElementById('dropzone');
+  var fileInput = document.getElementById('dzFileInput');
+  var progress = document.getElementById('dzProgress');
+  var progressBar = document.getElementById('dzProgressBar');
+  var resumeList = document.getElementById('resumeList');
+  var resumeEmpty = document.getElementById('resumeEmpty');
+  if (!dropzone || !fileInput) return;
+
+  var applicationId = "{{ application.pk }}";
+  var uploadUrl = "{% url 'resumes:inline-upload' %}";
+
+  function getCookie(name) {
+    var value = "; " + document.cookie;
+    var parts = value.split("; " + name + "=");
+    if (parts.length === 2) return parts.pop().split(";").shift();
+    return null;
+  }
+
+  function fileIconSvg() {
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/></svg>';
+  }
+
+  function uploadFile(file) {
+    var formData = new FormData();
+    formData.append('file', file);
+    formData.append('application_id', applicationId);
+
+    progress.style.display = 'block';
+    progressBar.style.width = '20%';
+
+    fetch(uploadUrl, {
+      method: 'POST',
+      headers: { 'X-CSRFToken': getCookie('csrftoken') },
+      body: formData
+    })
+      .then(function (response) {
+        progressBar.style.width = '80%';
+        return response.json();
+      })
+      .then(function (data) {
+        progressBar.style.width = '100%';
+        setTimeout(function () {
+          progress.style.display = 'none';
+          progressBar.style.width = '0%';
+        }, 400);
+
+        if (data.ok) {
+          if (resumeEmpty) resumeEmpty.style.display = 'none';
+          var li = document.createElement('li');
+          li.setAttribute('data-file-id', data.file.id);
+          li.innerHTML = fileIconSvg() +
+            '<a href="' + data.file.url + '" target="_blank" rel="noopener noreferrer" class="text-link"></a>' +
+            '<span class="file-meta">' + data.file.size + ' B</span>';
+          li.querySelector('a').textContent = data.file.name;
+          resumeList.appendChild(li);
+          if (window.ATSNotify) {
+            window.ATSNotify.toast('Resume uploaded successfully.', 'success');
+            window.ATSNotify.add('Resume uploaded successfully.', 'success');
+          }
+        } else {
+          if (window.ATSNotify) {
+            window.ATSNotify.toast(data.error || 'Upload failed.', 'error');
+            window.ATSNotify.add(data.error || 'Upload failed.', 'error');
+          }
+        }
+      })
+      .catch(function () {
+        progress.style.display = 'none';
+        progressBar.style.width = '0%';
+        if (window.ATSNotify) {
+          window.ATSNotify.toast('Upload failed. Please try again.', 'error');
+          window.ATSNotify.add('Upload failed. Please try again.', 'error');
+        }
+      });
+  }
+
+  dropzone.addEventListener('click', function () { fileInput.click(); });
+
+  fileInput.addEventListener('change', function () {
+    if (fileInput.files && fileInput.files[0]) {
+      uploadFile(fileInput.files[0]);
+      fileInput.value = '';
+    }
+  });
+
+  ['dragenter', 'dragover'].forEach(function (evt) {
+    dropzone.addEventListener(evt, function (e) {
+      e.preventDefault(); e.stopPropagation();
+      dropzone.classList.add('dragover');
+    });
+  });
+  ['dragleave', 'drop'].forEach(function (evt) {
+    dropzone.addEventListener(evt, function (e) {
+      e.preventDefault(); e.stopPropagation();
+      dropzone.classList.remove('dragover');
+    });
+  });
+  dropzone.addEventListener('drop', function (e) {
+    var files = e.dataTransfer.files;
+    if (files && files[0]) uploadFile(files[0]);
+  });
+});
+</script>
 {% endblock %}
