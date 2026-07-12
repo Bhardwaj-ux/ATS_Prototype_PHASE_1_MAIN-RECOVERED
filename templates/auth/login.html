@@ -1,18 +1,97 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Login | ATS{% endblock %}
+{% block title %}Sign in | Elecbits ATS Platform{% endblock %}
 
 {% block extra_head %}
 <style>
-  .auth-title { margin: 0 0 10px; font-size: 1.9rem; color: var(--text); line-height: 1.1; }
-  .auth-text { margin: 0 0 24px; color: var(--text-muted); line-height: 1.6; }
-  .login-submit { width: 100%; margin-top: 8px; }
+  .auth-card { max-width: 380px; padding: 36px 34px 30px; }
+
+  .auth-logo-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 26px;
+  }
+  .auth-logo-row img {
+    height: 28px;
+    width: auto;
+    display: block;
+  }
+  .auth-logo-row .logo-dark { display: none; }
+  html[data-theme="dark"] .auth-logo-row .logo-light { display: none; }
+  html[data-theme="dark"] .auth-logo-row .logo-dark { display: block; }
+
+  .auth-title {
+    margin: 0 0 6px;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text);
+    text-align: center;
+    line-height: 1.2;
+  }
+  .auth-text {
+    margin: 0 0 28px;
+    color: var(--text-muted);
+    text-align: center;
+    font-size: 0.88rem;
+    line-height: 1.5;
+  }
+
+  .auth-field { position: relative; margin-bottom: 16px; }
+  .auth-field label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+    color: var(--text);
+    font-size: 0.82rem;
+  }
+  .auth-field .field-icon {
+    position: absolute;
+    left: 12px;
+    top: 38px;
+    width: 16px;
+    height: 16px;
+    color: var(--text-muted);
+    pointer-events: none;
+  }
+  .auth-field input {
+    padding-left: 36px;
+  }
+
+  .login-submit {
+    width: 100%;
+    margin-top: 6px;
+    height: 42px;
+    font-weight: 600;
+  }
+
+  .auth-footer {
+    margin-top: 22px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
+    text-align: center;
+    font-size: 0.86rem;
+    color: var(--text-muted);
+  }
+  .auth-footer a {
+    color: var(--primary);
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .auth-footer a:hover { text-decoration: underline; }
 </style>
 {% endblock %}
 
 {% block auth_content %}
+<div class="auth-logo-row">
+  <img src="{% static 'img/logo-black.png' %}" alt="Elecbits" class="logo-light">
+  <img src="{% static 'img/logo-white.png' %}" alt="Elecbits" class="logo-dark">
+</div>
+
 <h1 class="auth-title">Sign in</h1>
-<p class="auth-text">Manage candidates, job roles, and hiring activity inside the Elecbits ATS Workspace.</p>
+<p class="auth-text">Manage candidates, job roles, and hiring activity in one place.</p>
 
 <form method="post" novalidate>
   {% csrf_token %}
@@ -21,16 +100,24 @@
   <div class="form-errors">{{ form.non_field_errors }}</div>
   {% endif %}
 
-  {% for field in form %}
-  <div class="form-group">
-    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-    {{ field }}
-    {% if field.errors %}
-    <div class="form-errors">{{ field.errors }}</div>
-    {% endif %}
+  <div class="auth-field">
+    <label for="{{ form.username.id_for_label }}">Email</label>
+    <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z" opacity="0"/><path d="m4 6 8 7 8-7"/><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
+    {{ form.username }}
+    {% if form.username.errors %}<div class="form-errors">{{ form.username.errors }}</div>{% endif %}
   </div>
-  {% endfor %}
+
+  <div class="auth-field">
+    <label for="{{ form.password.id_for_label }}">Password</label>
+    <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+    {{ form.password }}
+    {% if form.password.errors %}<div class="form-errors">{{ form.password.errors }}</div>{% endif %}
+  </div>
 
   <button type="submit" class="btn btn-primary login-submit">Sign In</button>
 </form>
+
+<div class="auth-footer">
+  Don't have an account? <a href="{% url 'accounts:register' %}">Create one</a>
+</div>
 {% endblock %}
