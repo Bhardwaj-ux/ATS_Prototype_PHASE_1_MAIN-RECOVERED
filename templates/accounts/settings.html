@@ -203,6 +203,8 @@
         <button type="submit" class="btn btn-primary" style="margin-top: 8px;">Save Profile</button>
       </form>
 
+    {% elif active_tab == 'team' %}
+
       <div class="settings-panel-title">
         <h2>Team Members</h2>
         <button type="button" class="btn btn-primary" onclick="if(window.ATSNotify){window.ATSNotify.toast('Email invites are coming soon.', 'info'); window.ATSNotify.add('Email invites are coming soon.', 'info');}">
