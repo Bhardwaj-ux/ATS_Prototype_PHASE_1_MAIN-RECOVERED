@@ -11,7 +11,6 @@ from apps.applications.models import Application
 from .forms import (
     AvatarUploadForm,
     EmailAuthenticationForm,
-    UserPreferenceForm,
     UserProfileForm,
 )
 from .models import User, UserPreference
@@ -75,7 +74,6 @@ def settings_view(request):
         prefs.save(update_fields=["profile_name"])
 
     profile_identity_form = None
-    appearance_form = None
 
     if request.method == "POST":
         if request.POST.get("form") == "profile_identity":
@@ -83,13 +81,6 @@ def settings_view(request):
             if profile_identity_form.is_valid():
                 profile_identity_form.save()
                 messages.success(request, "Profile details updated successfully.")
-                return redirect(f"{reverse('accounts:settings')}?tab=profile")
-
-        elif request.POST.get("form") == "appearance":
-            appearance_form = UserPreferenceForm(request.POST, instance=prefs)
-            if appearance_form.is_valid():
-                appearance_form.save()
-                messages.success(request, "Appearance settings updated successfully.")
                 return redirect(f"{reverse('accounts:settings')}?tab=profile")
 
         elif request.POST.get("form") == "notifications":
@@ -107,8 +98,6 @@ def settings_view(request):
 
     if profile_identity_form is None:
         profile_identity_form = UserProfileForm(instance=request.user)
-    if appearance_form is None:
-        appearance_form = UserPreferenceForm(instance=prefs)
 
     notification_prefs = prefs.notification_prefs or default_notification_prefs()
     for key, _label in NOTIFICATION_EVENTS:
@@ -132,7 +121,6 @@ def settings_view(request):
         "active_tab": tab,
         "coming_soon_tabs": COMING_SOON_TABS,
         "profile_identity_form": profile_identity_form,
-        "appearance_form": appearance_form,
         "current_role": current_role,
         "team_members": team_members,
         "role_assignment_map": role_assignment_map,

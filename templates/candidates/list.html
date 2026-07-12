@@ -8,7 +8,6 @@
   .filter-search { flex: 1; min-width: 220px; position: relative; }
   .filter-search svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 15px; height: 15px; color: var(--text-muted); }
   .filter-search input { padding-left: 34px; }
-  .filter-toggle-btn { display: inline-flex; align-items: center; gap: 8px; }
   .filter-panel {
     display: none; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px;
     padding: 16px; border: 1px solid var(--border); border-radius: var(--radius-md);
@@ -66,30 +65,20 @@
 {% endblock %}
 
 {% block content %}
-<section class="page-header">
-  <div>
-    <h1>Candidates</h1>
-    <p>Review applicants, track progress through the hiring pipeline, and manage candidate records.</p>
-  </div>
-  <div class="page-actions">
-    <a href="{% url 'applications:create' %}" class="btn btn-primary">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
-      Add Candidate
-    </a>
-  </div>
-</section>
-
 <form method="get" id="filterForm">
   <div class="filter-bar">
     <div class="filter-search">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
       <input type="text" name="q" value="{{ current_filters.q }}" placeholder="Search by candidate name or email...">
     </div>
-    <button type="button" class="btn btn-secondary filter-toggle-btn" id="filterToggleBtn">
+    <button type="button" class="btn btn-secondary" id="filterToggleBtn">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
       Filters
     </button>
-    <button type="submit" class="btn btn-primary">Search</button>
+    <a href="{% url 'applications:create' %}" class="btn btn-primary">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+      Add Candidate
+    </a>
   </div>
 
   <div class="filter-panel" id="filterPanel">
@@ -147,7 +136,7 @@
   <table class="data-table">
     <thead>
       <tr>
-        <th style="width:36px;"><input type="checkbox" id="selectAll"></th>
+        <th style="width:36px;"><input type="checkbox" class="row-check" id="selectAll"></th>
         <th>Name</th>
         <th>Email</th>
         <th>Job Role</th>
@@ -172,7 +161,7 @@
     <tbody>
       {% for application in applications %}
       <tr>
-        <td><input type="checkbox" class="row-check" value="{{ application.pk }}"></td>
+        <td><input type="checkbox" class="row-check row-check-item" value="{{ application.pk }}"></td>
         <td><a href="{% url 'applications:detail' application.pk %}" class="text-link">{{ application.full_name }}</a></td>
         <td>{{ application.email }}</td>
         <td>{{ application.job.title }}</td>
@@ -212,12 +201,12 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   var selectAll = document.getElementById('selectAll');
-  var rowChecks = document.querySelectorAll('.row-check');
+  var rowChecks = document.querySelectorAll('.row-check-item');
   var bulkBar = document.getElementById('bulkBar');
   var bulkCount = document.getElementById('bulkCount');
 
   function refreshBulkBar() {
-    var checked = document.querySelectorAll('.row-check:checked');
+    var checked = document.querySelectorAll('.row-check-item:checked');
     if (checked.length > 0) {
       bulkBar.classList.remove('hidden');
       bulkCount.textContent = checked.length + ' selected';
@@ -237,7 +226,7 @@ document.addEventListener('DOMContentLoaded', function () {
   document.querySelectorAll('[data-bulk-action]').forEach(function (btn) {
     btn.addEventListener('click', function () {
       var action = btn.getAttribute('data-bulk-action');
-      var ids = Array.from(document.querySelectorAll('.row-check:checked')).map(function (cb) { return cb.value; });
+      var ids = Array.from(document.querySelectorAll('.row-check-item:checked')).map(function (cb) { return cb.value; });
       if (ids.length === 0) return;
       if (action === 'delete' && !confirm('Delete ' + ids.length + ' candidate(s)? This cannot be undone.')) return;
 
