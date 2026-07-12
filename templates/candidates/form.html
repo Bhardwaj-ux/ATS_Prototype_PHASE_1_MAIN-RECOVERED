@@ -24,12 +24,6 @@
 {% endblock %}
 
 {% block content %}
-<section class="page-header">
-  <div>
-    <h1>Candidate Form</h1>
-    <p>Capture candidate details, assign them to a job role, and record skills for ATS matching.</p>
-  </div>
-</section>
 
 {% if form.fields.job.queryset.count == 0 %}
 <article class="info-card">
