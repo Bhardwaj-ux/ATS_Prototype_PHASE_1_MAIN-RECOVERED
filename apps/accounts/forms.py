@@ -46,13 +46,13 @@ class RegisterForm(forms.ModelForm):
         fields = ["full_name", "email", "phone", "job_title"]
         widgets = {
             "full_name": forms.TextInput(
-                attrs={"class": "form-control", "placeholder": "Jane Doe"}
+                attrs={"class": "form-control", "placeholder": "Barry Allen"}
             ),
             "email": forms.EmailInput(
-                attrs={"class": "form-control", "placeholder": "you@company.com"}
+                attrs={"class": "form-control", "placeholder": "you@elecbits.in"}
             ),
             "phone": forms.TextInput(
-                attrs={"class": "form-control", "placeholder": "+91 98765 43210"}
+                attrs={"class": "form-control", "placeholder": "+91 ----- -----"}
             ),
             "job_title": forms.TextInput(
                 attrs={

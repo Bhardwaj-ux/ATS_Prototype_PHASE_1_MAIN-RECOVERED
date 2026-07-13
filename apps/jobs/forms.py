@@ -31,12 +31,12 @@ class JobForm(forms.ModelForm):
         cleaned = []
         seen = set()
         for part in parts:
-            skill = part.strip()
+            skill = part.lower().strip()
             if not skill:
                 continue
-            key = skill.lower()
+            key = skill
             if key in seen:
                 continue
             seen.add(key)
-            cleaned.append(skill)
+            cleaned.append(skill.lower())
         return ", ".join(cleaned)
