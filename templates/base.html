@@ -52,6 +52,7 @@
     --table-row-hover: #efeff5;
     --input-bg: #ffffff;
     --scrollbar: #cfcfda;
+    --task-bg: #eaedfa93;
   }
 
   /* ---- Dark theme: cool-matte dark, not navy-glossy ---- */
@@ -86,6 +87,7 @@
     --table-row-hover: #1f2029;
     --input-bg: #1b1b20;
     --scrollbar: #35343a;
+    --task-bg: #1f1f2381;
   }
 
   * { box-sizing: border-box; }
@@ -287,7 +289,7 @@
   .btn-primary { background: var(--primary); color: #FFFFFF; }
   .btn-primary:hover { background: var(--primary-hover); }
   .btn-secondary { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
-  .btn-secondary:hover { background: var(--surface-soft); }
+  .btn-secondary:hover { background: var(--task-bg); }
   .btn-danger { background: transparent; color: var(--danger-text); border: 1px solid var(--danger-soft); }
   .btn-danger:hover { background: var(--danger-soft); }
 
@@ -461,6 +463,13 @@
     
     <div class="panel-footer">
       <div class="coming-soon-box"><i><b>More Tasks Coming soon...</b></i></div>
+      <!-- <form method="post" action="{% url 'accounts:logout' %}" style="margin:0;">
+        {% csrf_token %}
+        <button type="submit" class="nav-item">
+          <span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg></span>
+          <span>Logout</span>
+        </button>
+      </form>  -->
     </div>
   </aside>
 
