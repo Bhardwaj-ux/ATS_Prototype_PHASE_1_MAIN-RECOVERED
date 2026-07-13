@@ -53,7 +53,7 @@
 {% block content %}
 <section class="page-header">
   <div>
-    <h1>Welcome, {{ user.first_name }}!</h1>
+    <h1>Welcome, {{ user.get_full_name }}!</h1>
     <p>Here's what's happening with your hiring activities today.</p>
   </div>
 </section>
@@ -89,7 +89,7 @@
       <tbody>
         {% for application in latest_applications %}
         <tr>
-          <td><a href="{% url 'applications:detail' application.pk %}" class="text-link">{{ application.full_name }}</a></td>
+          <td><a href="{% url 'applications:detail' application.pk %}" class="text-link">{{ application.get_full_name }}</a></td>
           <td>{{ application.job.title }}</td>
           <td><span class="badge badge-{{ application.status }}">{{ application.get_status_display }}</span></td>
         </tr>
