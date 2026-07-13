@@ -5,7 +5,10 @@
 
 {% block extra_head %}
 <style>
-  .auth-card { max-width: 460px; padding: 36px 34px 30px; }
+  .auth-card {
+    max-width: 460px;
+    padding: 36px 34px 30px;
+  }
 
   .auth-logo-row {
     display: flex;
@@ -14,10 +17,24 @@
     gap: 10px;
     margin-bottom: 26px;
   }
-  .auth-logo-row img { height: 28px; width: auto; display: block; }
-  .auth-logo-row .logo-dark { display: none; }
-  html[data-theme="dark"] .auth-logo-row .logo-light { display: none; }
-  html[data-theme="dark"] .auth-logo-row .logo-dark { display: block; }
+
+  .auth-logo-row img {
+    height: 28px;
+    width: auto;
+    display: block;
+  }
+
+  .auth-logo-row .logo-dark {
+    display: none;
+  }
+
+  html[data-theme="dark"] .auth-logo-row .logo-light {
+    display: none;
+  }
+
+  html[data-theme="dark"] .auth-logo-row .logo-dark {
+    display: block;
+  }
 
   .auth-title {
     margin: 0 0 6px;
@@ -27,6 +44,7 @@
     text-align: center;
     line-height: 1.2;
   }
+
   .auth-text {
     margin: 0 0 26px;
     color: var(--text-muted);
@@ -40,7 +58,10 @@
     grid-template-columns: 1fr 1fr;
     gap: 0 14px;
   }
-  .register-grid .form-group.full { grid-column: 1 / -1; }
+
+  .register-grid .form-group.full {
+    grid-column: 1 / -1;
+  }
 
   .register-submit {
     width: 100%;
@@ -57,11 +78,21 @@
     font-size: 0.86rem;
     color: var(--text-muted);
   }
-  .auth-footer a { color: var(--primary); font-weight: 600; text-decoration: none; }
-  .auth-footer a:hover { text-decoration: underline; }
+
+  .auth-footer a {
+    color: var(--primary);
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .auth-footer a:hover {
+    text-decoration: underline;
+  }
 
   @media (max-width: 480px) {
-    .register-grid { grid-template-columns: 1fr; }
+    .register-grid {
+      grid-template-columns: 1fr;
+    }
   }
 </style>
 {% endblock %}

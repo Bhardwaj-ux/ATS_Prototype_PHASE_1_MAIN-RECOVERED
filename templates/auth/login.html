@@ -5,7 +5,10 @@
 
 {% block extra_head %}
 <style>
-  .auth-card { max-width: 380px; padding: 36px 34px 30px; }
+  .auth-card {
+    max-width: 380px;
+    padding: 36px 34px 30px;
+  }
 
   .auth-logo-row {
     display: flex;
@@ -14,14 +17,24 @@
     gap: 10px;
     margin-bottom: 26px;
   }
+
   .auth-logo-row img {
     height: 28px;
     width: auto;
     display: block;
   }
-  .auth-logo-row .logo-dark { display: none; }
-  html[data-theme="dark"] .auth-logo-row .logo-light { display: none; }
-  html[data-theme="dark"] .auth-logo-row .logo-dark { display: block; }
+
+  .auth-logo-row .logo-dark {
+    display: none;
+  }
+
+  html[data-theme="dark"] .auth-logo-row .logo-light {
+    display: none;
+  }
+
+  html[data-theme="dark"] .auth-logo-row .logo-dark {
+    display: block;
+  }
 
   .auth-title {
     margin: 0 0 6px;
@@ -31,6 +44,7 @@
     text-align: center;
     line-height: 1.2;
   }
+
   .auth-text {
     margin: 0 0 28px;
     color: var(--text-muted);
@@ -39,7 +53,11 @@
     line-height: 1.5;
   }
 
-  .auth-field { position: relative; margin-bottom: 16px; }
+  .auth-field {
+    position: relative;
+    margin-bottom: 16px;
+  }
+
   .auth-field label {
     display: block;
     margin-bottom: 6px;
@@ -47,6 +65,7 @@
     color: var(--text);
     font-size: 0.82rem;
   }
+
   .auth-field .field-icon {
     position: absolute;
     left: 12px;
@@ -56,6 +75,7 @@
     color: var(--text-muted);
     pointer-events: none;
   }
+
   .auth-field input {
     padding-left: 36px;
   }
@@ -75,14 +95,19 @@
     font-size: 0.86rem;
     color: var(--text-muted);
   }
+
   .auth-footer a {
     color: var(--primary);
     font-weight: 600;
     text-decoration: none;
   }
-  .auth-footer a:hover { text-decoration: underline; }
+
+  .auth-footer a:hover {
+    text-decoration: underline;
+  }
 </style>
 {% endblock %}
+
 
 {% block auth_content %}
 <div class="auth-logo-row">
