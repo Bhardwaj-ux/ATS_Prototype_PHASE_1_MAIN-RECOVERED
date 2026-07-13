@@ -685,19 +685,19 @@
     .stat-card {
       padding: 20px;
     }
-
+    
     .info-card:hover {
       transform: translateY(-1.5px);
       box-shadow: var(--shadow-stat-card);
       transition: box-shadow var(--transition), transform var(--transition);
     }
-
+    
     .table-card:hover {
       transform: translateY(-1.5px);
       box-shadow: var(--shadow-stat-card);
       transition: box-shadow var(--transition), transform var(--transition);
     }
-
+    
     .grid-3 {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -711,13 +711,18 @@
     }
 
     .stat-card {
+      border-top: 3px solid var(--primary);
+      border-bottom: 3px solid var(--primary);
+      border-right: 3px solid var(--primary);
       border-left: 3px solid var(--primary);
     }
 
     .stat-card:hover {
+      transform:scale(1.05);
+      border: 0 solid var(--primary);
       transform: translateY(-1.5px);
-      box-shadow: var(--shadow-stat-card);
-      transition: box-shadow var(--transition), transform var(--transition);
+      box-shadow: 0 0 0 var(--shadow-stat-card) scale(1.05);
+      transition: 0.1s ease-in-out;
     }
 
     .stat-label {
