@@ -32,9 +32,6 @@
     border-radius: 10px;
     border: 1px solid var(--border);
     position: relative;
-  }
-
-  .task-row {
     background: var(--task-bg);
   }
 
@@ -72,7 +69,7 @@
   .task-title.done {
     text-decoration: line-through;
     color: var(--text-muted);
-    filter: opacity(60%)
+    filter: opacity(60%);
   }
 
   .task-priority-pill {
@@ -143,14 +140,19 @@
     box-shadow: var(--shadow-md);
     z-index: 20;
     padding: 4px;
-    ;
   }
 
   .task-menu-dropdown.open {
     display: block;
-    backdrop-filter: blur(10px);
-    filter: brightness(0.95);
+    backdrop-filter: blur(12px) saturate(180%);
+    -webkit-backdrop-filter: blur(12px) saturate(180%);
+    background: rgba(255, 255, 255, 0.55);
+    filter: brightness(0.98);
     border: 2px solid var(--border);
+  }
+
+  html[data-theme="dark"] .task-menu-dropdown.open {
+    background: rgba(40, 41, 47, 0.55);
   }
 
   .task-menu-item {
@@ -159,17 +161,15 @@
     text-align: left;
     padding: 7px 9px;
     border-radius: 9px;
-    border: var(--border);
+    border: none;
     cursor: pointer;
     font-size: 0.82rem;
     color: var(--text);
     background: none;
-    backdrop-filter: blur(7px);
-    filter: brightness(0.90)
   }
 
   .task-menu-item:hover {
-    background: rgba(0, 0, 0, 0.200);
+    background: rgba(0, 0, 0, 0.12);
   }
 
   .task-menu-item.danger {
@@ -197,9 +197,15 @@
 
   .priority-popover.open {
     display: block;
-    backdrop-filter: blur(7px);
-    filter: brightness(0.95);
+    backdrop-filter: blur(12px) saturate(180%);
+    -webkit-backdrop-filter: blur(12px) saturate(180%);
+    background: rgba(255, 255, 255, 0.55);
+    filter: brightness(0.98);
     border: 2px solid var(--border);
+  }
+
+  html[data-theme="dark"] .priority-popover.open {
+    background: rgba(40, 41, 47, 0.55);
   }
 
   .priority-popover button {
@@ -211,8 +217,6 @@
     cursor: pointer;
     font-size: 0.8rem;
     color: var(--text);
-    backdrop-filter: blur(7px);
-    filter: brightness(0.90)
   }
 
   .priority-popover button.task_none {
@@ -238,7 +242,7 @@
 
   .priority-popover button.task_low:hover {
     background: var(--priority-low-bg-hover);
-    color: var(--priority-low-text-hover)
+    color: var(--priority-low-text-hover);
   }
 
   .priority-popover button.task_moderate:hover {
@@ -248,23 +252,187 @@
 
   .priority-popover button.task_high:hover {
     background: var(--priority-high-bg-hover);
-    color: var(--priority-high-text-hover)
+    color: var(--priority-high-text-hover);
   }
-
 
   .task-add-row {
     display: none;
     gap: 8px;
     align-items: center;
-    margin-top: 10px;
+    margin-bottom: 10px;
   }
 
   .task-add-row.open {
     display: flex;
   }
 
-  .task-add-row input[type="text"] {
+  .task-add-input {
     flex: 1;
+    min-height: 42px;
+    padding: 10px 14px;
+    font-size: 0.88rem;
+    font-family: var(--font-sans);
+    color: var(--text);
+    background: var(--task-bg);
+    border: 1px solid var(--primary);
+    border-radius: 12px;
+    outline: none;
+    backdrop-filter: blur(14px) saturate(180%);
+    -webkit-backdrop-filter: blur(14px) saturate(180%);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  }
+
+  html[data-theme="dark"] .task-add-input {
+    background: var(--task-bg);
+    border: 1px solid var(--primary);
+  }
+
+  .task-add-input::placeholder {
+    color: var(--text-muted);
+  }
+
+  .task-add-input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--primary-soft);
+  }
+
+  /* ---- Custom glass dropdown (replaces native <select>) ---- */
+  .glass-select-wrap {
+    position: relative;
+    min-width: 150px;
+    flex-shrink: 0;
+  }
+
+  .glass-select-trigger {
+    width: 100%;
+    min-height: 42px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    font-size: 0.86rem;
+    font-family: var(--font-sans);
+    color: var(--text);
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid var(--primary);
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+    border-radius: 12px;
+    cursor: pointer;
+    backdrop-filter: blur(14px) saturate(180%);
+    -webkit-backdrop-filter: blur(14px) saturate(180%);
+    transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+  }
+
+  html[data-theme="dark"] .glass-select-trigger {
+    background: var(--task-bg);
+    border: 1px solid var(--primary);
+  }
+
+  .glass-select-trigger:hover {
+    border-color: var(--primary);
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  html[data-theme="dark"] .glass-select-trigger:hover {
+    background: var(--task-bg);
+  }
+
+  .glass-select-wrap.open .glass-select-trigger {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--primary-soft);
+  }
+
+  .glass-select-arrow {
+    width: 14px;
+    height: 14px;
+    color: var(--text);
+    opacity: 0.75;
+    flex-shrink: 0;
+    transition: transform 0.18s ease, opacity 0.18s ease;
+  }
+
+  .glass-select-wrap:hover .glass-select-arrow {
+    opacity: 1;
+  }
+
+  .glass-select-wrap.open .glass-select-arrow {
+    transform: rotate(180deg);
+  }
+
+  .glass-select-list {
+    display: none;
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    z-index: 30;
+    list-style: none;
+    margin: 0;
+    padding: 5%;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-md);
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+  }
+
+  html[data-theme="dark"] .glass-select-list {
+    background: rgba(30, 31, 36, 0.75);
+  }
+
+  .glass-select-wrap.open .glass-select-list {
+    display: block;
+  }
+
+  .glass-select-list li {
+    padding: 8px 10px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+
+  .glass-select-list li.opt-none {
+    color: var(--priority-none-text);
+  }
+
+  .glass-select-list li.opt-low {
+    color: var(--priority-low-text);
+  }
+
+  .glass-select-list li.opt-moderate {
+    color: var(--priority-moderate-text);
+  }
+
+  .glass-select-list li.opt-high {
+    color: var(--priority-high-text);
+  }
+
+  .glass-select-list li.opt-none:hover {
+    background: var(--priority-none-bg-hover);
+    color: var(--priority-none-text-hover);
+  }
+
+  .glass-select-list li.opt-low:hover {
+    background: var(--priority-low-bg-hover);
+    color: var(--priority-low-text-hover);
+  }
+
+  .glass-select-list li.opt-moderate:hover {
+    background: var(--priority-moderate-bg-hover);
+    color: var(--priority-moderate-text-hover);
+  }
+
+  .glass-select-list li.opt-high:hover {
+    background: var(--priority-high-bg-hover);
+    color: var(--priority-high-text-hover);
+  }
+
+  .glass-select-list li.active {
+    font-weight: 700;
   }
 
   .activity-list {
@@ -305,26 +473,28 @@
   }
 
   .donut-chart {
-    width: 170px;
-    height: 170px;
+    width: 190px;
+    height: 190px;
     border-radius: 50%;
     flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
+    border:none;
+    box-shadow: 4px 4px 10px black;
   }
 
   .donut-hole {
-    width: 108px;
-    height: 108px;
+    width: 120px;
+    height: 120px;
     border-radius: 50%;
     background: var(--surface);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    box-shadow: 3px 5px 10px var(--shadow-md);
+    box-shadow: inset 2px 3px 8px black;
   }
 
   .donut-hole strong {
@@ -335,27 +505,33 @@
   }
 
   .donut-hole span {
-    font-size: 0.68rem;
-    color: var(--text-muted);
+    font-size: 1rem;
+    color: var(--text);
     margin-top: 3px;
   }
 
   .source-legend {
     list-style: none;
     margin: 0 auto;
-    padding: 0;
+    padding: 10px;
+    padding-left: 5%;
+    padding-right: 5%;
     display: flex;
     flex-direction: column;
     gap: 7px;
-    width: 100%;
+    width: 190%;
+    height: auto;
+    font-size: 0.97rem;
     max-width: 300px;
+    background: var(--task-bg);
+    border: 1px solid var(--primary);
+    border-radius: 15px;
   }
 
   .source-legend li {
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 0.85rem;
     color: var(--text);
   }
 
@@ -412,7 +588,7 @@
     {% endif %}
   </article>
 
-<article class="table-card source-card">
+  <article class="table-card source-card">
     <h3 class="section-title">Candidate Sources</h3>
     {% if source_breakdown %}
     <div class="source-chart-wrap">
@@ -425,9 +601,9 @@
       <ul class="source-legend">
         {% for item in source_breakdown %}
         <li>
-          <span class="legend-dot" style="background: {{ item.color }};"></span>
+          <span class="legend-dot" style="background: {{ item.color }}"></span>
           <span class="legend-label" style="font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;">{{ item.label }} <b>&middot;</b> ({{ item.total }})</span>
-          <span class="legend-value" style="color: {{ item.color }};"><b>{{ item.pct }}% </b></span>
+          <span class="legend-value" style="color: {{ item.color }}"><b>{{ item.pct }}% </b></span>
         </li>
         {% endfor %}
       </ul>
@@ -448,6 +624,30 @@
       </button>
     </div>
 
+    <div class="task-add-row" id="taskAddRow">
+      <input type="text" id="taskAddInput" class="task-add-input" placeholder="Task title...">
+
+      <div class="glass-select-wrap" id="priorityDropdown">
+        <button type="button" class="glass-select-trigger" id="priorityTrigger">
+          <span id="priorityTriggerLabel">Select Priority</span>
+          <svg class="glass-select-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 9l6 6 6-6"/>
+          </svg>
+        </button>
+
+        <input type="hidden" id="taskAddPriority" value="none">
+
+        <ul class="glass-select-list" id="priorityList">
+          <li class="opt-none active" data-value="none">None</li>
+          <li class="opt-low" data-value="low">Low</li>
+          <li class="opt-moderate" data-value="moderate">Moderate</li>
+          <li class="opt-high" data-value="high">High</li>
+        </ul>
+      </div>
+
+      <button type="button" class="btn btn-primary" id="taskAddSubmit">Add</button>
+    </div>
+    
     <div class="task-list" id="taskList">
       {% for task in tasks %}
       <div class="task-row" data-task-id="{{ task.pk }}">
@@ -473,18 +673,7 @@
       {% empty %}
       <div class="empty-state left-empty" id="taskEmptyState">No tasks yet. Click "New" to add one.</div>
       {% endfor %}
-    </div>
-
-    <div class="task-add-row" id="taskAddRow">
-      <input type="text" id="taskAddInput" placeholder="Task title...">
-      <select id="taskAddPriority">
-        <option value="none">None</option>
-        <option value="low">Low</option>
-        <option value="moderate">Moderate</option>
-        <option value="high">High</option>
-      </select>
-      <button type="button" class="btn btn-primary" id="taskAddSubmit">Add</button>
-    </div>
+    </div>    
   </article>
 
   <article class="info-card activity-card">
@@ -518,13 +707,43 @@ document.addEventListener('DOMContentLoaded', function () {
   var addToggle = document.getElementById('taskAddToggle');
   var addRow = document.getElementById('taskAddRow');
   var addInput = document.getElementById('taskAddInput');
-  var addPriority = document.getElementById('taskAddPriority');
   var addSubmit = document.getElementById('taskAddSubmit');
 
   addToggle.addEventListener('click', function () {
     addRow.classList.toggle('open');
     if (addRow.classList.contains('open')) addInput.focus();
   });
+
+  /* ---- Custom glass priority dropdown for the Add row ---- */
+  var priorityDropdown = document.getElementById('priorityDropdown');
+  var priorityTrigger = document.getElementById('priorityTrigger');
+  var priorityTriggerLabel = document.getElementById('priorityTriggerLabel');
+  var priorityList = document.getElementById('priorityList');
+  var priorityHiddenInput = document.getElementById('taskAddPriority');
+
+  priorityTrigger.addEventListener('click', function (e) {
+    e.stopPropagation();
+    priorityDropdown.classList.toggle('open');
+  });
+
+  priorityList.querySelectorAll('li').forEach(function (li) {
+    li.addEventListener('click', function (e) {
+      e.stopPropagation();
+      priorityList.querySelectorAll('li').forEach(function (i) { i.classList.remove('active'); });
+      li.classList.add('active');
+      priorityTriggerLabel.textContent = li.textContent;
+      priorityHiddenInput.value = li.getAttribute('data-value');
+      priorityDropdown.classList.remove('open');
+    });
+  });
+
+  function resetPriorityDropdown() {
+    priorityList.querySelectorAll('li').forEach(function (i) { i.classList.remove('active'); });
+    var noneOption = priorityList.querySelector('[data-value="none"]');
+    noneOption.classList.add('active');
+    priorityTriggerLabel.textContent = 'None';
+    priorityHiddenInput.value = 'none';
+  }
 
   function priorityIconHtml() {
     return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>';
@@ -539,10 +758,10 @@ document.addEventListener('DOMContentLoaded', function () {
       '<span class="task-title"></span>' +
       '<span class="task-priority-pill" data-priority="' + task.priority + '"></span>' +
       '<div class="priority-popover">' +
-        '<button type="button" data-priority-set="none">None</button>' +
-        '<button type="button" data-priority-set="low">Low</button>' +
-        '<button type="button" data-priority-set="moderate">Moderate</button>' +
-        '<button type="button" data-priority-set="high">High</button>' +
+        '<button type="button" class="task_none" data-priority-set="none">None</button>' +
+        '<button type="button" class="task_low" data-priority-set="low">Low</button>' +
+        '<button type="button" class="task_moderate" data-priority-set="moderate">Moderate</button>' +
+        '<button type="button" class="task_high" data-priority-set="high">High</button>' +
       '</div>' +
       '<div class="task-menu-wrap">' +
         '<button type="button" class="task-menu-btn">' + priorityIconHtml() + '</button>' +
@@ -649,6 +868,7 @@ document.addEventListener('DOMContentLoaded', function () {
   document.addEventListener('click', function () {
     document.querySelectorAll('.priority-popover.open').forEach(function (p) { p.classList.remove('open'); });
     document.querySelectorAll('.task-menu-dropdown.open').forEach(function (d) { d.classList.remove('open'); });
+    priorityDropdown.classList.remove('open');
   });
 
   addSubmit.addEventListener('click', function () {
@@ -656,7 +876,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!title) return;
     var formData = new FormData();
     formData.append('title', title);
-    formData.append('priority', addPriority.value);
+    formData.append('priority', priorityHiddenInput.value);
     fetch('/tasks/create/', {
       method: 'POST',
       headers: { 'X-CSRFToken': getCookie('csrftoken') },
@@ -667,9 +887,9 @@ document.addEventListener('DOMContentLoaded', function () {
         if (data.ok) {
           var emptyState = document.getElementById('taskEmptyState');
           if (emptyState) emptyState.remove();
-          taskList.appendChild(buildTaskRow(data.task));
+          taskList.prepend(buildTaskRow(data.task));
           addInput.value = '';
-          addPriority.value = 'none';
+          resetPriorityDropdown();
           addRow.classList.remove('open');
         }
       });

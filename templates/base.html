@@ -7,6 +7,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>{% block title %}Elecbits | ATS Platform{% endblock %}</title>
 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet">
+
   <style>
     :root {
       --font-sans: "IBM Plex Sans", Inter, "Segoe UI", Roboto, Arial, sans-serif;
@@ -53,7 +57,7 @@
       --table-row-hover: #efeff5;
       --input-bg: #ffffff;
       --scrollbar: #cfcfda;
-      --task-bg: #eaedfa93;
+      --task-bg: #dfe2f1c3;
       --del-danger: rgba(109, 21, 21, 0.488);
       --priority-none-bg-hover: rgba(207, 204, 204, 0.542);
       --priority-low-bg-hover: rgba(0, 76, 255, 0.37);
@@ -83,25 +87,26 @@
       --border: #302f38;
       --text: #e4e4ec;
       --text-muted: #90909c;
-      --primary: #6C8EF5;
-      --primary-hover: #85A2F7;
+      --primary: #24429c;
+      --primary-hover: #3658c0;
       --primary-soft: #24304F;
-      --primary-soft-text: #9AB2F8;
+      --primary-soft-text: #9ab2f8d2;
       --success-soft: #4f8c63;
       --success-text: #124e24;
-      --warning-soft: #e6e286;
-      --warning-text: #b6a102;
+      --warning-soft: #ded981;
+      --warning-text: #695f13;
       --danger-soft: #f17f77;
       --danger-text: #9e120b;
       --info-soft: #1E2C46;
       --info-text: #8FB2EE;
-      --hired-soft: #2E2149;
-      --hired-text: #C4A6F5;
+      --hired-soft: #a57ff3;
+      --hired-text: #35116e;
       --table-row: #202023;
       --table-row-hover: #1f2029;
       --input-bg: #1b1b20;
       --scrollbar: #35343a;
-      --task-bg: #1f1f2381;
+      --task-bg: #202023d4;
+      --task-bg-muted: #20202390;
       --del-danger: rgba(226, 131, 131, 0.197);
       --priority-none-bg-hover: #484a5690;
       --priority-low-bg-hover: rgba(52, 66, 98, 0.762);
@@ -285,9 +290,10 @@
       margin: 18px 4px 0;
       padding: 12px;
       border-radius: 12px;
-      background: var(--nav-hover);
+      background: var(--actionbar-height);
       border: 1px dashed rgb(255, 255, 255);
       box-shadow: 2px 4px 6px rgba(0, 0, 0, 0.312);
+      font-family: "IBM Plex Sans";
       color: var(--nav-text-muted);
       font-size: 0.85rem;
       transition: 0.2s ease-in-out;
@@ -689,7 +695,7 @@
     .info-card,
     .table-card,
     .stat-card {
-      padding: 20px;
+      padding: 15px;
     }
 
     .info-card:hover {
@@ -899,11 +905,63 @@
     .btn-secondary {
       background: var(--surface);
       color: var(--text);
-      border: 1px solid var(--border);
+      border: 2px solid var(--border);
+    }
+    .btn-secondary:hover {
+      transition: 0.2s ease-in-out;
+      border: 2px solid var(--primary-hover);
     }
 
-    .btn-secondary:hover {
-      background: var(--task-bg);
+    .btn-secondary-under_review,
+    .btn-secondary-shortlist,
+    .btn-secondary-interview,
+    .btn-secondary-hired,
+    .btn-secondary-reject {
+      background: var(--surface);
+    }
+
+    .btn-secondary-under_review:hover {
+      background: var(--priority-moderate-bg-hover);
+      color: var(--priority-moderate-text-hover);
+    }
+
+    .btn-secondary-shortlist:hover {
+      background: var(--success-soft);
+      color: var(--success-text)
+    }
+
+    .btn-secondary-interview:hover {
+      background: var(--priority-low-bg-hover);
+      color: var(--priority-low-text-hover);
+    }
+
+    .btn-secondary-hired:hover {
+      background: var(--hired-soft);
+      color: var(--hired-text)
+    }
+
+    .btn-secondary-reject:hover {
+      background: var(--priority-high-bg-hover);
+      color: var(--priority-high-text-hover);
+    }
+    
+    .btn-secondary-open,
+    .btn-secondary-closed,
+    .btn-secondary-archive {
+      background: var(--surface);
+    }
+
+    .btn-secondary-open:hover {
+      background: var(--success-soft);
+      color: var(--success-text);
+    }
+    .btn-secondary-closed:hover{
+      background: var(--danger-soft);
+      color: var(--danger-text);
+    }
+    .btn-secondary-archive:hover {
+      background: var(--info-soft);
+      color: var(--info-text);
     }
 
     .btn-danger {
@@ -1178,9 +1236,9 @@
     .row-check {
       appearance: none;
       -webkit-appearance: none;
-      width: 19px;
-      height: 19px;
-      border-radius: 6px;
+      width: 20px;
+      height: 20px;
+      border-radius: 20px;
       border: 2px solid var(--border);
       background: var(--surface);
       cursor: pointer;
@@ -1344,12 +1402,11 @@
     }
   </style>
 
-{% block extra_head %}{% endblock %}
+{% block extra_head %}
+{% endblock %}
 </head>
 <body>
-
 <!-- Reusable icon defs (referenced via <use>) kept minimal; icons below are inlined directly per-usage -->
-
 {% if user.is_authenticated %}
 <div class="app-shell">
   <aside class="tasks-panel">
@@ -1390,7 +1447,7 @@
     </div>
     
     <div class="panel-footer">
-      <div class="coming-soon-box"><i><b>More Tasks Coming soon...</b></i></div>
+      <div class="coming-soon-box"><i>More Tasks Coming soon...</i></div>
     </div>
   </aside>
 
@@ -1686,6 +1743,7 @@
   });
 })();
 </script>
-{% block extra_js %}{% endblock %}
+{% block extra_js %}
+{% endblock %}
 </body>
 </html>

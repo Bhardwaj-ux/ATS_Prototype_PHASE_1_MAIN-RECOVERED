@@ -81,6 +81,7 @@
     gap: 8px;
     flex-wrap: wrap;
   }
+  .bulk-actions button
 
   @media (max-width: 700px) {
     .filter-panel {
@@ -140,9 +141,9 @@
 <div class="bulk-bar hidden" id="bulkBar">
   <span id="bulkCount">0 selected</span>
   <div class="bulk-actions">
-    <button type="button" class="btn btn-secondary" data-bulk-action="open">Set Open</button>
-    <button type="button" class="btn btn-secondary" data-bulk-action="closed">Set Closed</button>
-    <button type="button" class="btn btn-secondary" data-bulk-action="archived">Archive</button>
+    <button type="button" class="btn btn-secondary-open" data-bulk-action="open">Set Open</button>
+    <button type="button" class="btn btn-secondary-closed" data-bulk-action="closed">Set Closed</button>
+    <button type="button" class="btn btn-secondary-archive" data-bulk-action="archived">Archive</button>
     <button type="button" class="btn btn-danger" data-bulk-action="delete">Delete</button>
   </div>
 </div>

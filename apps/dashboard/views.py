@@ -35,6 +35,50 @@ def build_recent_activity():
     return activity
 
 
+SOURCE_COLOR_PALETTE = [
+    "#2F5FE0",
+    "#99dca3",
+    "#e6ddbc",
+    "#a7c3f0",
+    "#c9b0ec",
+    "#e7acac",
+]
+
+
+def build_source_breakdown():
+    rows = (
+        Application.objects.values("source")
+        .annotate(total=Count("id"))
+        .order_by("-total")
+    )
+
+    cleaned = {}
+    for row in rows:
+        label = (row["source"] or "").strip() or "Unspecified"
+        cleaned[label] = cleaned.get(label, 0) + row["total"]
+
+    items = sorted(cleaned.items(), key=lambda x: x[1], reverse=True)
+    total_count = sum(count for _, count in items)
+
+    breakdown = []
+    stops = []
+    start = 0
+    for i, (label, count) in enumerate(items):
+        pct = round((count / total_count) * 100) if total_count else 0
+        color = SOURCE_COLOR_PALETTE[i % len(SOURCE_COLOR_PALETTE)]
+        breakdown.append({"label": label, "total": count, "pct": pct, "color": color})
+        end = start + pct
+        stops.append(f"{color} {start}% {end}%")
+        start = end
+
+    gradient = (
+        f"conic-gradient({', '.join(stops)})"
+        if stops
+        else "conic-gradient(#dedee7 0% 100%)"
+    )
+    return breakdown, total_count, gradient
+
+
 class DashboardView(LoginRequiredMixin, TemplateView):
     template_name = "dashboard/index.html"
 
@@ -47,7 +91,9 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         context["candidates_hired"] = Application.objects.filter(status="hired").count()
         context["open_positions"] = Job.objects.filter(is_active=True).count()
         context["candidate_count"] = Application.objects.count()
-        context["shortlisted_count"] = Application.objects.filter(status="shortlisted").count()
+        context["shortlisted_count"] = Application.objects.filter(
+            status="shortlisted"
+        ).count()
         context["status_breakdown"] = (
             Application.objects.values("status")
             .annotate(total=Count("id"))
@@ -56,4 +102,9 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         context["latest_applications"] = Application.objects.select_related("job")[:10]
         context["tasks"] = Task.objects.filter(owner=self.request.user)
         context["recent_activity"] = build_recent_activity()
+
+        source_breakdown, source_total, source_conic_gradient = build_source_breakdown()
+        context["source_breakdown"] = source_breakdown
+        context["source_total"] = source_total
+        context["source_conic_gradient"] = source_conic_gradient
         return context

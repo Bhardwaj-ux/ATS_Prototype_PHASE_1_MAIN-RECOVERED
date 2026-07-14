@@ -56,7 +56,7 @@
 
   .decision-box {
     border-radius: 10px;
-    padding: 12px;
+    padding: 7px;
     text-align: center;
   }
 
@@ -68,42 +68,77 @@
 
   .decision-review {
     background: var(--warning-soft);
+    border: 1px solid var(--warning-soft);
   }
 
+  .decision-review:hover {
+    transition: 0.2s ease-in-out;
+    border: 1px solid var(--warning-text);
+    box-shadow: 0 0 5px var(--warning-text);
+  }
+  
   .decision-review a {
     color: var(--warning-text);
   }
-
+  
   .decision-shortlist {
     background: var(--success-soft);
+    border: 1px solid var(--success-soft);
   }
-
+  
   .decision-shortlist a {
     color: var(--success-text);
   }
-
+  
+  .decision-shortlist:hover {
+    transition: 0.2s ease-in-out;
+    border: 1px solid var(--success-text);
+    box-shadow: 0 0 5px var(--success-text);
+  }
+  
   .decision-reject {
+    border: 1px solid var(--danger-soft);
     background: var(--danger-soft);
   }
-
+  
   .decision-reject a {
     color: var(--danger-text);
   }
-
+  
+  .decision-reject:hover {
+    transition: 0.2s ease-in-out;
+    border: 1px solid var(--danger-text);
+    box-shadow: 0 0 5px var(--danger-text);
+  }
+  
   .decision-interview {
     background: var(--info-soft);
+    border: 1px solid var(--info-soft);
   }
-
+  
   .decision-interview a {
     color: var(--info-text);
   }
-
+  
+  .decision-interview:hover {
+    transition: 0.2s ease-in-out;
+    border: 1px solid var(--info-text);
+    box-shadow: 0 0 5px var(--info-text);
+  }
+  
   .decision-hired {
     background: var(--hired-soft);
+    border: 1px solid var(--hired-soft);
   }
-
+  
   .decision-hired a {
     color: var(--hired-text);
+  }
+
+  .decision-hired:hover {
+    transition: 0.2s ease-in-out;
+    border: 1px solid var(--hired-text);
+    box-shadow: 0 0 10px var(--hired-text);
   }
 
   .resume-list {
