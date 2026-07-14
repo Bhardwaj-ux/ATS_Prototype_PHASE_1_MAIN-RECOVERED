@@ -3,69 +3,378 @@
 {% block title %}Dashboard | ATS Platform{% endblock %}
 
 {% block extra_head %}
-<style>  
-  .task-card, .activity-card { display: flex; flex-direction: column; }
-  .task-header, .activity-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
-  .task-list { display: flex; flex-direction: column; gap: 8px; }
-  .task-row { display: flex; align-items: center; gap: 10px; padding: 10px; border-radius: 10px; border: 1px solid var(--border);position: relative;}
-
-  .task-row{ background: var(--task-bg); }
-  .task-row.none:hover { background: var(--surface); }
-  .task-row.low:hover { background: var(--low-priority); }
-  .task-row.moderate:hover { background: var(--moderate-priority); }
-  .task-row.high:hover { background: var(--high-priority); }
-
-  .task-checkbox { width: 20px; height: 20px; accent-color: var(--primary); flex-shrink: 0; cursor: pointer; border-radius: 10px;}
-  .task-title { flex: 1; font-size: 0.88rem; color: var(--text);}
-  .task-title.done { text-decoration: line-through; color: var(--text-muted); filter:opacity(60%)}
-  .task-priority-pill { font-size: 0.7rem; font-weight: 700; padding: 3px 8px; border-radius: 999px; cursor: pointer; flex-shrink: 0; }
-
-  .priority-none { background: var(--surface); color: var(--text-muted); border: 1px solid var(--border); }
-  .priority-low { background: var(--info-soft); color: var(--info-text); }
-  .priority-moderate { background: var(--warning-soft); color: var(--warning-text); }
-  .priority-high { background: var(--danger-soft); color: var(--danger-text); }
-
-  .task-menu-wrap { position: relative; flex-shrink: 0; }
-  .task-menu-btn { border: none; background: none; color: var(--text-muted); cursor: pointer; width: 24px; height: 24px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; }
-  .task-menu-btn:hover { background: var(--surface); }
-  .task-menu-btn svg { width: 15px; height: 15px; }
-  .task-menu-dropdown {
-    display:none; position: absolute; right: 0; top: calc(100% + 4px); width: 130px;
-    border: 1px solid var(--border); border-radius: 10px; box-shadow: var(--shadow-md); z-index: 20; padding: 4px;;
+<style>
+  .task-card,
+  .activity-card {
+    display: flex;
+    flex-direction: column;
   }
-  .task-menu-dropdown.open { display: block; backdrop-filter: blur(10px); filter: brightness(0.95); border: 2px solid var(--border); }
-  .task-menu-item { display: block; width: 100%; text-align: left; padding: 7px 9px; border-radius: 9px; border: var(--border); cursor: pointer; font-size: 0.82rem; color: var(--text); background:none; backdrop-filter:blur(7px); filter:brightness(0.90)}
-  .task-menu-item:hover { background: rgba(0, 0, 0, 0.200); }
-  .task-menu-item.danger { color: var(--danger-text);}
-  .task-menu-item.danger:hover { background: var(--del-danger); }
+
+  .task-header,
+  .activity-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+
+  .task-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .task-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    position: relative;
+  }
+
+  .task-row {
+    background: var(--task-bg);
+  }
+
+  .task-row.none:hover {
+    background: var(--surface);
+  }
+
+  .task-row.low:hover {
+    background: var(--low-priority);
+  }
+
+  .task-row.moderate:hover {
+    background: var(--moderate-priority);
+  }
+
+  .task-row.high:hover {
+    background: var(--high-priority);
+  }
+
+  .task-checkbox {
+    width: 20px;
+    height: 20px;
+    accent-color: var(--primary);
+    flex-shrink: 0;
+    cursor: pointer;
+    border-radius: 10px;
+  }
+
+  .task-title {
+    flex: 1;
+    font-size: 0.88rem;
+    color: var(--text);
+  }
+
+  .task-title.done {
+    text-decoration: line-through;
+    color: var(--text-muted);
+    filter: opacity(60%)
+  }
+
+  .task-priority-pill {
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 999px;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .priority-none {
+    background: var(--surface);
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+  }
+
+  .priority-low {
+    background: var(--info-soft);
+    color: var(--info-text);
+  }
+
+  .priority-moderate {
+    background: var(--warning-soft);
+    color: var(--warning-text);
+  }
+
+  .priority-high {
+    background: var(--danger-soft);
+    color: var(--danger-text);
+  }
+
+  .task-menu-wrap {
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .task-menu-btn {
+    border: none;
+    background: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .task-menu-btn:hover {
+    background: var(--surface);
+  }
+
+  .task-menu-btn svg {
+    width: 15px;
+    height: 15px;
+  }
+
+  .task-menu-dropdown {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: calc(100% + 4px);
+    width: 130px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    box-shadow: var(--shadow-md);
+    z-index: 20;
+    padding: 4px;
+    ;
+  }
+
+  .task-menu-dropdown.open {
+    display: block;
+    backdrop-filter: blur(10px);
+    filter: brightness(0.95);
+    border: 2px solid var(--border);
+  }
+
+  .task-menu-item {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 7px 9px;
+    border-radius: 9px;
+    border: var(--border);
+    cursor: pointer;
+    font-size: 0.82rem;
+    color: var(--text);
+    background: none;
+    backdrop-filter: blur(7px);
+    filter: brightness(0.90)
+  }
+
+  .task-menu-item:hover {
+    background: rgba(0, 0, 0, 0.200);
+  }
+
+  .task-menu-item.danger {
+    color: var(--danger-text);
+  }
+
+  .task-menu-item.danger:hover {
+    background: var(--del-danger);
+  }
 
   .priority-popover {
-    display: none; position: absolute; bottom: calc(100% + 6px); right: 40px; z-index: 25;
-    border: 1px solid var(--border); border-radius: 10px;
-    box-shadow: var(--shadow-md); padding: 6px; gap: 4px; flex-direction: column; min-width: 110px;
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 6px);
+    right: 40px;
+    z-index: 25;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    box-shadow: var(--shadow-md);
+    padding: 6px;
+    gap: 4px;
+    flex-direction: column;
+    min-width: 110px;
   }
-  .priority-popover.open { display: block; backdrop-filter: blur(7px); filter: brightness(0.95); border: 2px solid var(--border); }
-  
-  .priority-popover button { text-align: left; border: none; background:none; padding: 6px 8px; border-radius: 7px; cursor: pointer; font-size: 0.8rem; color: var(--text); backdrop-filter: blur(7px); filter: brightness(0.90) }
 
-  .priority-popover button.task_none { color: var(--priority-none-text); }
-  .priority-popover button.task_low { color: var(--priority-low-text); }
-  .priority-popover button.task_moderate { color: var(--priority-moderate-text); }
-  .priority-popover button.task_high { color: var(--priority-high-text); }
+  .priority-popover.open {
+    display: block;
+    backdrop-filter: blur(7px);
+    filter: brightness(0.95);
+    border: 2px solid var(--border);
+  }
 
-  .priority-popover button.task_none:hover { background: var(--priority-none-bg-hover); color: var(--priority-none-text-hover); }
-  .priority-popover button.task_low:hover { background: var(--priority-low-bg-hover); color: var(--priority-low-text-hover)}
-  .priority-popover button.task_moderate:hover { background: var(--priority-moderate-bg-hover); color: var(--priority-moderate-text-hover); }
-  .priority-popover button.task_high:hover { background: var(--priority-high-bg-hover); color: var(--priority-high-text-hover)}
+  .priority-popover button {
+    text-align: left;
+    border: none;
+    background: none;
+    padding: 6px 8px;
+    border-radius: 7px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    color: var(--text);
+    backdrop-filter: blur(7px);
+    filter: brightness(0.90)
+  }
+
+  .priority-popover button.task_none {
+    color: var(--priority-none-text);
+  }
+
+  .priority-popover button.task_low {
+    color: var(--priority-low-text);
+  }
+
+  .priority-popover button.task_moderate {
+    color: var(--priority-moderate-text);
+  }
+
+  .priority-popover button.task_high {
+    color: var(--priority-high-text);
+  }
+
+  .priority-popover button.task_none:hover {
+    background: var(--priority-none-bg-hover);
+    color: var(--priority-none-text-hover);
+  }
+
+  .priority-popover button.task_low:hover {
+    background: var(--priority-low-bg-hover);
+    color: var(--priority-low-text-hover)
+  }
+
+  .priority-popover button.task_moderate:hover {
+    background: var(--priority-moderate-bg-hover);
+    color: var(--priority-moderate-text-hover);
+  }
+
+  .priority-popover button.task_high:hover {
+    background: var(--priority-high-bg-hover);
+    color: var(--priority-high-text-hover)
+  }
 
 
-  .task-add-row { display: none; gap: 8px; align-items: center; margin-top: 10px; }
-  .task-add-row.open { display: flex; }
-  .task-add-row input[type="text"] { flex: 1; }
+  .task-add-row {
+    display: none;
+    gap: 8px;
+    align-items: center;
+    margin-top: 10px;
+  }
 
-  .activity-list { display: flex; flex-direction: column; gap: 10px; }
-  .activity-row { display: flex; align-items: flex-start; gap: 10px; font-size: 0.86rem; color: var(--text); line-height: 1.5; }
-  .activity-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--primary); margin-top: 6px; flex-shrink: 0; }
+  .task-add-row.open {
+    display: flex;
+  }
+
+  .task-add-row input[type="text"] {
+    flex: 1;
+  }
+
+  .activity-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .activity-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 0.86rem;
+    color: var(--text);
+    line-height: 1.5;
+  }
+
+  .activity-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--primary);
+    margin-top: 6px;
+    flex-shrink: 0;
+  }
+
+  .source-card {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .source-chart-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 22px;
+  }
+
+  .donut-chart {
+    width: 170px;
+    height: 170px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .donut-hole {
+    width: 108px;
+    height: 108px;
+    border-radius: 50%;
+    background: var(--surface);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 3px 5px 10px var(--shadow-md);
+  }
+
+  .donut-hole strong {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1;
+  }
+
+  .donut-hole span {
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    margin-top: 3px;
+  }
+
+  .source-legend {
+    list-style: none;
+    margin: 0 auto;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .source-legend li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    color: var(--text);
+  }
+
+  .legend-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 30%;
+    flex-shrink: 0;
+  }
+
+  .legend-label {
+    flex: 1;
+  }
+
+  .legend-value {
+    color: var(--text);
+    font-size: 0.78rem;
+    white-space: nowrap;
+  }
 </style>
 {% endblock %}
 
@@ -79,7 +388,7 @@
 
 <section class="grid-3" style="margin-bottom: 16px;">
   <article class="stat-card"><p class="stat-label">Total Job Roles</p><h2 class="stat-value">{{ job_count }}</h2></article>
-  <article class="stat-card"><p class="stat-label">Open Positions</p><h2 class="stat-value">{{ open_positions }}</h2></article>
+  <article class="stat-card"><p class="stat-label">Open Job Roles</p><h2 class="stat-value">{{ open_positions }}</h2></article>
   <article class="stat-card"><p class="stat-label">Interviews Scheduled</p><h2 class="stat-value">{{ interview_count }}</h2></article>
   <article class="stat-card"><p class="stat-label">Candidates Hired</p><h2 class="stat-value">{{ candidates_hired }}</h2></article>
   <article class="stat-card"><p class="stat-label">Total Candidates</p><h2 class="stat-value">{{ candidate_count }}</h2></article>
@@ -103,23 +412,28 @@
     {% endif %}
   </article>
 
-  <article class="table-card">
-    <h3 class="section-title">Latest Applications</h3>
-    {% if latest_applications %}
-    <table class="data-table">
-      <thead><tr><th>Name</th><th>Job Role</th><th>Status</th></tr></thead>
-      <tbody>
-        {% for application in latest_applications %}
-        <tr>
-          <td><a href="{% url 'applications:detail' application.pk %}" class="text-link">{{ application.get_full_name }}</a></td>
-          <td>{{ application.job.title }}</td>
-          <td><span class="badge badge-{{ application.status }}">{{ application.get_status_display }}</span></td>
-        </tr>
+<article class="table-card source-card">
+    <h3 class="section-title">Candidate Sources</h3>
+    {% if source_breakdown %}
+    <div class="source-chart-wrap">
+      <div class="donut-chart" style="background: {{ source_conic_gradient|safe }}">
+        <div class="donut-hole">
+          <strong>{{ source_total }}</strong>
+          <span>Candidates</span>
+        </div>
+      </div>
+      <ul class="source-legend">
+        {% for item in source_breakdown %}
+        <li>
+          <span class="legend-dot" style="background: {{ item.color }};"></span>
+          <span class="legend-label" style="font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;">{{ item.label }} <b>&middot;</b> ({{ item.total }})</span>
+          <span class="legend-value" style="color: {{ item.color }};"><b>{{ item.pct }}% </b></span>
+        </li>
         {% endfor %}
-      </tbody>
-    </table>
+      </ul>
+    </div>
     {% else %}
-    <div class="empty-state">No applications have been added yet.</div>
+    <div class="empty-state">No candidate source data available yet.</div>
     {% endif %}
   </article>
 </section>

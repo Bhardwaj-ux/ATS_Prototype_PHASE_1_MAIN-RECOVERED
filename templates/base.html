@@ -9,7 +9,7 @@
 
   <style>
     :root {
-      --font-sans: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+      --font-sans: "IBM Plex Sans", Inter, "Segoe UI", Roboto, Arial, sans-serif;
       --radius-sm: 10px;
       --radius-md: 14px;
       --radius-lg: 18px;
@@ -293,7 +293,7 @@
       transition: 0.2s ease-in-out;
       filter: blur(1px);
     }
-    
+
     .coming-soon-box:hover {
       box-shadow: 2px 4px 6px rgba(0, 0, 0, 0.681);
       color: var(--nav-text);
@@ -432,8 +432,9 @@
       box-shadow: var(--shadow-sm);
       pointer-events: none;
     }
+
     .icon-action[title]:open::after {
-      display:none;
+      display: none;
     }
 
     .notif-badge {
@@ -690,24 +691,25 @@
     .stat-card {
       padding: 20px;
     }
-    
+
     .info-card:hover {
       box-shadow: var(--shadow-stat-card);
       backdrop-filter: blur(3px);
       transition: box-shadow var(--transition), transform var(--transition);
     }
-    
+
     .table-card:hover {
       box-shadow: var(--shadow-stat-card);
       backdrop-filter: blur(3px);
       transition: box-shadow var(--transition), transform var(--transition);
     }
+
     .grid-2 {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 16px;
     }
-    
+
     .grid-3 {
       display: grid;
       grid-template-columns: repeat(6, 1fr);
