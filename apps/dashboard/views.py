@@ -41,8 +41,13 @@ class DashboardView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["job_count"] = Job.objects.filter(is_active=True).count()
-        context["application_count"] = Application.objects.count()
-        context["resume_count"] = ResumeFile.objects.count()
+        context["interview_count"] = Application.objects.filter(
+            status="interview"
+        ).count()
+        context["candidates_hired"] = Application.objects.filter(status="hired").count()
+        context["open_positions"] = Job.objects.filter(is_active=True).count()
+        context["candidate_count"] = Application.objects.count()
+        context["shortlisted_count"] = Application.objects.filter(status="shortlisted").count()
         context["status_breakdown"] = (
             Application.objects.values("status")
             .annotate(total=Count("id"))

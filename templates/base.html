@@ -15,7 +15,7 @@
       --radius-lg: 18px;
       --shadow-sm: 3px 1px 5px rgba(18, 18, 20, 0.133), 8px 2px 5px rgba(34, 34, 37, 0.04);
       --shadow-md: 3px 6px 20px rgba(18, 18, 20, 0.08);
-      --shadow-stat-card: 4px 4px 10px rgba(7, 12, 24, 0.223);
+      --shadow-stat-card: 0 0 20px rgba(7, 12, 24, 0.223);
       --transition: 160ms ease-in-out;
       --sidebar-width: 250px;
       --actionbar-height: 68px;
@@ -398,7 +398,7 @@
       color: var(--nav-text);
       height: 38px;
       width: 38px;
-      border-radius: 10px;
+      border-radius: 16px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -409,6 +409,7 @@
     .icon-action svg {
       width: 18px;
       height: 18px;
+      border-radius: 20%;
     }
 
     .icon-action:hover {
@@ -430,6 +431,9 @@
       white-space: nowrap;
       box-shadow: var(--shadow-sm);
       pointer-events: none;
+    }
+    .icon-action[title]:open::after {
+      display:none;
     }
 
     .notif-badge {
@@ -674,9 +678,10 @@
     .stat-card,
     .info-card {
       background: var(--surface);
-      border: 1px solid var(--border);
+      border: 2px solid var(--primary);
+      box-shadow: none;
       border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-sm);
+      transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
     }
 
     .card,
@@ -687,54 +692,61 @@
     }
     
     .info-card:hover {
-      transform: translateY(-1.5px);
       box-shadow: var(--shadow-stat-card);
+      backdrop-filter: blur(3px);
       transition: box-shadow var(--transition), transform var(--transition);
     }
     
     .table-card:hover {
-      transform: translateY(-1.5px);
       box-shadow: var(--shadow-stat-card);
+      backdrop-filter: blur(3px);
       transition: box-shadow var(--transition), transform var(--transition);
     }
-    
-    .grid-3 {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 16px;
-    }
-
     .grid-2 {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 16px;
     }
+    
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 12px;
+      margin-bottom: 16px;
+    }
 
     .stat-card {
-      border-top: 3px solid var(--primary);
-      border-bottom: 3px solid var(--primary);
-      border-right: 3px solid var(--primary);
-      border-left: 3px solid var(--primary);
+      border: 2px solid var(--primary);
+      box-shadow: none;
+      box-sizing: border-box;
+      text-align: left;
+      min-height: 100px;
+      transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+      display: flex;
+      flex-direction: column;
+      justify-content: left;
+      align-items: left;
+      border-radius: var(--radius-lg);
     }
 
     .stat-card:hover {
-      transform:scale(1.05);
-      border: 0 solid var(--primary);
-      transform: translateY(-1.5px);
-      box-shadow: 0 0 0 var(--shadow-stat-card) scale(1.05);
-      transition: 0.1s ease-in-out;
+      border: 3px solid var(--primary);
+      transform: translateY(-1.2px) scale(1.01);
+      box-shadow: var(--shadow-stat-card);
+      backdrop-filter: blur(3px);
     }
 
     .stat-label {
-      margin: 0 0 14px;
-      color: var(--text-muted);
-      font-size: 0.86rem;
+      margin: 0 0 10px;
+      color: var(--text);
+      font-size: 0.90rem;
       font-weight: 600;
+      line-height: 1.4;
     }
 
     .stat-value {
-      margin: 0;
-      font-size: 2.1rem;
+      margin: 4px 0;
+      font-size: 2.2rem;
       line-height: 1;
       color: var(--text);
       font-weight: 700;
