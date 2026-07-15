@@ -57,6 +57,125 @@
     gap: 10px;
   }
 
+  .glass-select-wrap {
+    position: relative;
+    width: 100%;
+  }
+
+  .glass-select-trigger {
+    width: 100%;
+    min-height: 42px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    font-size: 0.86rem;
+    font-family: var(--font-sans);
+    color: var(--text);
+    background: var(--surface-soft);
+    /* box-shadow: 0 0 3px rgba(30, 31, 36, 0.75); */ 
+    box-shadow: 0 0 3px var(--primary-soft-text);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    cursor: pointer;
+    backdrop-filter: blur(1px) saturate(180%);
+    -webkit-backdrop-filter: blur(1px) saturate(180%);
+    transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+  }
+
+  html[data-theme="dark"] .glass-select-trigger {
+    background: var(--task-bg);
+    border: 1px solid var(--border);
+  }
+
+  .glass-select-trigger:hover {
+    border: 1px solid var(--primary);
+    backdrop-filter: brightness(150%);
+    transition: 0.2s ease-in-out;
+  }
+
+  html[data-theme="dark"] .glass-select-trigger:hover {
+    border: 1px solid var(--primary);
+    backdrop-filter: brightness(150%);
+    transition: 0.2s ease-in-out;
+  }
+
+  .glass-select-wrap.open .glass-select-trigger {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--primary-soft);
+  }
+
+  .glass-select-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .glass-select-arrow {
+    width: 14px;
+    height: 14px;
+    color: var(--text);
+    opacity: 0.75;
+    flex-shrink: 0;
+    transition: transform 0.18s ease, opacity 0.18s ease;
+  }
+
+  .glass-select-wrap:hover .glass-select-arrow {
+    opacity: 1;
+  }
+
+  .glass-select-wrap.open .glass-select-arrow {
+    transform: rotate(180deg);
+  }
+
+  .glass-select-list {
+    display: none;
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    z-index: 30;
+    list-style: none;
+    margin: 0;
+    padding: 6px;
+    max-height: 240px;
+    overflow-y: auto;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-md);
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+  }
+
+  html[data-theme="dark"] .glass-select-list {
+    background: rgba(30, 31, 36, 0.75);
+  }
+
+  .glass-select-wrap.open .glass-select-list {
+    display: block;
+  }
+
+  .glass-select-list li {
+    padding: 8px 10px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    color: var(--text);
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+
+  .glass-select-list li:hover {
+    background: var(--info-soft);
+    color: var(--primary-soft-text);
+  }
+
+  .glass-select-list li.active {
+    font-weight: 700;
+    color: var(--primary);
+  }
+
   .bulk-bar {
     display: flex;
     align-items: center;
@@ -233,23 +352,46 @@
 
   <div class="filter-panel" id="filterPanel">
     <div class="form-group">
-      <label>Job Role</label>
-      <select name="job">
-        <option value="">All roles</option>
+    <label>Job Role</label>
+    <div class="glass-select-wrap" data-glass-select>
+      <button type="button" class="glass-select-trigger">
+        <span class="glass-select-label">All roles</span>
+        <svg class="glass-select-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 9l6 6 6-6"/>
+        </svg>
+      </button>
+
+      <input type="hidden" name="job" value="{{ current_filters.job|default:'' }}">
+
+      <ul class="glass-select-list">
+        <li data-value="" {% if not current_filters.job %}class="active"{% endif %}>All roles</li>
         {% for job in jobs_for_filter %}
-        <option value="{{ job.pk }}" {% if current_filters.job == job.pk|stringformat:"s" %}selected{% endif %}>{{ job.title }}</option>
+        <li data-value="{{ job.pk }}" {% if current_filters.job == job.pk|stringformat:"s" %}class="active"{% endif %}>{{ job.title }}</li>
         {% endfor %}
-      </select>
+      </ul>
     </div>
-    <div class="form-group">
-      <label>Status</label>
-      <select name="status">
-        <option value="">All statuses</option>
+  </div>
+
+  <div class="form-group">
+    <label>Status</label>
+    <div class="glass-select-wrap" data-glass-select>
+      <button type="button" class="glass-select-trigger">
+        <span class="glass-select-label">All statuses</span>
+        <svg class="glass-select-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 9l6 6 6-6"/>
+        </svg>
+      </button>
+
+      <input type="hidden" name="status" value="{{ current_filters.status|default:'' }}">
+
+      <ul class="glass-select-list">
+        <li data-value="" {% if not current_filters.status %}class="active"{% endif %}>All statuses</li>
         {% for value, label in status_choices %}
-        <option value="{{ value }}" {% if current_filters.status == value %}selected{% endif %}>{{ label }}</option>
+        <li data-value="{{ value }}" {% if current_filters.status == value %}class="active"{% endif %}>{{ label }}</li>
         {% endfor %}
-      </select>
+      </ul>
     </div>
+  </div>
     <div class="form-group">
       <label>Min Experience (yrs)</label>
       <input type="number" step="0.5" min="0" name="exp_min" value="{{ current_filters.exp_min }}" placeholder="e.g. 2">
@@ -342,6 +484,38 @@ document.addEventListener('DOMContentLoaded', function () {
     var hasActiveFilters = {{ current_filters.job|yesno:"true,false" }} || {{ current_filters.status|yesno:"true,false" }} || {{ current_filters.exp_min|yesno:"true,false" }} || {{ current_filters.exp_max|yesno:"true,false" }} || {{ current_filters.source|yesno:"true,false" }};
     if (hasActiveFilters) { filterPanel.classList.add('open'); }
   }
+
+  document.querySelectorAll('[data-glass-select]').forEach(function (wrap) {
+    var trigger = wrap.querySelector('.glass-select-trigger');
+    var label = wrap.querySelector('.glass-select-label');
+    var hiddenInput = wrap.querySelector('input[type="hidden"]');
+    var list = wrap.querySelector('.glass-select-list');
+
+    trigger.addEventListener('click', function (e) {
+      e.stopPropagation();
+      document.querySelectorAll('.glass-select-wrap.open').forEach(function (w) {
+        if (w !== wrap) w.classList.remove('open');
+      });
+      wrap.classList.toggle('open');
+    });
+
+    list.querySelectorAll('li').forEach(function (li) {
+      li.addEventListener('click', function (e) {
+        e.stopPropagation();
+        list.querySelectorAll('li').forEach(function (i) { i.classList.remove('active'); });
+        li.classList.add('active');
+        label.textContent = li.textContent;
+        hiddenInput.value = li.getAttribute('data-value');
+        wrap.classList.remove('open');
+      });
+    });
+  });
+
+  document.addEventListener('click', function () {
+    document.querySelectorAll('.glass-select-wrap.open').forEach(function (w) {
+      w.classList.remove('open');
+    });
+  });
 
   function getCookie(name) {
     var value = "; " + document.cookie;

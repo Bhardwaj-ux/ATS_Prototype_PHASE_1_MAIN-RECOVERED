@@ -975,33 +975,49 @@
     }
 
     .icon-btn-sm {
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
-      border: 1px solid var(--border);
+      width: 36px;
+      height: 36px;
+      border-radius: 20px;
+      border: none;
       background: var(--surface);
-      color: var(--text-muted);
+      border: 1px solid var(--priority-low-text);
+      color: var(--priority-low-text-hover);
       display: inline-flex;
       align-items: center;
+      box-shadow: inset 1px 2px 3px rgba(0, 0, 0, 0.650);
       justify-content: center;
       cursor: pointer;
       position: relative;
       transition: background var(--transition), color var(--transition);
+      border: 1px solid var(--border);
     }
-
+    
     .icon-btn-sm svg {
       width: 14px;
       height: 14px;
     }
-
+    
     .icon-btn-sm:hover {
-      background: var(--surface-soft);
-      color: var(--text);
+      box-shadow: inset 1px 2px 3px var(--primary-hover);
+      background: var(--priority-low-bg-hover);
+      color: var(--primary-soft-text);
+      transition: 0.2s ease-in-out;
     }
-
-    .icon-btn-sm.danger:hover {
-      background: var(--danger-soft);
+    
+    .icon-btn-sm.danger {
+      box-shadow: inset 1px 2px 3px rgba(0, 0, 0, 0.650);
+      border-radius: 20px;
+      border: 1px solid var(--border);
       color: var(--danger-text);
+    }
+    
+    .icon-btn-sm.danger:hover {
+      /* border: 1px solid var(--danger-text); */
+      box-shadow:inset 1px 2px 3px var(--danger-text);
+      background: var(--priority-high-bg-hover);
+      color: var(--danger-text);
+      filter: contrast(1.1);
+      transition: 0.2s ease-in-out;
     }
 
     .icon-btn-sm[title]:hover::after {
