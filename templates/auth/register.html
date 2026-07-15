@@ -28,11 +28,13 @@
     display: none;
   }
 
-  html[data-theme="dark"] .auth-logo-row .logo-light {
+  .auth-logo {
     display: none;
   }
-
-  html[data-theme="dark"] .auth-logo-row .logo-dark {
+  html[data-theme="light"] .auth-logo-light {
+    display: block;
+  }
+  html[data-theme="dark"] .auth-logo-dark {
     display: block;
   }
 
@@ -99,8 +101,8 @@
 
 {% block auth_content %}
 <div class="auth-logo-row">
-  <img src="{% static 'img/logo-black.png' %}" alt="Elecbits" class="logo-light">
-  <img src="{% static 'img/logo-white.png' %}" alt="Elecbits" class="logo-dark">
+  <img src="{% static 'img/logo-black.jpg' %}" alt="Elecbits" class="auth-logo auth-logo-light">
+  <img src="{% static 'img/logo-white.jpg' %}" alt="Elecbits" class="auth-logo auth-logo-dark">
 </div>
 
 <h1 class="auth-title">Authorize your account</h1>
