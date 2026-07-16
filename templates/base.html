@@ -5,7 +5,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{% block title %}Elecbits | ATS Platform{% endblock %}</title>
+  <title>{% block title %}Elecbits | ATS Workspace{% endblock %}</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -45,7 +45,7 @@
       --primary-soft-text: #2F5FE0;
       --success-soft: #99dca3;
       --success-text: #276B3C;
-      --warning-soft: #e6ddbc;
+      --warning-soft: #ddda4f;
       --warning-text: #9e6d0a;
       --danger-soft: #e7acac;
       --danger-text: #B3261E;
@@ -196,25 +196,23 @@
       padding: 20px 16px;
     }
 
-    .brand-block {
-      padding: 4px 4px 18px;
-    }
-
-    .brand-top {
-      display: flex;
-      align-items: center;
-      gap: 10px;
+    .brand-text {
+      display: inline-block;
+      font-size: 1.15rem;
+      color: var(--nav-text);
+      padding-left: 28%;
+      padding-bottom: 4%;
+      font-family: var(--font-sans);
+      font-weight: bold;
     }
 
     .brand-mark {
-      width: 36px;
+      width: auto;
       height: 36px;
       border-radius: 10px;
-      background: var(--primary);
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      color: #fff;
       font-weight: 700;
       overflow: hidden;
       flex-shrink: 0;
@@ -1146,7 +1144,7 @@
     input:focus,
     select:focus,
     textarea:focus {
-      border-color: var(--primary);
+      border-color: var(--login-primary);
       box-shadow: 0 0 0 3px var(--primary-soft);
     }
 
@@ -1440,13 +1438,11 @@
       <div class="brand-block">
         <a href="{% url 'dashboard:index' %}" class="brand-top">
           <span class="brand-mark">
-            <img src="{% static 'img/logo-black.jpg' %}" alt="Elecbits" class="brand-logo brand-logo-light">
-            <img src="{% static 'img/logo-white.jpg' %}" alt="Elecbits" class="brand-logo brand-logo-dark">
+            <img src="{% static 'img/logo-white.png' %}" alt="Elecbits" class="brand-logo brand-logo-dark">
+            <img src="{% static 'img/logo-white.png' %}" alt="Elecbits" class="brand-logo brand-logo-light">
           </span>
-          <!-- <span class="brand-copy">
-            <h2>Elecbits</h2>
-            <p>ATS Platform</p>
-          </span> -->
+          <br>
+          <span class="brand-text">ATS Workspace</span>
         </a>
       </div>
 
@@ -1494,7 +1490,7 @@
           {% elif request.resolver_match.namespace == 'resumes' %}
             <strong>Resumes</strong><span>Uploaded candidate files</span>
           {% else %}
-            <strong>Elecbits</strong><span>ATS Platform</span>
+            <strong>Elecbits</strong><span>ATS Workspace</span>
           {% endif %}
         </div>
       </div>
@@ -1572,17 +1568,6 @@
 {% else %}
 <main class="form-shell">
   <section class="auth-card">
-    <div class="auth-brand">
-      <span class="brand-mark">
-        <img src="{% static 'img/logo.svg' %}" alt="Elecbits" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-flex';">
-        <span class="brand-mark-fallback" style="display:none;">E</span>
-      </span>
-      <div>
-        <strong class="auth-brand-title">Elecbits</strong>
-        <span class="auth-brand-subtitle">ATS Platform</span>
-      </div>
-    </div>
-
     {% if messages %}
       {% for message in messages %}
       <span class="hidden" data-server-message="{{ message }}" data-tag="{{ message.tags|default:'info' }}"></span>

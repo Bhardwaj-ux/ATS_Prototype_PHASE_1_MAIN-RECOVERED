@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Candidates | ATS Platform{% endblock %}
+{% block title %}Candidates | ATS Workspace{% endblock %}
 
 {% block extra_head %}
 <style>
@@ -230,31 +230,39 @@
     position: absolute;
     top: calc(100% + 8px);
     left: 50%;
-    transform: translateX(-50%);
-    width: 230px;
-    background: var(--surface);
+    transform: translateX(-105%) translateY(-20%);
+    width: 170px;
     border: 1px solid var(--border);
     border-radius: 10px;
     box-shadow: var(--shadow-md);
-    padding: 10px 12px;
+    padding: 5px;
+    padding-left: 12px;
     z-index: 10;
+    backdrop-filter: blur(4px);
     opacity: 0;
     visibility: hidden;
     transition: opacity 0s linear 0s, visibility 0s linear 0s;
   }
 
+  .info-tip-btn:hover {
+    filter: brightness(150%);
+    transition: 0.2s ease-in-out;
+  }
+  
   .info-tip:hover .info-tip-panel {
     opacity: 1;
     visibility: visible;
-    transition: opacity 0s linear 1s, visibility 0s linear 1s;
+    transition: opacity 0.2s linear 0.2s, visibility 0.2s linear 0.2s;
+    /* transition: 0.2s ease-in-out; */
   }
-
+  
   .info-tip-row {
     display: flex;
     align-items: center;
     gap: 8px;
     font-size: 0.78rem;
     color: var(--text-muted);
+    backdrop-filter: blur(4px);
     margin-bottom: 5px;
   }
 
@@ -436,14 +444,14 @@
         <th>Experience</th>
         <th>
           <span class="score-head">
-            SCORE
+            Score
             <span class="info-tip">
               <span class="info-tip-btn">i</span>
               <span class="info-tip-panel">
-                <div class="info-tip-row"><span class="info-tip-dot" style="background:var(--success-text);"></span>70&ndash;100%: Strong match</div>
-                <div class="info-tip-row"><span class="info-tip-dot" style="background:var(--warning-text);"></span>40&ndash;69%: Partial match</div>
-                <div class="info-tip-row"><span class="info-tip-dot" style="background:var(--danger-text);"></span>0&ndash;39%: Weak match</div>
-                <div class="info-tip-row"><span class="info-tip-dot" style="background:var(--border);"></span>&mdash;: No required skills set on job role</div>
+                <div class="info-tip-row"><span class="info-tip-dot" style="background:var(--success-soft);"></span>&colon; 70&ndash;100%</div>
+                <div class="info-tip-row"><span class="info-tip-dot" style="background:var(--warning-soft);"></span>&colon; 40&ndash;69%</div>
+                <div class="info-tip-row"><span class="info-tip-dot" style="background:var(--danger-text);"></span>&colon; 0&ndash;39%</div>
+                <div class="info-tip-row"><span class="info-tip-dot">&ndash;</span>&colon; Score not Calculable</div>
               </span>
             </span>
           </span>

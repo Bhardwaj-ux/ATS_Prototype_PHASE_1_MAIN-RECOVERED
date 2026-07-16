@@ -37,11 +37,10 @@ def build_recent_activity():
 
 SOURCE_COLOR_PALETTE = [
     "#2F5FE0",
-    "#99dca3",
-    "#e6ddbc",
-    "#a7c3f0",
-    "#c9b0ec",
-    "#e7acac",
+    "#F7565B",
+    "#86C325",
+    "#674A8E",
+    "#F7C438",
 ]
 
 

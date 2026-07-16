@@ -11,7 +11,8 @@ class EmailAuthenticationForm(AuthenticationForm):
         widget=forms.EmailInput(
             attrs={
                 "class": "form-control",
-                "placeholder": "you@company.com",
+                "placeholder": "you@elecbits.in",
+                "style": "color: var(--login-text-muted) ;box-shadow: 0 0 5px var(--login-boxshadow-light);border:  1px solid var(--login-border)",
                 "autofocus": True,
             }
         ),
@@ -20,7 +21,10 @@ class EmailAuthenticationForm(AuthenticationForm):
         label="Password",
         strip=False,
         widget=forms.PasswordInput(
-            attrs={"class": "form-control", "placeholder": "••••••••"}
+            attrs={"class": "form-control",
+                   "placeholder": "••••••••",
+                   "style": "color: var(--login-text-muted) ;box-shadow: 0 0 5px var(--login-boxshadow-light);border:  1px solid var(--login-border)"
+                   }
         ),
     )
 
@@ -30,14 +34,20 @@ class RegisterForm(forms.ModelForm):
         label="Password",
         strip=False,
         widget=forms.PasswordInput(
-            attrs={"class": "form-control", "placeholder": "••••••••"}
+            attrs={"class": "form-control",
+                   "placeholder": "••••••••",
+                   "style": "color: var(--login-text-muted) ;box-shadow: 0 0 5px var(--login-boxshadow-light);border:  1px solid var(--login-border)"
+                   }
         ),
     )
     password2 = forms.CharField(
         label="Confirm password",
         strip=False,
         widget=forms.PasswordInput(
-            attrs={"class": "form-control", "placeholder": "••••••••"}
+            attrs={"class": "form-control",
+                   "placeholder": "••••••••",
+                   "style": "color: var(--login-text-muted) ;box-shadow: 0 0 5px var(--login-boxshadow-light);border:  1px solid var(--login-border)"
+                   }
         ),
     )
 
@@ -46,18 +56,28 @@ class RegisterForm(forms.ModelForm):
         fields = ["full_name", "email", "phone", "job_title"]
         widgets = {
             "full_name": forms.TextInput(
-                attrs={"class": "form-control", "placeholder": "Barry Allen"}
+                attrs={"class": "form-control",
+                       "placeholder": "Barry Allen",
+                       "style": "color: var(--login-text-muted) ;box-shadow: 0 0 5px var(--login-boxshadow-light);border:  1px solid var(--login-border)"
+                       }
             ),
             "email": forms.EmailInput(
-                attrs={"class": "form-control", "placeholder": "you@elecbits.in"}
+                attrs={"class": "form-control",
+                       "placeholder": "you@elecbits.in",
+                       "style": "color: var(--login-text-muted) ;box-shadow: 0 0 5px var(--login-boxshadow-light);border:  1px solid var(--login-border)"
+                       }
             ),
             "phone": forms.TextInput(
-                attrs={"class": "form-control", "placeholder": "+91 ----- -----"}
+                attrs={"class": "form-control",
+                       "placeholder": "+91 ",
+                       "style": "color: var(--login-text-muted) ;box-shadow: 0 0 5px var(--login-boxshadow-light);border:  1px solid var(--login-border)"
+                       }
             ),
             "job_title": forms.TextInput(
                 attrs={
                     "class": "form-control",
-                    "placeholder": "Talent Acquisition Lead",
+                    "placeholder": "Senior HR Lead",
+                    "style": "color: var(--login-text-muted) ;box-shadow: 0 0 5px var(--login-boxshadow-light);border:  1px solid var(--login-border)"
                 }
             ),
         }

@@ -1,59 +1,101 @@
 {% extends 'base.html' %}
 {% load static %}
 
+
 {% block title %}Authorize account | Elecbits ATS Platform{% endblock %}
+
 
 {% block extra_head %}
 <style>
-  .auth-card {
-    max-width: 460px;
-    padding: 36px 34px 30px;
+  :root {
+    --bg-dim: 0.3;          /* 0 = no darkening, 1 = fully black. Change freely. */
+    --glass-blur: 5px;     /* matches .floating-panel dropdown blur */
+    --glass-saturate: 180%;
+    --glass-tint-light: rgba(227, 233, 246, 0.189);
+    --glass-tint-dark: var(--glass-tint-light);
+    --glass-border-light: rgba(225, 221, 254, 0.263);
+    --glass-border-dark: var(--glass-border-light);
+    --login-surface: #000000;
+    --login-text: rgb(0, 0, 0);
+    --login-text-muted: rgba(9, 9, 9, 0.83);
+    --login-boxshadow-light: rgba(13, 13, 13, 0.182);
+    --login-boxshadow-dark: var(--login-boxshadow-light);
+    --login-primary: #2F5FE0;
+    --login-border: #dedee7;
   }
+
+
+
+  .auth-card {
+    position: center;
+    z-index: 1;
+    max-width: 500px;
+    padding: 30px 30px 30px;
+    border-radius: var(--radius-lg, 18px);
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+    background: var(--glass-tint-light);
+    border: 2px solid var(--glass-border-light);
+    border-bottom: 2px ;
+    border-right: 2px ;
+    box-shadow: 0 0 30px var(--login-boxshadow-light);
+  }
+  
+  /* html[data-theme="dark"] .auth-card {
+    background: var(--glass-tint-dark);
+    box-shadow: 0 0 30px var(--login-boxshadow-dark);
+    border: 2px solid var(--glass-border-dark);
+    border-bottom: 2px ;
+    border-right: 2px ;
+  } */
+
 
   .auth-logo-row {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
     margin-bottom: 26px;
+    height: 28px;
   }
+
 
   .auth-logo-row img {
-    height: 28px;
+    height: 35px;
     width: auto;
-    display: block;
-  }
-
-  .auth-logo-row .logo-dark {
     display: none;
   }
 
-  .auth-logo {
-    display: none;
-  }
-  html[data-theme="light"] .auth-logo-light {
+  .logo-text {
+    color: var(--login-text);
+    padding-left: 2%;
     display: block;
+    font-weight: bold;
+    padding-top: 2%;
+    font-size: 1.4rem;
   }
-  html[data-theme="dark"] .auth-logo-dark {
-    display: block;
-  }
+
+  html[data-theme="light"] .auth-logo-row .auth-logo-light { display: block; position: relative;}
+  html[data-theme="dark"] .auth-logo-row .auth-logo-dark { display: block; position:relative;}
+
 
   .auth-title {
-    margin: 0 0 6px;
-    font-size: 1.5rem;
+    margin: 0 0 3px;
+    font-size: 1.3rem;
     font-weight: 700;
-    color: var(--text);
+    color: var(--login-text);
     text-align: center;
     line-height: 1.2;
   }
 
+
   .auth-text {
-    margin: 0 0 26px;
-    color: var(--text-muted);
+    margin: 0 0 10px;
+    color: var(--login-text-muted);
     text-align: center;
     font-size: 0.88rem;
     line-height: 1.5;
   }
+
 
   .register-grid {
     display: grid;
@@ -61,35 +103,93 @@
     gap: 0 14px;
   }
 
+
   .register-grid .form-group.full {
     grid-column: 1 / -1;
   }
+  
+  .register-grid input {
+    background: transparent;
+  }
+
+
+  .form-shell {
+    position: relative;
+    background-image: url('{% static "img/bg-2.jpg" %}');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 8vw;
+    overflow: hidden;
+  }
+  
+  .form-shell::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, var(--bg-dim));
+    pointer-events: none;
+    z-index: 0;
+  }
+
+
+  .form-group {
+    width:100% ;
+    display: grid;
+    padding-bottom: 7px;
+    grid-auto-flow:row ;
+  }
+  
+  .form-group.form-label {
+    padding-bottom: 2px;
+    color:var(--login-text) ;
+  }
+
 
   .register-submit {
     width: 100%;
     margin-top: 6px;
     height: 42px;
     font-weight: 600;
+    background: var(--login-primary) ;
+  }
+
+  .register-submit:hover {
+    filter: brightness(150%);
   }
 
   .auth-footer {
     margin-top: 22px;
-    padding-top: 18px;
-    border-top: 1px solid var(--border);
+    padding-top: 15px;
+    border-top: 1px solid var(--login-border);
     text-align: center;
     font-size: 0.86rem;
-    color: var(--text-muted);
+    color: var(--login-text-muted);
   }
 
+
   .auth-footer a {
-    color: var(--primary);
+    color: var(--login-primary);
     font-weight: 600;
     text-decoration: none;
   }
 
+
   .auth-footer a:hover {
     text-decoration: underline;
   }
+
+
+  @media (max-width: 768px) {
+    .form-shell {
+      justify-content: center;
+      padding-right: 0;
+    }
+  }
+
 
   @media (max-width: 480px) {
     .register-grid {
@@ -99,63 +199,75 @@
 </style>
 {% endblock %}
 
+
 {% block auth_content %}
 <div class="auth-logo-row">
-  <img src="{% static 'img/logo-black.jpg' %}" alt="Elecbits" class="auth-logo auth-logo-light">
-  <img src="{% static 'img/logo-white.jpg' %}" alt="Elecbits" class="auth-logo auth-logo-dark">
+  <img src="{% static 'img/logo-black.png' %}" alt="Elecbits" class="auth-logo-light">
+  <img src="{% static 'img/logo-black.png' %}" alt="Elecbits" class="auth-logo-dark">
+  <span class="logo-text">ATS WORKSPACE</span>
 </div>
+
 
 <h1 class="auth-title">Authorize your account</h1>
 <p class="auth-text">Join the Elecbits ATS workspace to start managing hiring activity.</p>
 
+
 <form method="post" novalidate>
   {% csrf_token %}
+
 
   {% if form.non_field_errors %}
   <div class="form-errors">{{ form.non_field_errors }}</div>
   {% endif %}
 
+
   <div class="register-grid">
     <div class="form-group full">
-      <label for="{{ form.full_name.id_for_label }}">Full Name</label>
+      <label class="form-group form-label" for="{{ form.full_name.id_for_label }}">Full Name</label>
       {{ form.full_name }}
       {% if form.full_name.errors %}<div class="form-errors">{{ form.full_name.errors }}</div>{% endif %}
     </div>
 
+
     <div class="form-group full">
-      <label for="{{ form.email.id_for_label }}">Email</label>
+      <label class="form-group form-label" for="{{ form.email.id_for_label }}">Email</label>
       {{ form.email }}
       {% if form.email.errors %}<div class="form-errors">{{ form.email.errors }}</div>{% endif %}
     </div>
 
-    <div class="form-group">
-      <label for="{{ form.phone.id_for_label }}">Contact</label>
+
+    <div class="form-group form-group">
+      <label class="form-group form-label" for="{{ form.phone.id_for_label }}">Contact</label>
       {{ form.phone }}
       {% if form.phone.errors %}<div class="form-errors">{{ form.phone.errors }}</div>{% endif %}
     </div>
 
-    <div class="form-group">
-      <label for="{{ form.job_title.id_for_label }}">Job title</label>
+
+    <div class="form-group form-group">
+      <label class="form-group form-label" for="{{ form.job_title.id_for_label }}">Job Title</label>
       {{ form.job_title }}
       {% if form.job_title.errors %}<div class="form-errors">{{ form.job_title.errors }}</div>{% endif %}
     </div>
 
-    <div class="form-group">
-      <label for="{{ form.password1.id_for_label }}">Password</label>
+
+    <div class="form-group form-group">
+      <label class="form-group form-label" for="{{ form.password1.id_for_label }}">Password</label>
       {{ form.password1 }}
       {% if form.password1.errors %}<div class="form-errors">{{ form.password1.errors }}</div>{% endif %}
     </div>
 
-    <div class="form-group">
-      <label for="{{ form.password2.id_for_label }}">Confirm password</label>
+
+    <div class="form-group form-group">
+      <label class="form-group form-label" for="{{ form.password2.id_for_label }}">Confirm Password</label>
       {{ form.password2 }}
       {% if form.password2.errors %}<div class="form-errors">{{ form.password2.errors }}</div>{% endif %}
     </div>
   </div>
 
-  <button type="submit" class="btn btn-primary register-submit">Authorize account</button>
 
+  <button type="submit" class="btn btn-primary register-submit">Authorize Account</button>
 </form>
+
 
 <div class="auth-footer">
   Already have an account? <a href="{% url 'accounts:login' %}">Sign in</a>
