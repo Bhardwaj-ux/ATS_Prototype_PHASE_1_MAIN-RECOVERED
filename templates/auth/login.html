@@ -7,7 +7,7 @@
 <style>
   :root {
     --bg-dim: 0.3;          /* 0 = no darkening, 1 = fully black. Change freely. */
-    --glass-blur: 5px;     /* matches .floating-panel dropdown blur */
+    --glass-blur: 4px;     /* matches .floating-panel dropdown blur */
     --glass-saturate: 180%;
     --glass-tint-light: rgba(227, 233, 246, 0.189);
     --glass-tint-dark: var(--glass-tint-light);
@@ -37,13 +37,13 @@
     box-shadow: 0 0 30px var(--login-boxshadow-light);
   }
   
-  html[data-theme="dark"] .auth-card {
+  /* html[data-theme="dark"] .auth-card {
     background: var(--glass-tint-dark);
     box-shadow: 0 0 30px var(--login-boxshadow-dark);
     border: 2px solid var(--glass-border-dark);
     border-bottom: 2px ;
     border-right: 2px ;
-  }
+  } */
   
   .auth-logo-row {
     display: flex;
@@ -54,7 +54,7 @@
   }
   
   .auth-logo-row img {
-    height: 30px;
+    height: 35px;
     width: auto;
     display: none;
     /* padding-right: 40%; */
@@ -86,7 +86,7 @@
     color: var(--login-text);
     text-align: center;
     font-size: 0.88rem;
-    line-height: 1.5;
+    line-height: 1.2;
   }
 
   .auth-field {
