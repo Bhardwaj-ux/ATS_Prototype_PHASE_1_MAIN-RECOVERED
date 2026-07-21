@@ -5,3 +5,4 @@ psycopg[binary]>=3.2
 python-dotenv>=1.0
 cloudinary
 django-cloudinary-storage
+djangorestframework>=3.15

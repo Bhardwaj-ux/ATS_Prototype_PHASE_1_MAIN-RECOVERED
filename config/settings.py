@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "cloudinary_storage",
     "cloudinary",
+    "rest_framework",
     "apps.core",
     "apps.accounts",
     "apps.jobs",
@@ -81,6 +82,14 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.SessionAuthentication",
+    ],
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",
+    ],
+}
 
 ROOT_URLCONF = "config.urls"
 
@@ -101,6 +110,9 @@ TEMPLATES = [
     },
 ]
 
+# JS needs to read this cookie to send it back as a header on POST/PUT/DELETE
+CSRF_COOKIE_HTTPONLY = False
+CSRF_HEADER_NAME = "HTTP_X_CSRFTOKEN"
 
 WSGI_APPLICATION = "config.wsgi.application"
 # ASGI_APPLICATION = "config.asgi.application"
