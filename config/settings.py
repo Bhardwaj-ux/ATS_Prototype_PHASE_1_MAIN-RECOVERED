@@ -1,8 +1,10 @@
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
 import os
 from pathlib import Path
 
 import dj_database_url
-
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -23,7 +25,9 @@ if ON_VERCEL and SECRET_KEY == "django-insecure-phase1-local-dev-key":
     raise RuntimeError("SECRET_KEY must be set on Vercel.")
 
 vercel_url = os.getenv("VERCEL_URL", "").strip()
-extra_hosts = [host.strip() for host in os.getenv("ALLOWED_HOSTS", "").split(",") if host.strip()]
+extra_hosts = [
+    host.strip() for host in os.getenv("ALLOWED_HOSTS", "").split(",") if host.strip()
+]
 
 allowed_hosts = ["127.0.0.1", "localhost", ".vercel.app"]
 if vercel_url:
@@ -32,7 +36,11 @@ allowed_hosts.extend(extra_hosts)
 ALLOWED_HOSTS = list(dict.fromkeys(allowed_hosts))
 
 app_url = os.getenv("APP_URL", "").strip().rstrip("/")
-extra_origins = [origin.strip().rstrip("/") for origin in os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",") if origin.strip()]
+extra_origins = [
+    origin.strip().rstrip("/")
+    for origin in os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",")
+    if origin.strip()
+]
 
 csrf_trusted_origins = []
 if app_url:
@@ -50,12 +58,16 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "cloudinary_storage",
+    "cloudinary",
     "apps.core",
     "apps.accounts",
     "apps.jobs",
     "apps.applications",
     "apps.resumes",
     "apps.dashboard",
+    "apps.tasks",
+    "apps.folks",
 ]
 
 
@@ -127,6 +139,17 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
+cloudinary.config(
+    cloud_name=os.environ.get("CLOUDINARY_CLOUD_NAME"),
+    api_key=os.environ.get("CLOUDINARY_API_KEY"),
+    api_secret=os.environ.get("CLOUDINARY_API_SECRET"),
+    secure=True,
+)
+
+
+STATICFILES_STORAGE = "cloudinary_storage.storage.StaticHashedCloudinaryStorage"
+DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
+
 
 LANGUAGE_CODE = "en-us"
 TIME_ZONE = "Asia/Kolkata"
@@ -135,6 +158,7 @@ USE_TZ = True
 
 
 STATIC_URL = "/static/"
+STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 MEDIA_URL = "/media/"

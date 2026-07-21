@@ -13,6 +13,16 @@ class User(AbstractUser):
     department = models.CharField(max_length=100, blank=True)
     phone = models.CharField(max_length=30, blank=True)
 
+    class Location(models.TextChoices):
+        BENGALURU = "bengaluru", "Bengaluru"
+        DELHI = "delhi", "Delhi"
+        GURUGRAM = "gurugram", "Gurugram"
+
+    job_title = models.CharField(max_length=150, blank=True)
+    location = models.CharField(max_length=20, choices=Location.choices, blank=True)
+    linkedin_url = models.URLField(max_length=300, blank=True)
+    avatar = models.ImageField(upload_to="avatars/%Y/%m/", blank=True, null=True)
+
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["full_name"]
 
@@ -26,6 +36,15 @@ class User(AbstractUser):
 
     def get_short_name(self):
         return self.full_name.split()[0] if self.full_name else self.email
+
+    def initials(self):
+        name = self.get_full_name().strip()
+        parts = [p for p in name.split() if p]
+        if len(parts) >= 2:
+            return (parts[0][0] + parts[1][0]).upper()
+        if parts:
+            return parts[0][:2].upper()
+        return self.email[:2].upper()
 
 
 class Role(TimeStampedModel):
@@ -73,6 +92,7 @@ class UserPreference(models.Model):
     sidebar_collapsed = models.BooleanField(default=False)
     compact_tables = models.BooleanField(default=False)
     email_notifications = models.BooleanField(default=True)
+    notification_prefs = models.JSONField(default=dict, blank=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):

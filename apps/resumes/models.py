@@ -4,11 +4,13 @@ from apps.core.models import TimeStampedModel
 
 
 def resume_upload_path(instance, filename):
-    return f'resumes/job_{instance.application.job_id}/application_{instance.application_id}/{filename}'
+    return f"resumes/job_{instance.application.job_id}/application_{instance.application_id}/{filename}"
 
 
 class ResumeFile(TimeStampedModel):
-    application = models.ForeignKey(Application, on_delete=models.CASCADE, related_name='resume_files')
+    application = models.ForeignKey(
+        Application, on_delete=models.CASCADE, related_name="resume_files"
+    )
     file = models.FileField(upload_to=resume_upload_path)
     original_filename = models.CharField(max_length=255)
     file_size = models.PositiveIntegerField(default=0)

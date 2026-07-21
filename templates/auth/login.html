@@ -1,18 +1,194 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Login | ATS{% endblock %}
+{% block title %}Sign in | Elecbits ATS Platform{% endblock %}
 
 {% block extra_head %}
 <style>
-  .auth-title { margin: 0 0 10px; font-size: 1.9rem; color: var(--text); line-height: 1.1; }
-  .auth-text { margin: 0 0 24px; color: var(--text-muted); line-height: 1.6; }
-  .login-submit { width: 100%; margin-top: 8px; }
+  :root {
+    --bg-dim: 0.3;          /* 0 = no darkening, 1 = fully black. Change freely. */
+    --glass-blur: 4px;     /* matches .floating-panel dropdown blur */
+    --glass-saturate: 180%;
+    --glass-tint-light: rgba(227, 233, 246, 0.189);
+    --glass-tint-dark: var(--glass-tint-light);
+    --glass-border-light: rgba(225, 221, 254, 0.263);
+    --glass-border-dark: var(--glass-border-light);
+    --login-surface: #000000;
+    --login-text: rgba(0, 0, 0);
+    --login-text-muted: rgba(9, 9, 9, 0.83);
+    --login-boxshadow-light: rgba(13, 13, 13, 0.342);
+    --login-boxshadow-dark: var(--login-boxshadow-light);
+    --login-primary: #2F5FE0;
+    --login-border: #f1f1f6;
+  }
+
+  .auth-card {
+    position: relative;
+    z-index: 1;
+    max-width: 500px;
+    padding: 36px 34px 30px;
+    border-radius: var(--radius-lg, 18px);
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+    background: var(--glass-tint-light);
+    border: 2px solid var(--glass-border-light);
+    border-bottom: 2px ;
+    border-right: 2px ;
+    box-shadow: 0 0 30px var(--login-boxshadow-light);
+  }
+  
+  /* html[data-theme="dark"] .auth-card {
+    background: var(--glass-tint-dark);
+    box-shadow: 0 0 30px var(--login-boxshadow-dark);
+    border: 2px solid var(--glass-border-dark);
+    border-bottom: 2px ;
+    border-right: 2px ;
+  } */
+  
+  .auth-logo-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 26px;
+    height: 28px;
+  }
+  
+  .auth-logo-row img {
+    height: 35px;
+    width: auto;
+    display: none;
+    /* padding-right: 40%; */
+  }
+
+  .logo-text {
+    color: var(--login-text);
+    padding-left: 2%;
+    font-weight: bold;
+    padding-top: 1%;
+    display: block;
+    font-size: 1.4rem;
+  }
+
+  html[data-theme="light"] .auth-logo-row .auth-logo-light { display: block; position: relative;}
+  html[data-theme="dark"] .auth-logo-row .auth-logo-dark { display: block; position: relative;}
+
+  .auth-title {
+    margin: 0 0 3px;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--login-text);
+    text-align: center;
+    line-height: 1.2;
+  }
+
+  .auth-text {
+    margin: 0 0 10px;
+    color: var(--login-text);
+    text-align: center;
+    font-size: 0.88rem;
+    line-height: 1.2;
+  }
+
+  .auth-field {
+    position: relative;
+    margin-bottom: 16px;
+  }
+
+  .auth-field label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+    color: var(--login-text);
+    font-size: 0.82rem;
+  }
+
+  .auth-field .field-icon {
+    position: absolute;
+    left: 12px;
+    top: 34px;
+    width: 20px;
+    height: 20px;
+    color: var(--login-surface);
+    pointer-events: none;
+  }
+
+  .auth-field input {
+    padding-left: 36px;
+    color: var(--login-text);
+    background: none;
+  }
+  
+  .form-shell {
+    position: relative;
+    background-image: url('{% static "img/bg-2.jpg" %}');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 8vw;
+    overflow: hidden;
+  }
+
+  .form-shell::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, var(--bg-dim));
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .login-submit {
+    width: 100%;
+    margin-top: 6px;
+    height: 42px;
+    background: var(--login-primary);
+    font-weight: 600;
+  }
+
+  .login-submit:hover {
+    filter: brightness(150%);
+  }
+
+  .auth-footer {
+    margin-top: 22px;
+    padding-top: 18px;
+    border-top: 1px solid var(--login-border);
+    text-align: center;
+    font-size: 0.86rem;
+    color: var(--login-text-muted);
+  }
+
+  .auth-footer a {
+    color: var(--login-primary);
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .auth-footer a:hover {
+    text-decoration: underline;
+  }
+
+  @media (max-width: 768px) {
+    .form-shell {
+      justify-content: center;
+      padding-right: 0;
+    }
+  }
 </style>
 {% endblock %}
 
 {% block auth_content %}
+<div class="auth-logo-row">
+  <img src="{% static 'img/logo-black.png' %}" alt="Elecbits" class="auth-logo-light">
+  <img src="{% static 'img/logo-black.png' %}" alt="Elecbits" class="auth-logo-dark">
+  <span class="logo-text">ATS WORKSPACE</span>
+</div>
+
 <h1 class="auth-title">Sign in</h1>
-<p class="auth-text">Sign in to manage candidates, job roles, and hiring activity inside the Elecbits ATS workspace.</p>
+<p class="auth-text">Manage candidates, job roles, and hiring activity in one place.</p>
 
 <form method="post" novalidate>
   {% csrf_token %}
@@ -21,16 +197,24 @@
   <div class="form-errors">{{ form.non_field_errors }}</div>
   {% endif %}
 
-  {% for field in form %}
-  <div class="form-group">
-    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-    {{ field }}
-    {% if field.errors %}
-    <div class="form-errors">{{ field.errors }}</div>
-    {% endif %}
+  <div class="auth-field">
+    <label for="{{ form.username.id_for_label }}">Email</label>
+    <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z" opacity="0"/><path d="m4 6 8 7 8-7"/><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
+    {{ form.username }}
+    {% if form.username.errors %}<div class="form-errors">{{ form.username.errors }}</div>{% endif %}
   </div>
-  {% endfor %}
+
+  <div class="auth-field">
+    <label for="{{ form.password.id_for_label }}">Password</label>
+    <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+    {{ form.password }}
+    {% if form.password.errors %}<div class="form-errors">{{ form.password.errors }}</div>{% endif %}
+  </div>
 
   <button type="submit" class="btn btn-primary login-submit">Sign In</button>
 </form>
+
+<div class="auth-footer">
+  Don't have an account? <a href="{% url 'accounts:register' %}">Create a new one!</a>
+</div>
 {% endblock %}

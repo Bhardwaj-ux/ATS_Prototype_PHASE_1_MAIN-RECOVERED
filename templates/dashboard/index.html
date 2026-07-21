@@ -1,31 +1,577 @@
 {% extends 'base.html' %}
 
-{% block title %}Dashboard | ATS{% endblock %}
+{% block title %}Dashboard | ATS Workspace{% endblock %}
+
+{% block extra_head %}
+<style>
+  .task-card,
+  .activity-card {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .task-header,
+  .activity-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+
+  .task-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .task-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    position: relative;
+    background: var(--task-bg);
+  }
+
+  .task-row.none:hover {
+    background: var(--surface);
+  }
+
+  .task-row.low:hover {
+    background: var(--low-priority);
+  }
+
+  .task-row.moderate:hover {
+    background: var(--moderate-priority);
+  }
+
+  .task-row.high:hover {
+    background: var(--high-priority);
+  }
+
+  .task-checkbox {
+    width: 20px;
+    height: 20px;
+    accent-color: var(--primary);
+    flex-shrink: 0;
+    cursor: pointer;
+    border-radius: 10px;
+  }
+
+  .task-title {
+    flex: 1;
+    font-size: 0.88rem;
+    color: var(--text);
+  }
+
+  .task-title.done {
+    text-decoration: line-through;
+    color: var(--text-muted);
+    filter: opacity(60%);
+  }
+
+  .task-priority-pill {
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 999px;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .priority-none {
+    background: var(--surface);
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+  }
+
+  .priority-low {
+    background: var(--info-soft);
+    color: var(--info-text);
+  }
+
+  .priority-moderate {
+    background: var(--warning-soft);
+    color: var(--warning-text);
+  }
+
+  .priority-high {
+    background: var(--danger-soft);
+    color: var(--danger-text);
+  }
+
+  .task-menu-wrap {
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .task-menu-btn {
+    border: none;
+    background: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .task-menu-btn:hover {
+    background: var(--surface);
+  }
+
+  .task-menu-btn svg {
+    width: 15px;
+    height: 15px;
+  }
+
+  .task-menu-dropdown {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: calc(100% + 4px);
+    width: 130px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    box-shadow: var(--shadow-md);
+    z-index: 20;
+    padding: 4px;
+  }
+
+  .task-menu-dropdown.open {
+    display: block;
+    backdrop-filter: blur(12px) saturate(180%);
+    -webkit-backdrop-filter: blur(12px) saturate(180%);
+    background: rgba(255, 255, 255, 0.55);
+    filter: brightness(0.98);
+    border: 2px solid var(--border);
+  }
+
+  html[data-theme="dark"] .task-menu-dropdown.open {
+    background: rgba(40, 41, 47, 0.55);
+  }
+
+  .task-menu-item {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 7px 9px;
+    border-radius: 9px;
+    border: none;
+    cursor: pointer;
+    font-size: 0.82rem;
+    color: var(--text);
+    background: none;
+  }
+
+  .task-menu-item:hover {
+    background: rgba(0, 0, 0, 0.12);
+  }
+
+  .task-menu-item.danger {
+    color: var(--danger-text);
+  }
+
+  .task-menu-item.danger:hover {
+    background: var(--del-danger);
+  }
+
+  .priority-popover {
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 6px);
+    right: 40px;
+    z-index: 25;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    box-shadow: var(--shadow-md);
+    padding: 6px;
+    gap: 4px;
+    flex-direction: column;
+    min-width: 110px;
+  }
+
+  .priority-popover.open {
+    display: block;
+    backdrop-filter: blur(12px) saturate(180%);
+    -webkit-backdrop-filter: blur(12px) saturate(180%);
+    background: rgba(255, 255, 255, 0.55);
+    filter: brightness(0.98);
+    border: 2px solid var(--border);
+  }
+
+  html[data-theme="dark"] .priority-popover.open {
+    background: rgba(40, 41, 47, 0.55);
+  }
+
+  .priority-popover button {
+    text-align: left;
+    border: none;
+    background: none;
+    padding: 6px 8px;
+    border-radius: 7px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    color: var(--text);
+  }
+
+  .priority-popover button.task_none {
+    color: var(--priority-none-text);
+  }
+
+  .priority-popover button.task_low {
+    color: var(--priority-low-text);
+  }
+
+  .priority-popover button.task_moderate {
+    color: var(--priority-moderate-text);
+  }
+
+  .priority-popover button.task_high {
+    color: var(--priority-high-text);
+  }
+
+  .priority-popover button.task_none:hover {
+    background: var(--priority-none-bg-hover);
+    color: var(--priority-none-text-hover);
+  }
+
+  .priority-popover button.task_low:hover {
+    background: var(--priority-low-bg-hover);
+    color: var(--priority-low-text-hover);
+  }
+
+  .priority-popover button.task_moderate:hover {
+    background: var(--priority-moderate-bg-hover);
+    color: var(--priority-moderate-text-hover);
+  }
+
+  .priority-popover button.task_high:hover {
+    background: var(--priority-high-bg-hover);
+    color: var(--priority-high-text-hover);
+  }
+
+  .task-add-row {
+    display: none;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .task-add-row.open {
+    display: flex;
+  }
+
+  .task-add-input {
+    flex: 1;
+    min-height: 42px;
+    padding: 10px 14px;
+    font-size: 0.88rem;
+    font-family: var(--font-sans);
+    color: var(--text);
+    background: var(--task-bg);
+    border: 1px solid var(--primary);
+    border-radius: 12px;
+    outline: none;
+    backdrop-filter: blur(14px) saturate(180%);
+    -webkit-backdrop-filter: blur(14px) saturate(180%);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  }
+
+  html[data-theme="dark"] .task-add-input {
+    background: var(--task-bg);
+    border: 1px solid var(--primary);
+  }
+
+  .task-add-input::placeholder {
+    color: var(--text-muted);
+  }
+
+  .task-add-input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--primary-soft);
+  }
+
+  /* ---- Custom glass dropdown (replaces native <select>) ---- */
+  .glass-select-wrap {
+    position: relative;
+    min-width: 150px;
+    flex-shrink: 0;
+  }
+
+  .glass-select-trigger {
+    width: 100%;
+    min-height: 42px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    font-size: 0.86rem;
+    font-family: var(--font-sans);
+    color: var(--text);
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid var(--primary);
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+    border-radius: 12px;
+    cursor: pointer;
+    backdrop-filter: blur(14px) saturate(180%);
+    -webkit-backdrop-filter: blur(14px) saturate(180%);
+    transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+  }
+
+  html[data-theme="dark"] .glass-select-trigger {
+    background: var(--task-bg);
+    border: 1px solid var(--primary);
+  }
+
+  .glass-select-trigger:hover {
+    border-color: var(--primary);
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  html[data-theme="dark"] .glass-select-trigger:hover {
+    background: var(--task-bg);
+  }
+
+  .glass-select-wrap.open .glass-select-trigger {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--primary-soft);
+  }
+
+  .glass-select-arrow {
+    width: 14px;
+    height: 14px;
+    color: var(--text);
+    opacity: 0.75;
+    flex-shrink: 0;
+    transition: transform 0.18s ease, opacity 0.18s ease;
+  }
+
+  .glass-select-wrap:hover .glass-select-arrow {
+    opacity: 1;
+  }
+
+  .glass-select-wrap.open .glass-select-arrow {
+    transform: rotate(180deg);
+  }
+
+  .glass-select-list {
+    display: none;
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    z-index: 30;
+    list-style: none;
+    margin: 0;
+    padding: 5%;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-md);
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+  }
+
+  html[data-theme="dark"] .glass-select-list {
+    background: rgba(30, 31, 36, 0.75);
+  }
+
+  .glass-select-wrap.open .glass-select-list {
+    display: block;
+  }
+
+  .glass-select-list li {
+    padding: 8px 10px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+
+  .glass-select-list li.opt-none {
+    color: var(--priority-none-text);
+  }
+
+  .glass-select-list li.opt-low {
+    color: var(--priority-low-text);
+  }
+
+  .glass-select-list li.opt-moderate {
+    color: var(--priority-moderate-text);
+  }
+
+  .glass-select-list li.opt-high {
+    color: var(--priority-high-text);
+  }
+
+  .glass-select-list li.opt-none:hover {
+    background: var(--priority-none-bg-hover);
+    color: var(--priority-none-text-hover);
+  }
+
+  .glass-select-list li.opt-low:hover {
+    background: var(--priority-low-bg-hover);
+    color: var(--priority-low-text-hover);
+  }
+
+  .glass-select-list li.opt-moderate:hover {
+    background: var(--priority-moderate-bg-hover);
+    color: var(--priority-moderate-text-hover);
+  }
+
+  .glass-select-list li.opt-high:hover {
+    background: var(--priority-high-bg-hover);
+    color: var(--priority-high-text-hover);
+  }
+
+  .glass-select-list li.active {
+    font-weight: 700;
+  }
+
+  .activity-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .activity-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 0.86rem;
+    color: var(--text);
+    line-height: 1.5;
+  }
+
+  .activity-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--primary);
+    margin-top: 6px;
+    flex-shrink: 0;
+  }
+
+  .source-card {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .source-chart-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 22px;
+  }
+
+  .donut-chart {
+    width: 190px;
+    height: 190px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    border:none;
+    box-shadow: 4px 4px 10px black;
+  }
+
+  .donut-hole {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: var(--surface);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: inset 2px 3px 8px black;
+  }
+
+  .donut-hole strong {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1;
+  }
+
+  .donut-hole span {
+    font-size: 1rem;
+    color: var(--text);
+    margin-top: 3px;
+  }
+
+  .source-legend {
+    list-style: none;
+    margin: 0 auto;
+    padding: 10px;
+    padding-left: 5%;
+    padding-right: 5%;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    width: 190%;
+    height: auto;
+    font-size: 0.97rem;
+    max-width: 300px;
+    background: var(--task-bg);
+    border: 1px solid var(--primary);
+    border-radius: 15px;
+  }
+
+  .source-legend li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text);
+  }
+
+  .legend-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 30%;
+    flex-shrink: 0;
+  }
+
+  .legend-label {
+    flex: 1;
+  }
+
+  .legend-value {
+    color: var(--text);
+    font-size: 0.78rem;
+    white-space: nowrap;
+  }
+</style>
+{% endblock %}
 
 {% block content %}
 <section class="page-header">
   <div>
-    <h1>Dashboard</h1>
-    <p>Track hiring operations, monitor candidate movement, and review the latest applications across all job roles.</p>
+    <h1>Welcome, {{ user.get_full_name }}!</h1>
+    <p>Here's what's happening with your hiring activities today.</p>
   </div>
 </section>
 
-<section class="grid-3" style="margin-bottom: 22px;">
-  <article class="stat-card">
-    <p class="stat-label">Total Job Roles</p>
-    <h2 class="stat-value">{{ job_count }}</h2>
-  </article>
-  <article class="stat-card">
-    <p class="stat-label">Total Applications</p>
-    <h2 class="stat-value">{{ application_count }}</h2>
-  </article>
-  <article class="stat-card">
-    <p class="stat-label">Resume Records</p>
-    <h2 class="stat-value">{{ resume_count }}</h2>
-  </article>
+<section class="grid-3" style="margin-bottom: 16px;">
+  <article class="stat-card"><p class="stat-label">Total Job Roles</p><h2 class="stat-value">{{ job_count }}</h2></article>
+  <article class="stat-card"><p class="stat-label">Open Job Roles</p><h2 class="stat-value">{{ open_positions }}</h2></article>
+  <article class="stat-card"><p class="stat-label">Interviews Scheduled</p><h2 class="stat-value">{{ interview_count }}</h2></article>
+  <article class="stat-card"><p class="stat-label">Candidates Hired</p><h2 class="stat-value">{{ candidates_hired }}</h2></article>
+  <article class="stat-card"><p class="stat-label">Total Candidates</p><h2 class="stat-value">{{ candidate_count }}</h2></article>
+  <article class="stat-card"><p class="stat-label">Shortlisted Candidates</p><h2 class="stat-value">{{ shortlisted_count }}</h2></article>
 </section>
 
-<section class="grid-2">
+<section class="grid-2" style="margin-bottom: 16px;">
   <article class="table-card">
     <h3 class="section-title">Status Breakdown</h3>
     {% if status_breakdown %}
@@ -42,24 +588,316 @@
     {% endif %}
   </article>
 
-  <article class="table-card">
-    <h3 class="section-title">Latest Applications</h3>
-    {% if latest_applications %}
-    <table class="data-table">
-      <thead><tr><th>Name</th><th>Job Role</th><th>Status</th></tr></thead>
-      <tbody>
-        {% for application in latest_applications %}
-        <tr>
-          <td><a href="{% url 'applications:detail' application.pk %}" class="text-link">{{ application.full_name }}</a></td>
-          <td>{{ application.job.title }}</td>
-          <td><span class="badge badge-{{ application.status }}">{{ application.get_status_display }}</span></td>
-        </tr>
+  <article class="table-card source-card">
+    <h3 class="section-title">Candidate Sources</h3>
+    {% if source_breakdown %}
+    <div class="source-chart-wrap">
+      <div class="donut-chart" style="background: {{ source_conic_gradient|safe }}">
+        <div class="donut-hole">
+          <strong>{{ source_total }}</strong>
+          <span>Candidates</span>
+        </div>
+      </div>
+      <ul class="source-legend">
+        {% for item in source_breakdown %}
+        <li>
+          <span class="legend-dot" style="background: {{ item.color }}"></span>
+          <span class="legend-label" style="font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;">{{ item.label }} <b>&middot;</b> ({{ item.total }})</span>
+          <span class="legend-value" style="color: {{ item.color }}"><b>{{ item.pct }}% </b></span>
+        </li>
         {% endfor %}
-      </tbody>
-    </table>
+      </ul>
+    </div>
     {% else %}
-    <div class="empty-state">No applications have been added yet.</div>
+    <div class="empty-state">No candidate source data available yet.</div>
     {% endif %}
   </article>
 </section>
+
+<section class="grid-2">
+  <article class="info-card task-card">
+    <div class="task-header">
+      <h3 class="section-title" style="margin:0;">My Tasks</h3>
+      <button type="button" class="btn btn-secondary" id="taskAddToggle">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+        New
+      </button>
+    </div>
+
+    <div class="task-add-row" id="taskAddRow">
+      <input type="text" id="taskAddInput" class="task-add-input" placeholder="Task title...">
+
+      <div class="glass-select-wrap" id="priorityDropdown">
+        <button type="button" class="glass-select-trigger" id="priorityTrigger">
+          <span id="priorityTriggerLabel">Select Priority</span>
+          <svg class="glass-select-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 9l6 6 6-6"/>
+          </svg>
+        </button>
+
+        <input type="hidden" id="taskAddPriority" value="none">
+
+        <ul class="glass-select-list" id="priorityList">
+          <li class="opt-none active" data-value="none">None</li>
+          <li class="opt-low" data-value="low">Low</li>
+          <li class="opt-moderate" data-value="moderate">Moderate</li>
+          <li class="opt-high" data-value="high">High</li>
+        </ul>
+      </div>
+
+      <button type="button" class="btn btn-primary" id="taskAddSubmit">Add</button>
+    </div>
+    
+    <div class="task-list" id="taskList">
+      {% for task in tasks %}
+      <div class="task-row" data-task-id="{{ task.pk }}">
+        <input type="checkbox" class="task-checkbox" {% if task.is_done %}checked{% endif %}>
+        <span class="task-title {% if task.is_done %}done{% endif %}">{{ task.title }}</span>
+        <span class="task-priority-pill priority-{{ task.priority }}" data-priority="{{ task.priority }}">{{ task.priority_label|default:task.get_priority_display }}</span>
+        <div class="priority-popover">
+          <button class="task_none" type="button" data-priority-set="none">None</button>
+          <button class="task_low" type="button" data-priority-set="low">Low</button>
+          <button class="task_moderate" type="button" data-priority-set="moderate">Moderate</button>
+          <button class="task_high" type="button" data-priority-set="high">High</button>
+        </div>
+        <div class="task-menu-wrap">
+          <button type="button" class="task-menu-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+          </button>
+          <div class="task-menu-dropdown">
+            <button type="button" class="task-menu-item" data-task-edit>Edit</button>
+            <button type="button" class="task-menu-item danger" data-task-delete>Delete</button>
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <div class="empty-state left-empty" id="taskEmptyState">No tasks yet. Click "New" to add one.</div>
+      {% endfor %}
+    </div>    
+  </article>
+
+  <article class="info-card activity-card">
+    <div class="activity-header">
+      <h3 class="section-title" style="margin:0;">Recent Activity</h3>
+    </div>
+    {% if recent_activity %}
+    <div class="activity-list">
+      {% for line in recent_activity %}
+      <div class="activity-row"><span class="activity-dot"></span><span>{{ line }}</span></div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state left-empty">No recent activity from your team yet.</div>
+    {% endif %}
+  </article>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  function getCookie(name) {
+    var value = "; " + document.cookie;
+    var parts = value.split("; " + name + "=");
+    if (parts.length === 2) return parts.pop().split(";").shift();
+    return null;
+  }
+
+  var taskList = document.getElementById('taskList');
+  var addToggle = document.getElementById('taskAddToggle');
+  var addRow = document.getElementById('taskAddRow');
+  var addInput = document.getElementById('taskAddInput');
+  var addSubmit = document.getElementById('taskAddSubmit');
+
+  addToggle.addEventListener('click', function () {
+    addRow.classList.toggle('open');
+    if (addRow.classList.contains('open')) addInput.focus();
+  });
+
+  /* ---- Custom glass priority dropdown for the Add row ---- */
+  var priorityDropdown = document.getElementById('priorityDropdown');
+  var priorityTrigger = document.getElementById('priorityTrigger');
+  var priorityTriggerLabel = document.getElementById('priorityTriggerLabel');
+  var priorityList = document.getElementById('priorityList');
+  var priorityHiddenInput = document.getElementById('taskAddPriority');
+
+  priorityTrigger.addEventListener('click', function (e) {
+    e.stopPropagation();
+    priorityDropdown.classList.toggle('open');
+  });
+
+  priorityList.querySelectorAll('li').forEach(function (li) {
+    li.addEventListener('click', function (e) {
+      e.stopPropagation();
+      priorityList.querySelectorAll('li').forEach(function (i) { i.classList.remove('active'); });
+      li.classList.add('active');
+      priorityTriggerLabel.textContent = li.textContent;
+      priorityHiddenInput.value = li.getAttribute('data-value');
+      priorityDropdown.classList.remove('open');
+    });
+  });
+
+  function resetPriorityDropdown() {
+    priorityList.querySelectorAll('li').forEach(function (i) { i.classList.remove('active'); });
+    var noneOption = priorityList.querySelector('[data-value="none"]');
+    noneOption.classList.add('active');
+    priorityTriggerLabel.textContent = 'None';
+    priorityHiddenInput.value = 'none';
+  }
+
+  function priorityIconHtml() {
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>';
+  }
+
+  function buildTaskRow(task) {
+    var row = document.createElement('div');
+    row.className = 'task-row';
+    row.setAttribute('data-task-id', task.id);
+    row.innerHTML =
+      '<input type="checkbox" class="task-checkbox">' +
+      '<span class="task-title"></span>' +
+      '<span class="task-priority-pill" data-priority="' + task.priority + '"></span>' +
+      '<div class="priority-popover">' +
+        '<button type="button" class="task_none" data-priority-set="none">None</button>' +
+        '<button type="button" class="task_low" data-priority-set="low">Low</button>' +
+        '<button type="button" class="task_moderate" data-priority-set="moderate">Moderate</button>' +
+        '<button type="button" class="task_high" data-priority-set="high">High</button>' +
+      '</div>' +
+      '<div class="task-menu-wrap">' +
+        '<button type="button" class="task-menu-btn">' + priorityIconHtml() + '</button>' +
+        '<div class="task-menu-dropdown">' +
+          '<button type="button" class="task-menu-item" data-task-edit>Edit</button>' +
+          '<button type="button" class="task-menu-item danger" data-task-delete>Delete</button>' +
+        '</div>' +
+      '</div>';
+    updateRowContent(row, task);
+    wireRow(row);
+    return row;
+  }
+
+  function updateRowContent(row, task) {
+    row.querySelector('.task-checkbox').checked = task.is_done;
+    var titleEl = row.querySelector('.task-title');
+    titleEl.textContent = task.title;
+    titleEl.classList.toggle('done', task.is_done);
+    var pill = row.querySelector('.task-priority-pill');
+    pill.className = 'task-priority-pill priority-' + task.priority;
+    pill.setAttribute('data-priority', task.priority);
+    pill.textContent = task.priority_label;
+  }
+
+  function wireRow(row) {
+    var taskId = row.getAttribute('data-task-id');
+    var checkbox = row.querySelector('.task-checkbox');
+    var titleEl = row.querySelector('.task-title');
+    var pill = row.querySelector('.task-priority-pill');
+    var popover = row.querySelector('.priority-popover');
+    var menuBtn = row.querySelector('.task-menu-btn');
+    var menuDropdown = row.querySelector('.task-menu-dropdown');
+
+    checkbox.addEventListener('change', function () {
+      fetch('/tasks/' + taskId + '/toggle/', {
+        method: 'POST',
+        headers: { 'X-CSRFToken': getCookie('csrftoken') }
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          if (data.ok) { titleEl.classList.toggle('done', data.task.is_done); }
+        });
+    });
+
+    pill.addEventListener('click', function (e) {
+      e.stopPropagation();
+      document.querySelectorAll('.priority-popover.open').forEach(function (p) { if (p !== popover) p.classList.remove('open'); });
+      popover.classList.toggle('open');
+    });
+
+    popover.querySelectorAll('[data-priority-set]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var priority = btn.getAttribute('data-priority-set');
+        var formData = new FormData();
+        formData.append('priority', priority);
+        fetch('/tasks/' + taskId + '/update/', {
+          method: 'POST',
+          headers: { 'X-CSRFToken': getCookie('csrftoken') },
+          body: formData
+        })
+          .then(function (r) { return r.json(); })
+          .then(function (data) {
+            if (data.ok) updateRowContent(row, data.task);
+            popover.classList.remove('open');
+          });
+      });
+    });
+
+    menuBtn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      document.querySelectorAll('.task-menu-dropdown.open').forEach(function (d) { if (d !== menuDropdown) d.classList.remove('open'); });
+      menuDropdown.classList.toggle('open');
+    });
+
+    row.querySelector('[data-task-edit]').addEventListener('click', function () {
+      var newTitle = prompt('Edit task title:', titleEl.textContent);
+      menuDropdown.classList.remove('open');
+      if (newTitle === null || !newTitle.trim()) return;
+      var formData = new FormData();
+      formData.append('title', newTitle.trim());
+      fetch('/tasks/' + taskId + '/update/', {
+        method: 'POST',
+        headers: { 'X-CSRFToken': getCookie('csrftoken') },
+        body: formData
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (data) { if (data.ok) updateRowContent(row, data.task); });
+    });
+
+    row.querySelector('[data-task-delete]').addEventListener('click', function () {
+      menuDropdown.classList.remove('open');
+      if (!confirm('Delete this task?')) return;
+      fetch('/tasks/' + taskId + '/delete/', {
+        method: 'POST',
+        headers: { 'X-CSRFToken': getCookie('csrftoken') }
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (data) { if (data.ok) row.remove(); });
+    });
+  }
+
+  taskList.querySelectorAll('.task-row').forEach(wireRow);
+
+  document.addEventListener('click', function () {
+    document.querySelectorAll('.priority-popover.open').forEach(function (p) { p.classList.remove('open'); });
+    document.querySelectorAll('.task-menu-dropdown.open').forEach(function (d) { d.classList.remove('open'); });
+    priorityDropdown.classList.remove('open');
+  });
+
+  addSubmit.addEventListener('click', function () {
+    var title = addInput.value.trim();
+    if (!title) return;
+    var formData = new FormData();
+    formData.append('title', title);
+    formData.append('priority', priorityHiddenInput.value);
+    fetch('/tasks/create/', {
+      method: 'POST',
+      headers: { 'X-CSRFToken': getCookie('csrftoken') },
+      body: formData
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (data.ok) {
+          var emptyState = document.getElementById('taskEmptyState');
+          if (emptyState) emptyState.remove();
+          taskList.prepend(buildTaskRow(data.task));
+          addInput.value = '';
+          resetPriorityDropdown();
+          addRow.classList.remove('open');
+        }
+      });
+  });
+
+  addInput.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') { e.preventDefault(); addSubmit.click(); }
+  });
+});
+</script>
 {% endblock %}

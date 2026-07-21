@@ -67,6 +67,18 @@ class Application(TimeStampedModel):
 
         return cleaned
 
+    def match_score(self):
+        if not self.job_id:
+            return None
+        job_skills = {s.lower() for s in self.job.skill_list()}
+        if not job_skills:
+            return None
+        own_skills = {s.lower() for s in self.skill_list()}
+        if not own_skills:
+            return 0
+        overlap = job_skills & own_skills
+        return round(len(overlap) / len(job_skills) * 100)
+
 
 class CandidateStatusHistory(TimeStampedModel):
     application = models.ForeignKey(
