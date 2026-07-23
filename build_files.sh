@@ -8,6 +8,7 @@ echo "STEP 2: checking Django config"
 python manage.py check
 
 echo "STEP 3: verifying no missing migrations"
+python manage.py makemigrations jdimport jobs
 python manage.py makemigrations --check --dry-run
 
 echo "STEP 4: running migrations"
