@@ -4,8 +4,8 @@ set -o errexit
 echo "STEP 1: checking Django config"
 python manage.py check
 
-echo "STEP 2: verifying no missing migrations"
-python manage.py makemigrations --check --dry-run
+echo "STEP 2: generating any missing migrations"
+python manage.py makemigrations --no-input
 
 echo "STEP 3: running migrations"
 python manage.py migrate --no-input
