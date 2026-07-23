@@ -115,7 +115,7 @@ WSGI_APPLICATION = "config.wsgi.application"
 # ASGI_APPLICATION = "config.asgi.application"
 
 
-database_url = os.getenv("DATABASE_URL", "").strip()
+database_url = os.environ.get("DATABASE_URL", "").strip()
 
 if ON_VERCEL and not database_url:
     raise RuntimeError(
@@ -165,7 +165,7 @@ AWS_STORAGE_BUCKET_NAME = os.environ.get("SUPABASE_S3_BUCKET_NAME")
 AWS_S3_ENDPOINT_URL = os.environ.get(
     "SUPABASE_S3_ENDPOINT_URL"
 )  # https://<project-ref>.supabase.co/storage/v1/s3
-AWS_S3_REGION_NAME = os.environ.get("SUPABASE_S3_REGION", "ap-south-1")
+AWS_S3_REGION_NAME = os.environ.get("SUPABASE_S3_REGION", "us-east-1")
 AWS_S3_ADDRESSING_STYLE = "path"
 AWS_S3_SIGNATURE_VERSION = "s3v4"
 AWS_S3_FILE_OVERWRITE = False
