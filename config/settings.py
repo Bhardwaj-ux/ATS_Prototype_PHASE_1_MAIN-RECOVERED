@@ -1,6 +1,3 @@
-import cloudinary
-import cloudinary.uploader
-import cloudinary.api
 import os
 from pathlib import Path
 
@@ -58,8 +55,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "cloudinary_storage",
-    "cloudinary",
+    "storages",
     "rest_framework",
     "apps.core",
     "apps.accounts",
@@ -126,14 +122,22 @@ if ON_VERCEL and not database_url:
         "DATABASE_URL is required on Vercel. SQLite becomes read-only there and breaks login/session writes."
     )
 
+# Supabase's pooled connection string (pgbouncer, transaction mode — the one
+# meant for serverless) doesn't support long-lived connections or server-side
+# cursors. conn_max_age defaults to 0 so each request opens/closes cleanly
+# against the pooler; override with DB_CONN_MAX_AGE if you switch to the
+# direct (non-pooled) connection string instead.
+DB_CONN_MAX_AGE = int(os.getenv("DB_CONN_MAX_AGE", "0"))
+
 if database_url:
     DATABASES = {
         "default": dj_database_url.parse(
             database_url,
-            conn_max_age=600,
+            conn_max_age=DB_CONN_MAX_AGE,
             ssl_require=not DEBUG,
         )
     }
+    DATABASES["default"]["DISABLE_SERVER_SIDE_CURSORS"] = True
 else:
     DATABASES = {
         "default": {
@@ -152,16 +156,45 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
-cloudinary.config(
-    cloud_name=os.environ.get("CLOUDINARY_CLOUD_NAME"),
-    api_key=os.environ.get("CLOUDINARY_API_KEY"),
-    api_secret=os.environ.get("CLOUDINARY_API_SECRET"),
-    secure=True,
-)
+# Supabase Storage is S3-compatible, so it's accessed via django-storages'
+# S3 backend rather than a Supabase-specific package. Two "folders" (prefixes)
+# are used inside a single bucket: static/ and media/.
+AWS_ACCESS_KEY_ID = os.environ.get("SUPABASE_S3_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = os.environ.get("SUPABASE_S3_SECRET_ACCESS_KEY")
+AWS_STORAGE_BUCKET_NAME = os.environ.get("SUPABASE_S3_BUCKET_NAME")
+AWS_S3_ENDPOINT_URL = os.environ.get(
+    "SUPABASE_S3_ENDPOINT_URL"
+)  # https://<project-ref>.supabase.co/storage/v1/s3
+AWS_S3_REGION_NAME = os.environ.get("SUPABASE_S3_REGION", "ap-south-1")
+AWS_S3_ADDRESSING_STYLE = "path"
+AWS_S3_SIGNATURE_VERSION = "s3v4"
+AWS_S3_FILE_OVERWRITE = False
+AWS_DEFAULT_ACL = None
+AWS_QUERYSTRING_AUTH = False
 
+if ON_VERCEL and not all(
+    [
+        AWS_ACCESS_KEY_ID,
+        AWS_SECRET_ACCESS_KEY,
+        AWS_STORAGE_BUCKET_NAME,
+        AWS_S3_ENDPOINT_URL,
+    ]
+):
+    raise RuntimeError(
+        "SUPABASE_S3_ACCESS_KEY_ID, SUPABASE_S3_SECRET_ACCESS_KEY, SUPABASE_S3_BUCKET_NAME "
+        "and SUPABASE_S3_ENDPOINT_URL are all required on Vercel."
+    )
 
-STATICFILES_STORAGE = "cloudinary_storage.storage.StaticHashedCloudinaryStorage"
-DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
+STORAGES = {
+    "default": {
+        "BACKEND": "storages.backends.s3.S3Storage",
+        "OPTIONS": {"location": "media"},
+    },
+    "staticfiles": {
+        "BACKEND": "storages.backends.s3.S3Storage",
+        "OPTIONS": {"location": "static"},
+    },
+}
 
 
 LANGUAGE_CODE = "en-us"
