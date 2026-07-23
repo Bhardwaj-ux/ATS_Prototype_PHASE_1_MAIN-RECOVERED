@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Unsaved Job Descriptions | ATS Workspace{% endblock %}
+{% block extra_head %}
+
+<style>
+    .jd-bulkbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 14px 18px;
+        border-radius: 16px;
+        background: var(--primary-soft);
+        border: 1px solid var(--border);
+        margin-bottom: 16px;
+    }
+
+    .jd-bulkbar span {
+        font-weight: 700;
+        color: var(--text);
+    }
+
+    .jd-checkbox-cell {
+        width: 36px;
+    }
+
+    .jd-badge {
+        display: inline-flex;
+        padding: 6px 12px;
+        border-radius: 999px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        background: var(--primary-soft);
+        color: var(--primary);
+    }
+</style>
+
+{% endblock %}
+{% block content %}
+<section class="page-header">
+    <div>
+        <h1>Unsaved Job Descriptions</h1>
+        <p>Review each AI-extracted job description before it becomes a live job role. Nothing here has been saved as a
+            Job Role yet.</p>
+    </div>
+    <div class="page-actions">
+        <a href="{% url 'jobs:list' %}" class="btn btn-secondary">Back to Job Roles</a>
+        <a href="{% url 'jdimport:upload' %}" class="btn btn-primary">Import More JDs</a>
+    </div>
+</section>
+
+
+
+{% if files %}
+<form method="post" action="{% url 'jdimport:bulk_action' %}" id="jdBulkForm">
+    {% csrf_token %}
+    <div class="jd-bulkbar hidden" id="jdBulkbar">
+        <span><span id="jdSelectedCount">0</span> selected</span>
+        <div class="inline-actions">
+            <button type="submit" name="action" value="approve" class="btn btn-primary">Approve Selected</button>
+            <button type="submit" name="action" value="reject" class="btn btn-danger">Reject Selected</button>
+        </div>
+    </div>
+
+    <div class="table-card">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th class="jd-checkbox-cell"><input type="checkbox" id="jdSelectAll"></th>
+                    <th>File</th>
+                    <th>Extracted Title</th>
+                    <th>Department</th>
+                    <th>Experience</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for jd_file in files %}
+                {% if pending_jd_review_count %}
+                <p style="margin-top:10px;">
+                    <a href="{% url 'jdimport:review_list' %}" class="text-link">
+                        {{ pending_jd_review_count }} job description(s) waiting for review →
+                    </a>
+                </p>
+                {% endif %}
+                <tr>
+                    <td><input type="checkbox" name="file_ids" value="{{ jd_file.pk }}" class="jd-row-check"></td>
+                    <td>{{ jd_file.original_filename }}</td>
+                    <td>{{ jd_file.extracted_json.title|default:"—" }}</td>
+                    <td>{{ jd_file.extracted_json.department|default:"—" }}</td>
+                    <td>{{ jd_file.extracted_json.experience_min_years|default:0 }}–{{
+                        jd_file.extracted_json.experience_max_years|default:0 }} yrs</td>
+                    <td><span class="jd-badge">Ready for Review</span></td>
+                    <td><a href="{% url 'jdimport:review_detail' jd_file.pk %}" class="text-link">Open & Review</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</form>
+{% else %}
+<div class="empty-state">No job descriptions are waiting for review right now.</div>
+{% endif %}
+
+<script>
+    (function () {
+        const selectAll = document.getElementById("jdSelectAll");
+        const bulkbar = document.getElementById("jdBulkbar");
+        const countEl = document.getElementById("jdSelectedCount");
+        if (!selectAll) return;
+        function checks() { return Array.from(document.querySelectorAll(".jd-row-check")); }
+        function refresh() {
+            const checked = checks().filter((c) => c.checked);
+            countEl.textContent = checked.length;
+            bulkbar.classList.toggle("hidden", checked.length === 0);
+        }
+        selectAll.addEventListener("change", function () {
+            checks().forEach((c) => { c.checked = selectAll.checked; });
+            refresh();
+        });
+        checks().forEach((c) => c.addEventListener("change", refresh));
+    })();
+</script>
+{% endblock %}

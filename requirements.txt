@@ -6,3 +6,8 @@ python-dotenv>=1.0
 cloudinary
 django-cloudinary-storage
 djangorestframework>=3.15
+google-generativeai>=0.8.3
+PyMuPDF>=1.24.0
+pymupdf4llm>=0.0.17
+mammoth>=1.8.0
+markdownify>=0.13.1

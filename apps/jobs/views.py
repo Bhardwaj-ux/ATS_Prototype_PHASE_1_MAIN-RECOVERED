@@ -11,7 +11,7 @@ from django.views.generic import (
     ListView,
     UpdateView,
 )
-
+from apps.jdimport.models import JDImportFile
 from .forms import JobForm
 from .models import Job
 
@@ -22,27 +22,13 @@ class JobListView(LoginRequiredMixin, ListView):
     context_object_name = "jobs"
 
     def get_queryset(self):
-        qs = Job.objects.filter(is_active=True)
-        q = self.request.GET.get("q", "").strip()
-        status = self.request.GET.get("status")
-        employment_type = self.request.GET.get("employment_type")
-        location = self.request.GET.get("location", "").strip()
-
-        if q:
-            qs = qs.filter(Q(title__icontains=q) | Q(department__icontains=q))
-        if status:
-            qs = qs.filter(status=status)
-        if employment_type:
-            qs = qs.filter(employment_type=employment_type)
-        if location:
-            qs = qs.filter(location__icontains=location)
-        return qs
+        return Job.objects.filter(is_active=True)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["status_choices"] = Job.JobStatus.choices
-        context["employment_type_choices"] = Job.EmploymentType.choices
-        context["current_filters"] = self.request.GET
+        context["pending_jd_review_count"] = JDImportFile.objects.filter(
+            status=JDImportFile.Status.EXTRACTED
+        ).count()
         return context
 
 

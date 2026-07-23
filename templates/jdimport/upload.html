@@ -1,0 +1,327 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Bulk Import Job Descriptions | ATS Workspace{% endblock %}
+{% block extra_head %}
+
+<style>
+    .jd-dropzone {
+        border: 2px dashed var(--border);
+        border-radius: var(--radius-lg);
+        background: var(--surface-alt);
+        padding: 40px 24px;
+        text-align: center;
+        cursor: pointer;
+        transition: border-color 160ms ease, background 160ms ease;
+    }
+
+    .jd-dropzone.drag-active {
+        border-color: var(--primary);
+        background: var(--primary-soft);
+    }
+
+    .jd-dropzone-icon {
+        font-size: 2rem;
+        margin-bottom: 10px;
+    }
+
+    .jd-dropzone-title {
+        font-weight: 700;
+        color: var(--text);
+        margin-bottom: 6px;
+    }
+
+    .jd-dropzone-hint {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+    }
+
+    .jd-file-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-top: 20px;
+    }
+
+    .jd-file-row {
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        background: var(--surface);
+        padding: 14px 16px;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 6px 16px;
+        align-items: center;
+    }
+
+    .jd-file-name {
+        font-weight: 700;
+        color: var(--text);
+        word-break: break-word;
+    }
+
+    .jd-file-status {
+        grid-column: 1 / -1;
+        font-size: 0.86rem;
+        color: var(--text-muted);
+    }
+
+    .jd-stage-track {
+        display: flex;
+        gap: 8px;
+    }
+
+    .jd-stage {
+        font-size: 0.76rem;
+        font-weight: 700;
+        padding: 5px 10px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        color: var(--text-muted);
+        background: var(--surface-alt);
+    }
+
+    .jd-stage.active {
+        color: var(--primary);
+        border-color: var(--primary);
+        background: var(--primary-soft);
+    }
+
+    .jd-stage.done {
+        color: #166534;
+        border-color: #86efac;
+        background: var(--success-soft);
+    }
+
+    .jd-stage.failed {
+        color: #b91c1c;
+        border-color: #fca5a5;
+        background: var(--danger-soft);
+    }
+
+    .error-text {
+        color: #b91c1c;
+    }
+
+    .jd-upload-actions {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-top: 20px;
+        flex-wrap: wrap;
+    }
+
+    .hidden {
+        display: none !important;
+    }
+</style>
+
+{% endblock %}
+{% block content %}
+<section class="page-header">
+    <div>
+        <h1>Bulk Import Job Descriptions</h1>
+        <p>Upload up to 10 JD files (PDF or DOCX) at once. Each file is converted to Markdown and processed with AI to
+            extract job details automatically.</p>
+    </div>
+    <div class="page-actions">
+        <a href="{% url 'jobs:list' %}" class="btn btn-secondary">Back to Job Roles</a>
+    </div>
+</section>
+
+<article class="info-card">
+    <div class="jd-dropzone" id="jdDropZone">
+        <div class="jd-dropzone-icon">⬆</div>
+        <div class="jd-dropzone-title">Drag & drop JD files here, or click to browse</div>
+        <div class="jd-dropzone-hint">PDF or DOCX only · up to 10 files · 8 MB each</div>
+    </div>
+    <input type="file" id="jdFileInput" accept=".pdf,.docx" multiple hidden>
+
+    <div class="jd-file-list" id="jdFileList"></div>
+
+    <div class="jd-upload-actions">
+        <button type="button" class="btn btn-primary" id="jdStartBtn" disabled>Start Import</button>
+        <span class="muted hidden" id="jdSummary"></span>
+    </div>
+
+    <div class="hidden" id="jdReviewLinkWrap" style="margin-top:16px;">
+        <a href="{% url 'jdimport:review_list' %}" class="btn btn-secondary">Review Unsaved Job Descriptions</a>
+    </div>
+</article>
+
+<script>
+    window.JD_IMPORT_URLS = {
+        batchStart: "{% url 'jdimport:batch_start' %}",
+        upload: "{% url 'jdimport:upload_file' batch_id=0 %}",
+        convert: "{% url 'jdimport:convert_file' file_id=0 %}",
+        extract: "{% url 'jdimport:extract_file' file_id=0 %}"
+    };
+
+    (function () {
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(";").shift();
+            return null;
+        }
+
+        const csrftoken = getCookie("csrftoken");
+        const MAX_FILES = 10;
+
+        const dropZone = document.getElementById("jdDropZone");
+        const fileInput = document.getElementById("jdFileInput");
+        const fileListEl = document.getElementById("jdFileList");
+        const startBtn = document.getElementById("jdStartBtn");
+        const summaryEl = document.getElementById("jdSummary");
+        const reviewLinkWrap = document.getElementById("jdReviewLinkWrap");
+
+        if (!dropZone || !fileInput) return;
+
+        let selectedFiles = [];
+
+        function renderFileList() {
+            fileListEl.innerHTML = "";
+            selectedFiles.forEach((entry, index) => {
+                const row = document.createElement("div");
+                row.className = "jd-file-row";
+                row.id = `jd-row-${index}`;
+                row.innerHTML = `
+        <div class="jd-file-name">${entry.file.name}</div>
+        <div class="jd-stage-track">
+          <span class="jd-stage" data-stage="upload">Upload</span>
+          <span class="jd-stage" data-stage="convert">Convert</span>
+          <span class="jd-stage" data-stage="extract">Extract</span>
+          <span class="jd-stage" data-stage="store">Store</span>
+        </div>
+        <div class="jd-file-status">Queued</div>
+      `;
+                fileListEl.appendChild(row);
+            });
+            startBtn.disabled = selectedFiles.length === 0;
+        }
+
+        function setStage(index, stage, state) {
+            const row = document.getElementById(`jd-row-${index}`);
+            if (!row) return;
+            const el = row.querySelector(`.jd-stage[data-stage="${stage}"]`);
+            if (el) {
+                el.classList.remove("pending", "active", "done", "failed");
+                el.classList.add(state);
+            }
+        }
+
+        function setRowMessage(index, text, isError) {
+            const row = document.getElementById(`jd-row-${index}`);
+            if (!row) return;
+            const msg = row.querySelector(".jd-file-status");
+            msg.textContent = text;
+            msg.classList.toggle("error-text", !!isError);
+        }
+
+        function addFiles(fileArray) {
+            const incoming = Array.from(fileArray).filter((file) => {
+                const name = file.name.toLowerCase();
+                return name.endsWith(".pdf") || name.endsWith(".docx");
+            });
+            const room = MAX_FILES - selectedFiles.length;
+            const toAdd = incoming.slice(0, Math.max(room, 0)).map((file) => ({ file }));
+            selectedFiles = selectedFiles.concat(toAdd).slice(0, MAX_FILES);
+            renderFileList();
+        }
+
+        dropZone.addEventListener("click", () => fileInput.click());
+        dropZone.addEventListener("dragover", (e) => { e.preventDefault(); dropZone.classList.add("drag-active"); });
+        dropZone.addEventListener("dragleave", () => dropZone.classList.remove("drag-active"));
+        dropZone.addEventListener("drop", (e) => {
+            e.preventDefault();
+            dropZone.classList.remove("drag-active");
+            addFiles(e.dataTransfer.files);
+        });
+        fileInput.addEventListener("change", (e) => { addFiles(e.target.files); e.target.value = ""; });
+
+        async function startBatch() {
+            const response = await fetch(window.JD_IMPORT_URLS.batchStart, {
+                method: "POST",
+                headers: { "X-CSRFToken": csrftoken },
+            });
+            const data = await response.json();
+            return data.batch_id;
+        }
+
+        async function uploadFile(batchId, entry, index) {
+            setStage(index, "upload", "active");
+            const formData = new FormData();
+            formData.append("file", entry.file);
+            const response = await fetch(window.JD_IMPORT_URLS.upload.replace("0", batchId), {
+                method: "POST", headers: { "X-CSRFToken": csrftoken }, body: formData,
+            });
+            const data = await response.json();
+            if (!response.ok || data.error) {
+                setStage(index, "upload", "failed");
+                setRowMessage(index, data.error || "Upload failed.", true);
+                return null;
+            }
+            setStage(index, "upload", "done");
+            return data.file_id;
+        }
+
+        async function convertFile(fileId, index) {
+            setStage(index, "convert", "active");
+            setRowMessage(index, "Converting to Markdown...");
+            const response = await fetch(window.JD_IMPORT_URLS.convert.replace("0", fileId), {
+                method: "POST", headers: { "X-CSRFToken": csrftoken },
+            });
+            const data = await response.json();
+            if (!response.ok || data.error) {
+                setStage(index, "convert", "failed");
+                setRowMessage(index, data.error || "Conversion failed.", true);
+                return false;
+            }
+            setStage(index, "convert", "done");
+            return true;
+        }
+
+        async function extractFile(fileId, index) {
+            setStage(index, "extract", "active");
+            setRowMessage(index, "Extracting job details with AI...");
+            const response = await fetch(window.JD_IMPORT_URLS.extract.replace("0", fileId), {
+                method: "POST", headers: { "X-CSRFToken": csrftoken },
+            });
+            const data = await response.json();
+            if (!response.ok || data.error) {
+                setStage(index, "extract", "failed");
+                setStage(index, "store", "failed");
+                setRowMessage(index, data.error || "Extraction failed.", true);
+                return false;
+            }
+            setStage(index, "extract", "done");
+            setStage(index, "store", "done");
+            setRowMessage(index, "Ready for review.");
+            return true;
+        }
+
+        async function processAll() {
+            startBtn.disabled = true;
+            startBtn.textContent = "Processing...";
+            const batchId = await startBatch();
+            let successCount = 0;
+
+            for (let index = 0; index < selectedFiles.length; index += 1) {
+                const entry = selectedFiles[index];
+                const fileId = await uploadFile(batchId, entry, index);
+                if (!fileId) continue;
+                const converted = await convertFile(fileId, index);
+                if (!converted) continue;
+                const extracted = await extractFile(fileId, index);
+                if (extracted) successCount += 1;
+            }
+
+            startBtn.textContent = "Import Complete";
+            summaryEl.textContent = `${successCount} of ${selectedFiles.length} job description(s) are ready for review.`;
+            summaryEl.classList.remove("hidden");
+            if (successCount > 0) reviewLinkWrap.classList.remove("hidden");
+        }
+
+        startBtn.addEventListener("click", processAll);
+    })();
+</script>
+{% endblock %}

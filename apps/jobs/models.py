@@ -28,9 +28,7 @@ class Job(TimeStampedModel, SoftDeleteModel):
     experience_max_years = models.PositiveIntegerField(default=0)
     description = models.TextField()
     requirements = models.TextField(blank=True)
-    required_skills = models.TextField(
-        blank=True, help_text="Comma-separated skills for the ideal candidate"
-    )
+    required_skills = models.TextField(blank=True, help_text="Comma-separated skills")
     status = models.CharField(
         max_length=20, choices=JobStatus.choices, default=JobStatus.DRAFT
     )
@@ -49,6 +47,8 @@ class Job(TimeStampedModel, SoftDeleteModel):
         return self.title
 
     def skill_list(self):
+        import re
+
         if not self.required_skills:
             return []
         raw_items = re.split(r"[,\n]+", self.required_skills)

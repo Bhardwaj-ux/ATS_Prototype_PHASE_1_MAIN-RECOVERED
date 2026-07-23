@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Review: {{ jd_file.original_filename }} | ATS Workspace{% endblock %}
+{% block extra_head %}
+
+<style>
+    .jd-review-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1.3fr) minmax(300px, 1fr);
+        gap: 18px;
+    }
+
+    .jd-markdown-preview {
+        max-height: 640px;
+        overflow-y: auto;
+        white-space: pre-wrap;
+        font-family: "SFMono-Regular", Consolas, monospace;
+        font-size: 0.86rem;
+        line-height: 1.6;
+        color: var(--text-muted);
+        background: var(--surface-alt);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 16px;
+    }
+
+    .jd-back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 14px;
+        width: auto;
+        height: auto;
+        padding: 10px 14px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        color: var(--text);
+        border-radius: 12px;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 20px;
+    }
+
+    @media (max-width: 1000px) {
+        .jd-review-layout {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+{% endblock %}
+{% block content %}
+<a href="{% url 'jdimport:review_list' %}" class="icon-btn jd-back-link">← Back to Unsaved List</a>
+
+<section class="page-header">
+    <div>
+        <h1>{{ jd_file.original_filename }}</h1>
+        <p>Review and edit the AI-extracted details below, then approve to create this Job Role, or reject to discard
+            it.</p>
+    </div>
+</section>
+
+<div class="jd-review-layout">
+    <article class="info-card">
+        <h2 class="section-title">Job Role Details</h2>
+        <form method="post">
+            {% csrf_token %}
+            {% if form.non_field_errors %}<div class="form-errors">{{ form.non_field_errors }}</div>{% endif %}
+
+            <div class="form-grid two-col">
+                <div class="form-group">
+                    <label for="{{ form.title.id_for_label }}">Title</label>
+                    {{ form.title }}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.department.id_for_label }}">Department</label>
+                    {{ form.department }}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.location.id_for_label }}">Location</label>
+                    {{ form.location }}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.employment_type.id_for_label }}">Employment Type</label>
+                    {{ form.employment_type }}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.experience_min_years.id_for_label }}">Experience Min (Years)</label>
+                    {{ form.experience_min_years }}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.experience_max_years.id_for_label }}">Experience Max (Years)</label>
+                    {{ form.experience_max_years }}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.required_skills.id_for_label }}">Required Skills</label>
+                {{ form.required_skills }}
+                <p class="skills-help">Comma-separated skills, as extracted by AI. Edit freely before approving.</p>
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.description.id_for_label }}">Description</label>
+                {{ form.description }}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.requirements.id_for_label }}">Requirements</label>
+                {{ form.requirements }}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.status.id_for_label }}">Status on Creation</label>
+                {{ form.status }}
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Approve & Create Job Role</button>
+            </div>
+        </form>
+
+        <form method="post" action="{% url 'jdimport:reject_file' jd_file.pk %}" style="margin-top:12px;">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Reject This Job Description</button>
+        </form>
+    </article>
+
+    <aside class="info-card">
+        <h3 class="section-title">Original Extracted Markdown</h3>
+        <div class="jd-markdown-preview">{{ jd_file.markdown_text }}</div>
+    </aside>
+</div>
+{% endblock %}

@@ -12,17 +12,15 @@ class JobForm(forms.ModelForm):
             "employment_type",
             "experience_min_years",
             "experience_max_years",
+            "required_skills",
             "description",
             "requirements",
-            "required_skills",
             "status",
         ]
         widgets = {
             "description": forms.Textarea(attrs={"rows": 5}),
             "requirements": forms.Textarea(attrs={"rows": 5}),
-            "required_skills": forms.HiddenInput(
-                attrs={"id": "id_required_skills_hidden"}
-            ),
+            "required_skills": forms.Textarea(attrs={"rows": 2}),
         }
 
     def clean_required_skills(self):

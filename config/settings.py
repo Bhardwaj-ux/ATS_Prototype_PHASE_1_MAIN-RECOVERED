@@ -64,6 +64,7 @@ INSTALLED_APPS = [
     "apps.core",
     "apps.accounts",
     "apps.jobs",
+    "apps.jdimport",
     "apps.applications",
     "apps.resumes",
     "apps.dashboard",
