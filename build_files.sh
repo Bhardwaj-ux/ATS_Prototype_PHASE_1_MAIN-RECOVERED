@@ -1,14 +1,13 @@
 #!/bin/bash
 set -euxo pipefail
 
-echo "STEP 1: installing requirements"
-pip install -r requirements.txt
-
-echo "STEP 2: checking Django config"
+echo "STEP 1: checking Django config"
 python manage.py check
 
-echo "STEP 3: verifying no missing migrations"
+echo "STEP 2: verifying no missing jdimport & jobs tables"
 python manage.py makemigrations jdimport jobs
+
+echo "STEP 3: verifying no missing migrations"
 python manage.py makemigrations --check --dry-run
 
 echo "STEP 4: running migrations"
