@@ -313,7 +313,7 @@
         <ul class="glass-select-list">
           <li data-value="" {% if not current_filters.status %}class="active" {% endif %}>All statuses</li>
           {% for value, label in status_choices %}
-          <li data-value="{{ value }}" {% if current_filters.status==value %}class="active" {% endif %}>{{ label }}</li>
+          <li data-value="{{ value }}" {% if current_filters.status == value %}class="active" {% endif %}>{{ label }}</li>
           {% endfor %}
         </ul>
       </div>
@@ -335,7 +335,7 @@
         <ul class="glass-select-list">
           <li data-value="" {% if not current_filters.employment_type %}class="active" {% endif %}>All types</li>
           {% for value, label in employment_type_choices %}
-          <li data-value="{{ value }}" {% if current_filters.employment_type==value %}class="active" {% endif %}>{{
+          <li data-value="{{ value }}" {% if current_filters.employment_type == value %}class="active" {% endif %}>{{
             label }}</li>
           {% endfor %}
         </ul>
@@ -463,9 +463,7 @@
     var filterPanel = document.getElementById('filterPanel');
     if (filterToggleBtn && filterPanel) {
       filterToggleBtn.addEventListener('click', function () { filterPanel.classList.toggle('open'); });
-      var hasActiveFilters = {{ current_filters.status| yesno: "true,false"
-    }
-  } || {{ current_filters.employment_type | yesno: "true,false" }} || {{ current_filters.location | yesno: "true,false" }};
+      var hasActiveFilters = {{ current_filters.status|yesno:"true,false" }} || {{ current_filters.employment_type|yesno:"true,false" }} || {{ current_filters.location|yesno:"true,false" }};
   if (hasActiveFilters) { filterPanel.classList.add('open'); }
   }
 
