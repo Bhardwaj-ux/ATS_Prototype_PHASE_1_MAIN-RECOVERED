@@ -692,15 +692,44 @@
   </article>
 </section>
 {% endblock %}
-
 {% block extra_js %}
 <script>
+window.TASK_URLS = {
+  create: "{% url 'tasks:create' %}",
+  toggle: "{% url 'tasks:toggle' pk=0 %}",
+  update: "{% url 'tasks:update' pk=0 %}",
+  delete: "{% url 'tasks:delete' pk=0 %}"
+};
+
 document.addEventListener('DOMContentLoaded', function () {
   function getCookie(name) {
     var value = "; " + document.cookie;
     var parts = value.split("; " + name + "=");
     if (parts.length === 2) return parts.pop().split(";").shift();
     return null;
+  }
+
+  function notifyError(message) {
+    if (window.ATSNotify && typeof window.ATSNotify.toast === 'function') {
+      window.ATSNotify.toast(message, 'error');
+    } else {
+      console.error(message);
+    }
+  }
+
+  function postJson(url, formData) {
+    return fetch(url, {
+      method: 'POST',
+      headers: { 'X-CSRFToken': getCookie('csrftoken') },
+      body: formData || undefined
+    }).then(function (response) {
+      if (!response.ok) {
+        return response.text().then(function () {
+          throw new Error('Request failed (' + response.status + ').');
+        });
+      }
+      return response.json();
+    });
   }
 
   var taskList = document.getElementById('taskList');
@@ -796,13 +825,13 @@ document.addEventListener('DOMContentLoaded', function () {
     var menuDropdown = row.querySelector('.task-menu-dropdown');
 
     checkbox.addEventListener('change', function () {
-      fetch('/tasks/' + taskId + '/toggle/', {
-        method: 'POST',
-        headers: { 'X-CSRFToken': getCookie('csrftoken') }
-      })
-        .then(function (r) { return r.json(); })
+      postJson(window.TASK_URLS.toggle.replace('0', taskId))
         .then(function (data) {
           if (data.ok) { titleEl.classList.toggle('done', data.task.is_done); }
+        })
+        .catch(function (err) {
+          checkbox.checked = !checkbox.checked;
+          notifyError('Could not update task: ' + err.message);
         });
     });
 
@@ -817,15 +846,14 @@ document.addEventListener('DOMContentLoaded', function () {
         var priority = btn.getAttribute('data-priority-set');
         var formData = new FormData();
         formData.append('priority', priority);
-        fetch('/tasks/' + taskId + '/update/', {
-          method: 'POST',
-          headers: { 'X-CSRFToken': getCookie('csrftoken') },
-          body: formData
-        })
-          .then(function (r) { return r.json(); })
+        postJson(window.TASK_URLS.update.replace('0', taskId), formData)
           .then(function (data) {
             if (data.ok) updateRowContent(row, data.task);
             popover.classList.remove('open');
+          })
+          .catch(function (err) {
+            popover.classList.remove('open');
+            notifyError('Could not update priority: ' + err.message);
           });
       });
     });
@@ -842,24 +870,17 @@ document.addEventListener('DOMContentLoaded', function () {
       if (newTitle === null || !newTitle.trim()) return;
       var formData = new FormData();
       formData.append('title', newTitle.trim());
-      fetch('/tasks/' + taskId + '/update/', {
-        method: 'POST',
-        headers: { 'X-CSRFToken': getCookie('csrftoken') },
-        body: formData
-      })
-        .then(function (r) { return r.json(); })
-        .then(function (data) { if (data.ok) updateRowContent(row, data.task); });
+      postJson(window.TASK_URLS.update.replace('0', taskId), formData)
+        .then(function (data) { if (data.ok) updateRowContent(row, data.task); })
+        .catch(function (err) { notifyError('Could not rename task: ' + err.message); });
     });
 
     row.querySelector('[data-task-delete]').addEventListener('click', function () {
       menuDropdown.classList.remove('open');
       if (!confirm('Delete this task?')) return;
-      fetch('/tasks/' + taskId + '/delete/', {
-        method: 'POST',
-        headers: { 'X-CSRFToken': getCookie('csrftoken') }
-      })
-        .then(function (r) { return r.json(); })
-        .then(function (data) { if (data.ok) row.remove(); });
+      postJson(window.TASK_URLS.delete.replace('0', taskId))
+        .then(function (data) { if (data.ok) row.remove(); })
+        .catch(function (err) { notifyError('Could not delete task: ' + err.message); });
     });
   }
 
@@ -877,12 +898,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var formData = new FormData();
     formData.append('title', title);
     formData.append('priority', priorityHiddenInput.value);
-    fetch('/tasks/create/', {
-      method: 'POST',
-      headers: { 'X-CSRFToken': getCookie('csrftoken') },
-      body: formData
-    })
-      .then(function (r) { return r.json(); })
+    postJson(window.TASK_URLS.create, formData)
       .then(function (data) {
         if (data.ok) {
           var emptyState = document.getElementById('taskEmptyState');
@@ -892,6 +908,9 @@ document.addEventListener('DOMContentLoaded', function () {
           resetPriorityDropdown();
           addRow.classList.remove('open');
         }
+      })
+      .catch(function (err) {
+        notifyError('Could not add task: ' + err.message);
       });
   });
 

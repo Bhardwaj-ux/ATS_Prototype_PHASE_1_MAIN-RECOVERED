@@ -112,7 +112,6 @@ CSRF_COOKIE_HTTPONLY = False
 CSRF_HEADER_NAME = "HTTP_X_CSRFTOKEN"
 
 WSGI_APPLICATION = "config.wsgi.application"
-# ASGI_APPLICATION = "config.asgi.application"
 
 
 database_url = os.environ.get("DATABASE_URL", "").strip()
@@ -122,11 +121,6 @@ if ON_VERCEL and not database_url:
         "DATABASE_URL is required on Vercel. SQLite becomes read-only there and breaks login/session writes."
     )
 
-# Supabase's pooled connection string (pgbouncer, transaction mode — the one
-# meant for serverless) doesn't support long-lived connections or server-side
-# cursors. conn_max_age defaults to 0 so each request opens/closes cleanly
-# against the pooler; override with DB_CONN_MAX_AGE if you switch to the
-# direct (non-pooled) connection string instead.
 DB_CONN_MAX_AGE = int(os.getenv("DB_CONN_MAX_AGE", "0"))
 
 if database_url:
@@ -156,15 +150,18 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
-# Supabase Storage is S3-compatible, so it's accessed via django-storages'
-# S3 backend rather than a Supabase-specific package. Two "folders" (prefixes)
-# are used inside a single bucket: static/ and media/.
+# --- Supabase S3-compatible storage --------------------------------------
+# AWS_S3_ENDPOINT_URL is the S3 *API* endpoint (used for uploads/PUT via boto3).
+# It is NOT the public file-serving URL. Supabase serves public objects from
+# a completely different path: /storage/v1/object/public/<bucket>/<key>.
+# Without AWS_S3_CUSTOM_DOMAIN set explicitly to that path, django-storages
+# builds URLs against the S3 API host, which does not serve files to a
+# browser — this is why images/static files fail to load even though upload
+# succeeds during collectstatic.
 AWS_ACCESS_KEY_ID = os.environ.get("SUPABASE_S3_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = os.environ.get("SUPABASE_S3_SECRET_ACCESS_KEY")
 AWS_STORAGE_BUCKET_NAME = os.environ.get("SUPABASE_S3_BUCKET_NAME")
-AWS_S3_ENDPOINT_URL = os.environ.get(
-    "SUPABASE_S3_ENDPOINT_URL"
-)  # https://<project-ref>.supabase.co/storage/v1/s3
+AWS_S3_ENDPOINT_URL = os.environ.get("SUPABASE_S3_ENDPOINT_URL")
 AWS_S3_REGION_NAME = os.environ.get("SUPABASE_S3_REGION", "us-east-1")
 AWS_S3_ADDRESSING_STYLE = "path"
 AWS_S3_SIGNATURE_VERSION = "s3v4"
@@ -183,6 +180,18 @@ if ON_VERCEL and not all(
     raise RuntimeError(
         "SUPABASE_S3_ACCESS_KEY_ID, SUPABASE_S3_SECRET_ACCESS_KEY, SUPABASE_S3_BUCKET_NAME "
         "and SUPABASE_S3_ENDPOINT_URL are all required on Vercel."
+    )
+
+# Derive the public object-serving domain from the S3 API endpoint, e.g.
+# https://<ref>.supabase.co/storage/v1/s3  ->  <ref>.supabase.co/storage/v1/object/public/<bucket>
+if AWS_S3_ENDPOINT_URL and AWS_STORAGE_BUCKET_NAME:
+    _supabase_host = (
+        AWS_S3_ENDPOINT_URL.replace("https://", "")
+        .replace("http://", "")
+        .split("/storage/v1/s3")[0]
+    )
+    AWS_S3_CUSTOM_DOMAIN = (
+        f"{_supabase_host}/storage/v1/object/public/{AWS_STORAGE_BUCKET_NAME}"
     )
 
 STORAGES = {

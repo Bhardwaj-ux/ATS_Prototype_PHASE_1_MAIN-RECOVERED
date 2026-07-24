@@ -1,528 +1,119 @@
 {% extends 'base.html' %}
-
+{% load static %}
 {% block title %}Job Roles | ATS Workspace{% endblock %}
-
 {% block extra_head %}
 <style>
-  .filter-bar {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 16px;
-    flex-wrap: wrap;
-  }
-
-  .filter-search {
-    flex: 1;
-    min-width: 220px;
-    position: relative;
-  }
-
-  .filter-search svg {
-    position: absolute;
-    left: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 15px;
-    height: 15px;
-    color: var(--text-muted);
-  }
-
-  .filter-search input {
-    padding-left: 34px;
-  }
-
-  .filter-panel {
-    display: none;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 12px;
-    padding: 16px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-    background: var(--surface-soft);
-    margin-bottom: 16px;
-  }
-
-  .filter-panel.open {
-    display: grid;
-  }
-
-  .filter-panel .form-group {
-    margin-bottom: 0;
-  }
-
-  .filter-panel-actions {
-    grid-column: 1 / -1;
-    display: flex;
-    gap: 10px;
-  }
-
-  .glass-select-wrap {
-    position: relative;
-    width: 100%;
-  }
-
-  .glass-select-trigger {
-    width: 100%;
-    min-height: 42px;
-    padding: 10px 14px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    font-size: 0.86rem;
-    font-family: var(--font-sans);
-    color: var(--text);
-    background: var(--surface-soft);
-    /* box-shadow: 0 0 3px rgba(30, 31, 36, 0.75); */
-    box-shadow: 0 0 3px var(--primary-soft-text);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    cursor: pointer;
-    backdrop-filter: blur(1px) saturate(180%);
-    -webkit-backdrop-filter: blur(1px) saturate(180%);
-    transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
-  }
-
-  html[data-theme="dark"] .glass-select-trigger {
-    background: var(--task-bg);
-    border: 1px solid var(--border);
-  }
-
-  .glass-select-trigger:hover {
-    border: 1px solid var(--primary);
-    backdrop-filter: brightness(150%);
-    transition: 0.2s ease-in-out;
-  }
-
-  html[data-theme="dark"] .glass-select-trigger:hover {
-    border: 1px solid var(--primary);
-    backdrop-filter: brightness(150%);
-    transition: 0.2s ease-in-out;
-  }
-
-  .glass-select-wrap.open .glass-select-trigger {
-    border-color: var(--primary);
-    box-shadow: 0 0 0 3px var(--primary-soft);
-  }
-
-  .glass-select-label {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .glass-select-arrow {
-    width: 14px;
-    height: 14px;
-    color: var(--text);
-    opacity: 0.75;
-    flex-shrink: 0;
-    transition: transform 0.18s ease, opacity 0.18s ease;
-  }
-
-  .glass-select-wrap:hover .glass-select-arrow {
-    opacity: 1;
-  }
-
-  .glass-select-wrap.open .glass-select-arrow {
-    transform: rotate(180deg);
-  }
-
-  .glass-select-list {
-    display: none;
-    position: absolute;
-    top: calc(100% + 6px);
-    left: 0;
-    right: 0;
-    z-index: 30;
-    list-style: none;
-    margin: 0;
-    padding: 6px;
-    max-height: 240px;
-    overflow-y: auto;
-    border-radius: 12px;
-    border: 1px solid var(--border);
-    box-shadow: var(--shadow-md);
-    background: rgba(255, 255, 255, 0.6);
-    backdrop-filter: blur(5px) saturate(100%);
-    -webkit-backdrop-filter: blur(5px) saturate(100%);
-  }
-
-  html[data-theme="dark"] .glass-select-list {
-    background: rgba(30, 31, 36, 0.75);
-  }
-
-  .glass-select-wrap.open .glass-select-list {
-    display: block;
-  }
-
-  .glass-select-list li {
-    padding: 8px 10px;
-    border-radius: 8px;
-    font-size: 0.85rem;
-    color: var(--text);
-    cursor: pointer;
-    transition: background 0.15s ease, color 0.15s ease;
-  }
-
-  .glass-select-list li:hover {
-    background: var(--info-soft);
-    color: var(--primary-soft-text);
-  }
-
-  .glass-select-list li.active {
-    font-weight: 700;
-    color: var(--primary);
-  }
-
-  .bulk-bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    padding: 10px 14px;
-    border-radius: var(--radius-md);
-    background: var(--primary-soft);
-    border: 1px solid var(--primary);
-    margin-bottom: 12px;
-    flex-wrap: wrap;
-  }
-
-  .bulk-bar span {
-    font-size: 0.86rem;
-    font-weight: 600;
-    color: var(--primary-soft-text);
-  }
-
-  .bulk-actions {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
-
-  .bulk-actions button .split-dropdown {
-    position: relative;
-    display: inline-block;
-  }
-
-  .dropdown-caret {
-    margin-left: 6px;
-  }
-
-  .dropdown-menu {
-    position: absolute;
-    right: 0;
-    top: calc(100% + 8px);
-    width: 280px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    box-shadow: var(--shadow-md);
-    padding: 8px;
-    display: none;
-    z-index: 20;
-  }
-
-  .dropdown-menu.open {
-    display: block;
-  }
-
-  .dropdown-menu-item {
-    display: block;
-    padding: 12px;
-    border-radius: 12px;
-    color: var(--text);
-  }
-
-  .dropdown-menu-item:hover {
-    background: var(--surface-soft);
-  }
-
-  .dropdown-menu-title {
-    display: block;
-    font-weight: 700;
-  }
-
-  .dropdown-menu-sub {
-    display: block;
-    color: var(--text-muted);
-    font-size: 0.84rem;
-    margin-top: 3px;
-  }
-
-  @media (max-width: 700px) {
-    .filter-panel {
-      grid-template-columns: 1fr;
+    .jobs-bulkbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 14px 18px;
+        border-radius: 16px;
+        background: var(--primary-soft);
+        border: 1px solid var(--border);
+        margin-bottom: 16px;
     }
-  }
+
+    .jobs-bulkbar span {
+        font-weight: 700;
+        color: var(--text);
+    }
+
+    .jobs-checkbox-cell {
+        width: 36px;
+    }
 </style>
 {% endblock %}
-
 {% block content %}
-<form method="get" id="filterForm">
-  <div class="filter-bar">
-    <div class="filter-search">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-        stroke-linejoin="round">
-        <circle cx="11" cy="11" r="8" />
-        <path d="m21 21-4.3-4.3" />
-      </svg>
-      <input type="text" name="q" value="{{ current_filters.q }}" placeholder="Search by job title or department...">
+<section class="page-header">
+    <div>
+        <h1>Job Roles</h1>
+        <p>Create, review, and manage the hiring roles currently open across the team.</p>
     </div>
-    <button type="button" class="btn btn-secondary" id="filterToggleBtn">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-        stroke-linejoin="round">
-        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
-      </svg>
-      Filters
-    </button>
     <div class="page-actions">
-      <div class="split-dropdown" id="createJobDropdown">
-        <button type="button" class="btn btn-primary" id="createJobTrigger">
-          + Create New Job Role <span class="dropdown-caret">▾</span>
-        </button>
-        <div class="dropdown-menu" id="createJobMenu">
-          <a href="{% url 'jobs:create' %}" class="dropdown-menu-item">
-            <span class="dropdown-menu-title">Manually Enter Details</span>
-            <span class="dropdown-menu-sub">Fill out a single job role form</span>
-          </a>
-          <a href="{% url 'jdimport:upload' %}" class="dropdown-menu-item">
-            <span class="dropdown-menu-title">Bulk Import Job Descriptions</span>
-            <span class="dropdown-menu-sub">Upload up to 10 JD files at once</span>
-          </a>
-        </div>
-      </div>
+        <a href="{% url 'jdimport:upload' %}" class="btn btn-secondary">Import JDs</a>
+        <a href="{% url 'jobs:create' %}" class="btn btn-primary">Create Job Role</a>
     </div>
-  </div>
-
-  <div class="filter-panel" id="filterPanel">
-    <div class="form-group">
-      <label>Status</label>
-      <div class="glass-select-wrap" data-glass-select>
-        <button type="button" class="glass-select-trigger">
-          <span class="glass-select-label">All statuses</span>
-          <svg class="glass-select-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-            stroke-linecap="round" stroke-linejoin="round">
-            <path d="M6 9l6 6 6-6" />
-          </svg>
-        </button>
-
-        <input type="hidden" name="status" value="{{ current_filters.status|default:'' }}">
-
-        <ul class="glass-select-list">
-          <li data-value="" {% if not current_filters.status %}class="active" {% endif %}>All statuses</li>
-          {% for value, label in status_choices %}
-          <li data-value="{{ value }}" {% if current_filters.status == value %}class="active" {% endif %}>{{ label }}</li>
-          {% endfor %}
-        </ul>
-      </div>
-    </div>
-
-    <div class="form-group">
-      <label>Employment Type</label>
-      <div class="glass-select-wrap" data-glass-select>
-        <button type="button" class="glass-select-trigger">
-          <span class="glass-select-label">All types</span>
-          <svg class="glass-select-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-            stroke-linecap="round" stroke-linejoin="round">
-            <path d="M6 9l6 6 6-6" />
-          </svg>
-        </button>
-
-        <input type="hidden" name="employment_type" value="{{ current_filters.employment_type|default:'' }}">
-
-        <ul class="glass-select-list">
-          <li data-value="" {% if not current_filters.employment_type %}class="active" {% endif %}>All types</li>
-          {% for value, label in employment_type_choices %}
-          <li data-value="{{ value }}" {% if current_filters.employment_type == value %}class="active" {% endif %}>{{
-            label }}</li>
-          {% endfor %}
-        </ul>
-      </div>
-    </div>
-    <div class="form-group">
-      <label>Location</label>
-      <input type="text" name="location" value="{{ current_filters.location }}" placeholder="e.g. Bengaluru, Remote">
-    </div>
-    <div class="filter-panel-actions">
-      <button type="submit" class="btn btn-primary">Apply Filters</button>
-      <a href="{% url 'jobs:list' %}" class="btn btn-secondary">Clear</a>
-    </div>
-  </div>
-</form>
-
-<div class="bulk-bar hidden" id="bulkBar">
-  <span id="bulkCount">0 selected</span>
-  <div class="bulk-actions">
-    <button type="button" class="btn btn-secondary-open" data-bulk-action="open">Set Open</button>
-    <button type="button" class="btn btn-secondary-closed" data-bulk-action="closed">Set Closed</button>
-    <button type="button" class="btn btn-secondary-archive" data-bulk-action="archived">Archive</button>
-    <button type="button" class="btn btn-danger" data-bulk-action="delete">Delete</button>
-  </div>
-</div>
-
-<section class="table-card">
-  {% if jobs %}
-  <table class="data-table">
-    <thead>
-      <tr>
-        <th style="width:36px;"><input type="checkbox" class="row-check" id="selectAll"></th>
-        <th>Title</th>
-        <th>Department</th>
-        <th>Location</th>
-        <th>Type</th>
-        <th>Status</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for job in jobs %}
-      <tr>
-        <td><input type="checkbox" class="row-check row-check-item" value="{{ job.pk }}"></td>
-        <td><a href="{% url 'jobs:detail' job.pk %}" class="text-link">{{ job.title }}</a></td>
-        <td>{{ job.department }}</td>
-        <td>{{ job.location }}</td>
-        <td>{{ job.get_employment_type_display }}</td>
-        <td><span class="badge badge-{{ job.status }}">{{ job.get_status_display }}</span></td>
-        <td>
-          <div class="inline-actions">
-            <a href="{% url 'jobs:edit' job.pk %}" class="icon-btn-sm" title="Edit">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"
-                stroke-linejoin="round">
-                <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
-              </svg>
-            </a>
-            <a href="{% url 'jobs:delete' job.pk %}" class="icon-btn-sm danger" title="Delete">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"
-                stroke-linejoin="round">
-                <path d="M3 6h18" />
-                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                <line x1="10" x2="10" y1="11" y2="17" />
-                <line x1="14" x2="14" y1="11" y2="17" />
-              </svg>
-            </a>
-          </div>
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-  {% else %}
-  <div class="empty-state">No job roles match your search or filters.</div>
-  {% endif %}
 </section>
-{% endblock %}
 
-{% block extra_js %}
+{% if pending_jd_review_count %}
+<div class="empty-state" style="text-align:left; margin-bottom:16px;">
+    <a href="{% url 'jdimport:review_list' %}" class="text-link">
+        {{ pending_jd_review_count }} imported job description(s) waiting for review →
+    </a>
+</div>
+{% endif %}
+
+{% if jobs %}
+<form method="post" action="{% url 'jobs:bulk_action' %}" id="jobsBulkForm">
+    {% csrf_token %}
+    <div class="jobs-bulkbar hidden" id="jobsBulkbar">
+        <span><span id="jobsSelectedCount">0</span> selected</span>
+        <div class="inline-actions">
+            <button type="submit" name="action" value="open" class="btn btn-secondary">Mark Open</button>
+            <button type="submit" name="action" value="closed" class="btn btn-secondary">Mark Closed</button>
+            <button type="submit" name="action" value="archived" class="btn btn-secondary">Archive</button>
+            <button type="submit" name="action" value="delete" class="btn btn-danger"
+                onclick="return confirm('Delete the selected job role(s)? This cannot be undone.');">Delete</button>
+        </div>
+    </div>
+
+    <div class="table-card">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th class="jobs-checkbox-cell"><input type="checkbox" id="jobsSelectAll"></th>
+                    <th>Title</th>
+                    <th>Department</th>
+                    <th>Location</th>
+                    <th>Type</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for job in jobs %}
+                <tr>
+                    <td><input type="checkbox" name="ids[]" value="{{ job.pk }}" class="jobs-row-check"></td>
+                    <td><a href="{% url 'jobs:detail' job.pk %}" class="text-link">{{ job.title }}</a></td>
+                    <td>{{ job.department|default:"—" }}</td>
+                    <td>{{ job.location|default:"—" }}</td>
+                    <td>{{ job.get_employment_type_display }}</td>
+                    <td><span class="badge badge-{{ job.status }}">{{ job.get_status_display }}</span></td>
+                    <td>
+                        <div class="inline-actions">
+                            <a href="{% url 'jobs:edit' job.pk %}" class="text-link">Edit</a>
+                            <a href="{% url 'jobs:delete' job.pk %}" class="text-link">Delete</a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</form>
+{% else %}
+<div class="empty-state">No job roles have been created yet.</div>
+{% endif %}
+
 <script>
-
-  (function () {
-    const trigger = document.getElementById("createJobTrigger");
-    const menu = document.getElementById("createJobMenu");
-    const wrap = document.getElementById("createJobDropdown");
-    if (!trigger || !menu || !wrap) return;
-    trigger.addEventListener("click", function (e) { e.stopPropagation(); menu.classList.toggle("open"); });
-    document.addEventListener("click", function (e) { if (!wrap.contains(e.target)) menu.classList.remove("open"); });
-  })();
-
-  document.querySelectorAll('[data-glass-select]').forEach(function (wrap) {
-    var trigger = wrap.querySelector('.glass-select-trigger');
-    var label = wrap.querySelector('.glass-select-label');
-    var hiddenInput = wrap.querySelector('input[type="hidden"]');
-    var list = wrap.querySelector('.glass-select-list');
-
-    trigger.addEventListener('click', function (e) {
-      e.stopPropagation();
-      document.querySelectorAll('.glass-select-wrap.open').forEach(function (w) {
-        if (w !== wrap) w.classList.remove('open');
-      });
-      wrap.classList.toggle('open');
-    });
-
-    list.querySelectorAll('li').forEach(function (li) {
-      li.addEventListener('click', function (e) {
-        e.stopPropagation();
-        list.querySelectorAll('li').forEach(function (i) { i.classList.remove('active'); });
-        li.classList.add('active');
-        label.textContent = li.textContent;
-        hiddenInput.value = li.getAttribute('data-value');
-        wrap.classList.remove('open');
-      });
-    });
-  });
-
-  document.addEventListener('click', function () {
-    document.querySelectorAll('.glass-select-wrap.open').forEach(function (w) {
-      w.classList.remove('open');
-    });
-  });
-
-  document.addEventListener('DOMContentLoaded', function () {
-    var filterToggleBtn = document.getElementById('filterToggleBtn');
-    var filterPanel = document.getElementById('filterPanel');
-    if (filterToggleBtn && filterPanel) {
-      filterToggleBtn.addEventListener('click', function () { filterPanel.classList.toggle('open'); });
-      var hasActiveFilters = {{ current_filters.status|yesno:"true,false" }} || {{ current_filters.employment_type|yesno:"true,false" }} || {{ current_filters.location|yesno:"true,false" }};
-  if (hasActiveFilters) { filterPanel.classList.add('open'); }
-  }
-
-  function getCookie(name) {
-    var value = "; " + document.cookie;
-    var parts = value.split("; " + name + "=");
-    if (parts.length === 2) return parts.pop().split(";").shift();
-    return null;
-  }
-
-  var selectAll = document.getElementById('selectAll');
-  var rowChecks = document.querySelectorAll('.row-check-item');
-  var bulkBar = document.getElementById('bulkBar');
-  var bulkCount = document.getElementById('bulkCount');
-
-  function refreshBulkBar() {
-    var checked = document.querySelectorAll('.row-check-item:checked');
-    if (checked.length > 0) {
-      bulkBar.classList.remove('hidden');
-      bulkCount.textContent = checked.length + ' selected';
-    } else {
-      bulkBar.classList.add('hidden');
-    }
-  }
-
-  if (selectAll) {
-    selectAll.addEventListener('change', function () {
-      rowChecks.forEach(function (cb) { cb.checked = selectAll.checked; });
-      refreshBulkBar();
-    });
-  }
-  rowChecks.forEach(function (cb) { cb.addEventListener('change', refreshBulkBar); });
-
-  document.querySelectorAll('[data-bulk-action]').forEach(function (btn) {
-    btn.addEventListener('click', function () {
-      var action = btn.getAttribute('data-bulk-action');
-      var ids = Array.from(document.querySelectorAll('.row-check-item:checked')).map(function (cb) { return cb.value; });
-      if (ids.length === 0) return;
-      if (action === 'delete' && !confirm('Delete ' + ids.length + ' job role(s)? This cannot be undone.')) return;
-
-      var formData = new FormData();
-      formData.append('action', action);
-      ids.forEach(function (id) { formData.append('ids[]', id); });
-
-      fetch("{% url 'jobs:bulk-action' %}", {
-        method: 'POST',
-        headers: { 'X-CSRFToken': getCookie('csrftoken') },
-        body: formData
-      })
-        .then(function (r) { return r.json(); })
-        .then(function (data) {
-          if (window.ATSNotify) {
-            window.ATSNotify.toast(data.message || data.error, data.ok ? 'success' : 'error');
-            window.ATSNotify.add(data.message || data.error, data.ok ? 'success' : 'error');
-          }
-          if (data.ok) window.location.reload();
+    (function () {
+        const selectAll = document.getElementById("jobsSelectAll");
+        const bulkbar = document.getElementById("jobsBulkbar");
+        const countEl = document.getElementById("jobsSelectedCount");
+        if (!selectAll) return;
+        function checks() { return Array.from(document.querySelectorAll(".jobs-row-check")); }
+        function refresh() {
+            const checked = checks().filter((c) => c.checked);
+            countEl.textContent = checked.length;
+            bulkbar.classList.toggle("hidden", checked.length === 0);
+        }
+        selectAll.addEventListener("change", function () {
+            checks().forEach((c) => { c.checked = selectAll.checked; });
+            refresh();
         });
-    });
-  });
-});
+        checks().forEach((c) => c.addEventListener("change", refresh));
+    })();
 </script>
 {% endblock %}
