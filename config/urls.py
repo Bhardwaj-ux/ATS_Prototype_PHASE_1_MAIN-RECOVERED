@@ -11,6 +11,7 @@ urlpatterns = [
     path("account/", include("apps.accounts.urls")),
     path("dashboard/", include("apps.dashboard.urls")),
     path("jobs/", include("apps.jobs.urls")),
+    path("jdimport/", include("apps.jdimport.urls")),
     path("candidates/", include("apps.applications.urls")),
     path("resumes/", include("apps.resumes.urls")),
     path("folks/", include("apps.folks.urls")),

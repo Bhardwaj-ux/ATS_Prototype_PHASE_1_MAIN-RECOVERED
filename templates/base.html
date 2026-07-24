@@ -1173,6 +1173,14 @@
       flex-direction: column;
       gap: 10px;
       max-width: 340px;
+      max-height: calc(100vh - 40px);
+      overflow-y: auto;
+      padding-right: 2px;
+      pointer-events: none;
+    }
+
+    .toast-stack .toast {
+      pointer-events: auto;
     }
 
     .toast {
@@ -1695,7 +1703,12 @@
     setTimeout(dismiss, 5000);
   }
 
-  window.ATSNotify = { add: addNotification, toast: showToast };
+  function notifyAndToast(text, tag) {
+    addNotification(text, tag);
+    showToast(text, tag);
+  }
+
+  window.ATSNotify = { add: addNotification, toast: notifyAndToast };
 
   document.addEventListener('DOMContentLoaded', function () {
     renderNotifications();
